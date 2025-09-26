@@ -1,0 +1,2842 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!--
+================================================================================
+ルーレットアプリ - ユーザーガイド
+================================================================================
+
+【このアプリでできること】
+参加者名を入力して、公平にランダムで当選者を選ぶことができます。
+結果を画像として保存したり、他の人と共有することも可能です。
+
+【基本的な使い方】
+
+■ 1. 参加者名を入力する
+   • 左側のテキストボックスに参加者名を1行ずつ入力
+   • 例：
+     Alice
+     Bob
+     Charlie
+     Dave
+     Eve
+
+■ 2. ルーレットを回す
+   • 「ルーレットを回す」ボタンをクリック
+   • または、ルーレット盤面を直接クリック
+   • ルーレットが回転して、当選者が決まります
+
+■ 3. 結果を確認する
+   • 当選者の名前が大きく表示されます
+   • ルーレット上でも当選者がハイライトされます
+
+【便利な機能】
+
+■ 当選者を除外する機能
+   • 「当選者を次回の抽選から外す」にチェックを入れる
+   • 一度当選した人は、次回の抽選から自動的に除外されます
+   • 全員を再び参加させたい場合は、リセットボタンを使用
+
+■ 抽選方式の選択
+   • 「当選者を次回の抽選から外す」のみON：前回の当選者だけを取り除いた全員で抽選
+   • 「当選者を次回の抽選から外す」+「トーナメント方式」両方ON：全員が一巡するまで重複なし
+   • 両方OFF：全員で抽選（重複あり）
+
+■ 結果を保存・共有する
+   • 「結果をキャプチャ」ボタンをクリック
+   • 抽選結果の画像とURLがクリップボードにコピーされます
+   • 画像をSNSやメールで共有できます
+
+■ Teams・Slack での共有
+   • Teams ボタン：HTML形式で画像とURLをクリップボードにコピーし、Teamsアプリを起動
+   • Slack ボタン：画像とURLをクリップボードにコピーし、Slackアプリを起動
+   • 各ボタンは独立して動作し、最初から使用可能です
+
+■ 初期状態のリンクを作成
+   • リンクコピーボタン（🔗）をクリック
+   • 現在の参加者リストの初期状態のリンクがコピーされます
+   • このリンクを他の人に送ると、同じ参加者リストで抽選できます
+
+■ リセット機能
+   • リセットボタン（🔄）をクリック
+   • ルーレットが初期状態に戻ります
+   • 除外された参加者も全員復活します
+
+【画面の見方】
+
+■ ルーレット盤面
+   • 参加者ごとに異なる色のセグメントで表示
+   • 上部の赤い矢印が当選位置を示します
+   • 当選者は大きくハイライト表示されます
+
+■ 操作パネル
+   • 「ルーレットを回す」ボタン：抽選を開始
+   • 「結果をキャプチャ」ボタン：結果を画像保存
+   • Teams ボタン：Teams アプリで共有
+   • Slack ボタン：Slack アプリで共有
+   • チェックボックス：抽選方式の設定
+     - 「当選者を次回の抽選から外す」：当選者の除外設定
+     - 「トーナメント方式で抽選する」：重複なし抽選（「当選者を次回の抽選から外す」がONの時のみ有効）
+   • テキストエリア：参加者名の入力・編集
+
+■ ボタンの説明
+   • 情報ボタン（i）：このユーザーガイド情報を表示
+   • リンクコピーボタン（🔗）：初期状態のリンクをコピー
+   • リセットボタン（🔄）：ルーレットを完全リセット
+
+【使用例】
+
+■ 会議での司会者選出
+   1. 参加者全員の名前を入力
+   2. ルーレットを回して司会者を決定
+   3. 結果をキャプチャして会議資料に保存
+
+■ イベントの景品当選者選出
+   1. 参加者名を入力
+   2. 「当選者を次回の抽選から外す」+「トーナメント方式で抽選する」をチェック
+   3. 複数回抽選して、重複なしで当選者を選出
+
+■ 会議での司会者選出（連続抽選）
+   1. 参加者名を入力
+   2. 「当選者を次回の抽選から外す」のみをチェック
+   3. 前回の当選者以外から次回の司会者を選出
+
+■ チーム分け
+   1. メンバー全員の名前を入力
+   2. ルーレットを回してチームリーダーを決定
+   3. 除外機能を使って複数のリーダーを選出
+
+【注意点】
+• 参加者名は1行に1名ずつ入力してください
+• 空行は自動的に無視されます
+• 除外機能を使った場合、リセットボタンで全員を復活させられます
+• 「トーナメント方式で抽選する」は「当選者を次回の抽選から外す」がONの時のみ使用可能です
+• ブラウザによってはキャプチャ機能が制限される場合があります
+• Teams・Slack ボタンは順番に依存せず、最初から使用可能です
+• アプリが起動できない場合は、エラーメッセージが表示されます
+
+================================================================================
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ルーレット</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="40" r="35" fill="white" stroke="black" stroke-width="4"/><path d="M50,5 L50,75 M15,40 L85,40 M26.7,16.7 L73.3,63.3 M73.3,16.7 L26.7,63.3" stroke="black" stroke-width="4"/><path d="M50,0 L40,12 L60,12 Z" fill="black"/><path d="M20,75 L80,75 L70,95 L30,95 Z" fill="black"/></svg>' />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      font-family: "Montserrat", "Zen Maru Gothic", sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    /* メインコンテナ */
+    .main-container {
+      display: flex;
+      margin-top: 20px;
+      padding: 30px 30px 0 30px;
+      gap: 30px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* ホイールコンテナ */
+    .wheel-container {
+      position: relative;
+      width: 620px;
+      height: 620px;
+    }
+
+    /* ホイールシャドウ */
+    .wheel-shadow {
+      position: absolute;
+      width: 560px;
+      height: 560px;
+      margin: 30px;
+      border-radius: 50%;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.2),
+        0 0 60px rgba(100, 149, 237, 0.2);
+    }
+
+    /* ルーレットホイール */
+    .wheel {
+      position: absolute;
+      width: 560px;
+      height: 560px;
+      margin: 30px;
+      border: none;
+      box-sizing: border-box;
+      overflow: hidden;
+      background: white;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: center;
+    }
+
+    .roulette::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(100, 149, 237, 0.1) 100%);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* ホイール中央 */
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 20;
+      width: 12px;
+      height: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      background: radial-gradient(circle at 35% 35%, #ff6b6b 0%, #e74c3c 60%, #c0392b 100%);
+      border-radius: 50%;
+      box-shadow:
+        inset -1px -1px 2px rgba(0, 0, 0, 0.3),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.2);
+      transform: translate(-50%, -50%);
+    }
+
+    /* ルーレットセグメント */
+    .segment {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 560px;
+      height: 560px;
+      color: #2c3e50;
+      transition: filter 0.3s;
+      transform-origin: 50% 50%;
+    }
+
+    /* 選択されたセグメント */
+    .segment.selected {
+      font-weight: bold;
+      filter: brightness(0.9);
+    }
+
+    /* セグメント内テキスト */
+    .segment span {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      max-width: 180px;
+      padding: 0 10px;
+      box-sizing: border-box;
+      overflow: hidden;
+      display: flex;
+      font-size: 20px;
+      font-weight: 500;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow:
+        1px 1px 2px rgba(255, 255, 255, 0.8),
+        0 0 10px rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center;
+    }
+
+    /* 選択されたセグメントのテキスト */
+    .segment.selected span {
+      font-size: 28px;
+      font-weight: 700;
+      color: #c0392b;
+      text-shadow: 1px 1px 2px rgba(255, 255, 255, 1);
+    }
+
+    /* ホイールポインター */
+    .wheel-pointer {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      z-index: 10;
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 40px solid #e74c3c;
+      filter:
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) drop-shadow(-1px -1px 1px rgba(255, 255, 255, 0.3)) drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+      transform: translateX(-50%);
+    }
+
+    /* テキストエリア */
+    textarea {
+      width: 100%;
+      max-width: 360px;
+      height: 333px;
+      padding: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      resize: none;
+      font-size: 16px;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.1),
+        0 0 20px rgba(100, 149, 237, 0.2);
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    textarea:focus {
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.15),
+        0 0 30px rgba(100, 149, 237, 0.3);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    /* 結果表示エリア */
+    .result-display {
+      height: 30px;
+      margin-bottom: 30px;
+      padding: 15px 30px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 30px;
+      text-align: center;
+      color: #2c3e50;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .result-display .selected-name {
+      color: #e74c3c;
+    }
+
+    .result-display.visible {
+      opacity: 1;
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* スピンボタン */
+    #spinButton {
+      margin-top: 20px;
+      padding: 15px 40px;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(45deg, #4b6cb7 0%, #6487db 100%);
+      border-radius: 25px;
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(100, 149, 237, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #spinButton:hover {
+      background: linear-gradient(45deg, #3b5998 0%, #4b6cb7 100%);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(100, 149, 237, 0.4);
+      transform: translateY(-2px);
+    }
+
+    #spinButton:active {
+      transform: translateY(1px);
+    }
+
+    #spinButton:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #spinButton:disabled:hover {
+      background: linear-gradient(45deg, #4b6cb7 0%, #6487db 100%);
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(100, 149, 237, 0.3);
+      transform: none;
+    }
+
+    #spinButton:disabled:active {
+      transform: none;
+    }
+
+    /* キャプチャボタン */
+    .capture-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .share-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    #captureButton {
+      flex: 1 0 var(--capture-button-min-width, auto);
+      min-width: var(--capture-button-min-width, auto);
+      max-width: 100%;
+      min-height: 54px;
+      height: 54px;
+      padding: 0 24px;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(45deg, #27ae60 0%, #2ecc71 100%);
+      border-radius: 25px;
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(46, 204, 113, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #captureButton:hover:not(:disabled) {
+      background: linear-gradient(45deg, #229954 0%, #27ae60 100%);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(46, 204, 113, 0.4);
+      transform: translateY(-2px);
+    }
+
+    #captureButton:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    #captureButton:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .share-button {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: 2px solid #27ae60;
+      background: rgba(255, 255, 255, 0.4);
+      color: #27ae60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow:
+        0 5px 15px rgba(39, 174, 96, 0.2),
+        0 0 12px rgba(46, 204, 113, 0.25);
+      position: relative;
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .share-button .share-icon {
+      pointer-events: none;
+    }
+
+    .share-button .share-icon svg {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+
+    .share-button:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow:
+        0 8px 18px rgba(39, 174, 96, 0.25),
+        0 0 18px rgba(46, 204, 113, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .share-button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .share-button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    [data-tooltip]:disabled .custom-tooltip,
+    [aria-disabled="true"] .custom-tooltip {
+      display: none !important;
+      opacity: 0 !important;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .controls-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 14px;
+      color: #2c3e50;
+      background: rgba(255, 255, 255, 0.4);
+      padding: 10px 15px;
+      border-radius: 8px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-item label {
+      margin-top: -2px;
+      cursor: pointer;
+    }
+
+    .checkbox-item input[type="checkbox"]:disabled+label {
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    [data-tooltip] {
+      position: relative;
+    }
+
+    .custom-tooltip {
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: bold;
+      line-height: 1.4;
+      white-space: pre-line;
+      z-index: 1000;
+      width: max-content;
+      min-width: 120px;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .custom-tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .custom-tooltip.show {
+      opacity: 1;
+    }
+
+    [data-tooltip]:disabled:hover .custom-tooltip {
+      opacity: 0.3;
+    }
+
+    @keyframes tooltipFadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    .input-area {
+      position: relative;
+    }
+
+    .reset-icon {
+      position: absolute;
+      bottom: 12px;
+      right: 8px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(231, 76, 60, 0.9);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+    }
+
+    .reset-icon:hover {
+      background: rgba(192, 57, 43, 0.95);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .reset-icon:active {
+      transform: scale(0.95);
+    }
+
+    .reset-icon:disabled {
+      background: rgba(200, 200, 200, 0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .reset-icon:disabled:hover {
+      background: rgba(200, 200, 200, 0.3);
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-icon {
+      position: absolute;
+      bottom: 12px;
+      right: 104px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #666;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .info-icon:hover {
+      background: rgba(240, 240, 240, 0.95);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .info-icon:active {
+      transform: scale(0.95);
+    }
+
+    .info-icon:disabled {
+      background: rgba(200, 200, 200, 0.3);
+      color: white;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .info-icon:disabled:hover {
+      background: rgba(200, 200, 200, 0.3);
+      color: white;
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .copy-link-icon {
+      position: absolute;
+      bottom: 12px;
+      right: 56px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(52, 152, 219, 0.9);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+    }
+
+    .copy-link-icon:hover {
+      background: rgba(41, 128, 185, 0.95);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .copy-link-icon:active {
+      transform: scale(0.95);
+    }
+
+    .copy-link-icon:disabled {
+      background: rgba(200, 200, 200, 0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .copy-link-icon:disabled:hover {
+      background: rgba(200, 200, 200, 0.3);
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ユーザーガイドダイアログのスタイル */
+    .user-guide-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .user-guide-overlay.show {
+      display: flex;
+    }
+
+    .user-guide-container {
+      background: white;
+      border-radius: 20px;
+      padding: 0;
+      padding: 8px 3px;
+      max-width: 800px;
+      max-height: 80vh;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .user-guide-dialog {
+      padding: 30px;
+      padding-right: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .user-guide-dialog h2 {
+      color: #2c3e50;
+      margin: 0 0 20px 0;
+      font-size: 24px;
+      border-bottom: 2px solid #e74c3c;
+      padding-bottom: 10px;
+    }
+
+    .user-guide-dialog h3 {
+      color: #34495e;
+      margin: 20px 0 10px 0;
+      font-size: 18px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+
+    .user-guide-dialog h4 {
+      color: #2c3e50;
+      margin: 15px 0 8px 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .user-guide-dialog p {
+      margin: 8px 0;
+      line-height: 1.6;
+      color: #2c3e50;
+    }
+
+    .user-guide-dialog ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .user-guide-dialog li {
+      margin: 4px 0;
+      line-height: 1.5;
+      color: #2c3e50;
+    }
+
+    .user-guide-dialog .highlight {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .user-guide-dialog .example {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    .user-guide-close {
+      position: absolute;
+      top: 15px;
+      right: 19px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-guide-close:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .user-guide-close:active {
+      transform: scale(0.95);
+    }
+
+    /* カスタムスクロールバーのスタイル */
+    .user-guide-dialog::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      margin: 10px 5px 10px 0;
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      border-radius: 10px;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      transform: scale(1.05);
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-thumb:active {
+      background: linear-gradient(135deg, #a93226 0%, #922b21 100%);
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    /* Firefox用のスクロールバーカスタマイズ */
+    .user-guide-dialog {
+      scrollbar-width: thin;
+      scrollbar-color: #e74c3c rgba(0, 0, 0, 0.05);
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="result-display" id="result"></div>
+    <div class="main-container">
+      <div class="wheel-container">
+        <div class="wheel-pointer"></div>
+        <div class="wheel-shadow"></div>
+        <div class="wheel" id="roulette"></div>
+        <div class="wheel-center"></div>
+      </div>
+      <div class="controls-container">
+        <button id="spinButton">ルーレットを回す</button>
+        <div class="capture-controls">
+          <button id="captureButton" disabled>結果をキャプチャ</button>
+          <div class="share-buttons">
+            <button id="teamsButton" class="share-button" data-tooltip="結果をキャプして Teams へ共有" disabled>
+              <span class="share-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2228.833 2073.333" fill="none">
+                  <path fill="#5059C9" d="M1554.637 777.5h575.713a98.483 98.483 0 0 1 98.483 98.483v524.398c0 199.901-162.051 361.952-361.952 361.952h-1.711c-199.901.028-361.975-162-362.004-361.901V828.971c0-28.427 23.044-51.471 51.471-51.471z" />
+                  <circle fill="#5059C9" cx="1943.75" cy="440.583" r="233.25" />
+                  <circle fill="#7B83EB" cx="1218.083" cy="336.917" r="336.917" />
+                  <path fill="#7B83EB" d="M1667.323 777.5H717.01c-53.743 1.33-96.257 45.931-95.01 99.676v598.105c-7.505 322.519 247.657 590.16 570.167 598.053 322.51-7.893 577.671-275.534 570.167-598.053V877.176c-.755-53.745-43.268-98.346-97.011-99.676z" />
+                  <path fill="#5A62C3" d="M95.01 466.5h950.312a95.01 95.01 0 0 1 95.01 95.01v950.312a95.01 95.01 0 0 1-95.01 95.01H95.01A95.01 95.01 0 0 1 0 1511.822V561.51A95.01 95.01 0 0 1 95.01 466.5z" />
+                  <path fill="#FFF" d="M820.211 828.193H630.241v517.297H509.211V828.193H320.123V727.844h500.088v100.349z" />
+                </svg>
+              </span>
+            </button>
+            <button id="slackButton" class="share-button" data-tooltip="結果をキャプして Slack へ共有" disabled>
+              <span class="share-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127 127" fill="none">
+                  <path fill="#E01E5A" d="M27.2 80c0 7.3-5.9 13.2-13.2 13.2C6.7 93.2.8 87.3.8 80c0-7.3 5.9-13.2 13.2-13.2h13.2V80zm6.6 0c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2v33c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V80z" />
+                  <path fill="#36C5F0" d="M47 27c-7.3 0-13.2-5.9-13.2-13.2C33.8 6.5 39.7.6 47 .6c7.3 0 13.2 5.9 13.2 13.2V27H47zm0 6.7c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H13.9C6.6 60.1.7 54.2.7 46.9c0-7.3 5.9-13.2 13.2-13.2H47z" />
+                  <path fill="#2EB67D" d="M99.9 46.9c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H99.9V46.9zm-6.6 0c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V13.8C66.9 6.5 72.8.6 80.1.6c7.3 0 13.2 5.9 13.2 13.2v33.1z" />
+                  <path fill="#ECB22E" d="M80.1 99.8c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V99.8h13.2zm0-6.6c-7.3 0-13.2-5.9-13.2-13.2 0-7.3 5.9-13.2 13.2-13.2h33.1c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H80.1z" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="options-container">
+          <div class="option-item" data-tooltip="直前の当選者を次回の抽選から外します。\n連続して同じ人が当たるのを防ぎます。">
+            <input type="checkbox" id="excludeWinnerMode" checked />
+            <label for="excludeWinnerMode">当選者を次回の抽選から外す</label>
+          </div>
+          <div class="option-item" data-tooltip="一度当たった人は全員の抽選が終わるまで\n抽選対象から外します。\n全員が一巡するまで重複はありません。">
+            <input type="checkbox" id="tournamentMode" />
+            <label for="tournamentMode">トーナメント方式で抽選する</label>
+          </div>
+        </div>
+        <div class="input-area">
+          <textarea id="names" placeholder="Enter names, one per line"></textarea>
+          <button id="infoButton" class="info-icon" data-tooltip="ユーザーガイド">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+              <path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+            </svg>
+          </button>
+          <button id="copyLinkButton" class="copy-link-icon" data-tooltip="初期状態のリンクをコピー">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+              <path d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+            </svg>
+          </button>
+          <button id="resetButton" class="reset-icon" data-tooltip="ルーレットをリセット">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+              <path d="M480-280q0-45 18.5-83t49.5-66l86 149H480Zm100 172q-37-21-62-55t-34-77h173l-77 132Zm77-212-77-132q23-13 48-20.5t52-7.5q17 0 32.5 3t30.5 8l-86 149Zm23 240q-17 0-32.5-3T617-91l86-149 77 132q-23 13-48 20.5T680-80Zm23-240 77-132q37 21 62 55t34 77H703Zm109 189-86-149h154q0 45-18 83t-50 66Zm19-429h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ========================================
+    // グローバル変数の宣言
+    // ========================================
+    const nav = performance.getEntriesByType("navigation");
+    const isReload = 0 < nav.length ? nav[0].type === "reload" : false;
+
+    // DOM要素の取得
+    const rouletteElement = document.getElementById('roulette');
+    const namesInput = document.getElementById('names');
+    const resultDisplay = document.getElementById('result');
+    const spinButton = document.getElementById('spinButton');
+    const captureButton = document.getElementById('captureButton');
+    const excludeWinnerModeCheckbox = document.getElementById('excludeWinnerMode');
+    const tournamentModeCheckbox = document.getElementById('tournamentMode');
+    const infoButton = document.getElementById('infoButton');
+    const copyLinkButton = document.getElementById('copyLinkButton');
+    const resetButton = document.getElementById('resetButton');
+    const teamsButton = document.getElementById('teamsButton');
+    const slackButton = document.getElementById('slackButton');
+
+    // アプリケーションの状態管理
+    let currentRotation = 0;
+    let isProcessing = false;
+    let nameColors = new Map();
+    let lastColorHue = null;
+    let lastWinner = null;
+    let excludedNames = new Set();
+    let settingsLocked = false;
+    let sharePayload = null;
+
+    // ルーレットの設定定数
+    const GAP_ANGLE = 0.3;
+
+    // 初期設定
+    const defaultNames = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve'];
+    const savedState = loadStateFromURL();
+
+    // ツールチップの初期化
+    function initTooltips() {
+      const tooltipElements = document.querySelectorAll('[data-tooltip]');
+      tooltipElements.forEach(element => {
+        const tooltipText = element.getAttribute('data-tooltip');
+        if (tooltipText) {
+          const tooltip = document.createElement('div');
+          tooltip.className = 'custom-tooltip';
+          tooltip.innerHTML = tooltipText.replace(/\n/g, '<br>');
+          element.appendChild(tooltip);
+
+          const showTooltip = () => {
+            if (element.matches(':disabled') || element.getAttribute('aria-disabled') === 'true') {
+              tooltip.classList.remove('show');
+              return;
+            }
+            tooltip.classList.add('show');
+          };
+
+          const hideTooltip = () => {
+            tooltip.classList.remove('show');
+          };
+
+          element.addEventListener('mouseenter', showTooltip);
+          element.addEventListener('mouseleave', hideTooltip);
+          element.addEventListener('focusin', showTooltip);
+          element.addEventListener('focusout', hideTooltip);
+        }
+      });
+    }
+
+    initTooltips();
+    updateCaptureButtonWidth();
+    restoreCheckboxStates();
+
+    // ========================================
+    // ルーレットの描画処理
+    // ========================================
+    // 当選結果表示のHTMLテンプレート
+    const winnerDisplay = (winner) => `<span class="selected-name"><span style="font-size:1.5em;">🎊</span> ${winner}</span> が当選しました！ <span style="font-size:1.5em;">🎉</span>`;
+
+    // ルーレットの描画
+    function renderRoulette(names, isFirstTime = false) {
+      rouletteElement.innerHTML = '';
+      const anglePerSegment = 360 / names.length;
+
+      if (isFirstTime) {
+        nameColors.clear();
+        lastColorHue = null;
+        names.forEach(name => {
+          nameColors.set(name, createColor(lastColorHue));
+        });
+      } else {
+        names.forEach(name => {
+          if (!nameColors.has(name)) {
+            nameColors.set(name, createColor(lastColorHue));
+          }
+        });
+      }
+
+      names.forEach((name, index) => {
+        const segment = document.createElement('div');
+        segment.className = 'segment';
+        segment.style.transform = 'translate(-50%, -50%)';
+
+        let startAngle = index * anglePerSegment;
+        let endAngle = (index + 1) * anglePerSegment;
+
+        if (names.length === 1) {
+          startAngle = 0;
+          endAngle = 360;
+        }
+
+        const segmentSvg = createCompleteSegment(startAngle, endAngle, nameColors.get(name), darkenColor(nameColors.get(name)));
+        segment.appendChild(segmentSvg);
+
+        const textElement = document.createElement('span');
+        textElement.textContent = name;
+
+        if (names.length === 1) {
+          textElement.style.transform = 'translate(-50%, -50%) translateY(40px)';
+          textElement.style.position = 'relative';
+          textElement.style.zIndex = '2';
+          textElement.style.fontSize = '1.5em';
+          textElement.style.fontWeight = 'bold';
+        } else {
+          const textAngle = startAngle + (anglePerSegment / 2);
+          const textRadius = Math.min(160, 180 - (names.length > 8 ? (names.length - 8) * 10 : 0));
+          const textX = Math.cos((textAngle - 90) * Math.PI / 180) * textRadius;
+          const textY = Math.sin((textAngle - 90) * Math.PI / 180) * textRadius;
+
+          textElement.style.transform = `
+            translate(-50%, -50%)
+            translate(${textX}px, ${textY}px)
+            rotate(${textAngle + 90}deg)
+          `;
+          textElement.style.position = 'relative';
+          textElement.style.zIndex = '2';
+        }
+
+        segment.appendChild(textElement);
+        rouletteElement.appendChild(segment);
+      });
+    }
+
+    // セグメントSVG生成
+    function createCompleteSegment(startAngle, endAngle, fillColor, borderColor) {
+      const radius = 280;
+      const center = { x: 280, y: 280 };
+      const radialBorderWidth = 1.5;
+
+      const outerBorderWidth1 = 2.5;
+      const outerBorderWidth2 = 3;
+
+      const adjustedStartAngle = startAngle + GAP_ANGLE / 2;
+      const adjustedEndAngle = endAngle - GAP_ANGLE / 2;
+
+      const startRad = (adjustedStartAngle - 90) * Math.PI / 180;
+      const endRad = (adjustedEndAngle - 90) * Math.PI / 180;
+
+      const outerStartX = center.x + Math.cos(startRad) * radius;
+      const outerStartY = center.y + Math.sin(startRad) * radius;
+      const outerEndX = center.x + Math.cos(endRad) * radius;
+      const outerEndY = center.y + Math.sin(endRad) * radius;
+
+      const innerStartX = center.x + Math.cos(startRad) * 0;
+      const innerStartY = center.y + Math.sin(startRad) * 0;
+      const innerEndX = center.x + Math.cos(endRad) * 0;
+      const innerEndY = center.y + Math.sin(endRad) * 0;
+
+      if (adjustedEndAngle - adjustedStartAngle >= 360) {
+        const pathData = [
+          `M ${center.x} ${center.y}`,
+          `M ${center.x + radius} ${center.y}`,
+          `A ${radius} ${radius} 0 1 1 ${center.x - radius} ${center.y}`,
+          `A ${radius} ${radius} 0 1 1 ${center.x + radius} ${center.y}`,
+          'Z'
+        ].join(' ');
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '560');
+        svg.setAttribute('height', '560');
+        svg.style.position = 'absolute';
+        svg.style.top = '0';
+        svg.style.left = '0';
+        svg.style.pointerEvents = 'none';
+
+        const fillPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        fillPath.setAttribute('d', pathData);
+        fillPath.setAttribute('fill', fillColor);
+        fillPath.setAttribute('stroke', 'none');
+
+        const strokePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        strokePath.setAttribute('d', pathData);
+        strokePath.setAttribute('fill', 'none');
+        strokePath.setAttribute('stroke', borderColor);
+        strokePath.setAttribute('stroke-width', outerBorderWidth1);
+        strokePath.setAttribute('stroke-linejoin', 'round');
+
+        svg.appendChild(fillPath);
+        svg.appendChild(strokePath);
+
+        return svg;
+      }
+
+      const largeArcFlag = (adjustedEndAngle - adjustedStartAngle) > 180 ? 1 : 0;
+
+      const fillPathData = [
+        `M ${center.x} ${center.y}`,
+        `L ${outerStartX} ${outerStartY}`,
+        `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${outerEndX} ${outerEndY}`,
+        `L ${center.x} ${center.y}`,
+        'Z'
+      ].join(' ');
+
+      function createOuterBorderPathData(borderRadius) {
+        const startX = center.x + Math.cos(startRad) * borderRadius;
+        const startY = center.y + Math.sin(startRad) * borderRadius;
+        const endX = center.x + Math.cos(endRad) * borderRadius;
+        const endY = center.y + Math.sin(endRad) * borderRadius;
+
+        return [
+          `M ${startX} ${startY}`,
+          `A ${borderRadius} ${borderRadius} 0 ${largeArcFlag} 1 ${endX} ${endY}`
+        ].join(' ');
+      }
+
+      function createOuterBorderPath(pathData, strokeColor, strokeWidth, isInner = false) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', strokeColor);
+        path.setAttribute('stroke-width', strokeWidth);
+        path.setAttribute('stroke-linecap', isInner ? 'butt' : 'round');
+        return path;
+      }
+
+      const outerBorderConfigs = [
+        {
+          radius: radius - outerBorderWidth1,
+          color: borderColor,
+          width: outerBorderWidth1,
+          description: '内側外枠'
+        },
+        {
+          radius: radius,
+          color: '#444',
+          width: outerBorderWidth2,
+          description: '外側外枠（外周）'
+        }
+      ];
+
+      const innerBorderPath = createOuterBorderPath(
+        createOuterBorderPathData(outerBorderConfigs[0].radius),
+        outerBorderConfigs[0].color,
+        outerBorderConfigs[0].width,
+        true
+      );
+
+      const outerBorderPath = createOuterBorderPath(
+        createOuterBorderPathData(outerBorderConfigs[1].radius),
+        outerBorderConfigs[1].color,
+        outerBorderConfigs[1].width
+      );
+
+      const radialBorderPathData1 = `M ${center.x} ${center.y} L ${outerStartX} ${outerStartY}`;
+      const radialBorderPathData2 = `M ${center.x} ${center.y} L ${outerEndX} ${outerEndY}`;
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '560');
+      svg.setAttribute('height', '560');
+      svg.style.position = 'absolute';
+      svg.style.top = '0';
+      svg.style.left = '0';
+      svg.style.pointerEvents = 'none';
+
+      const fillPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      fillPath.setAttribute('d', fillPathData);
+      fillPath.setAttribute('fill', fillColor);
+      fillPath.setAttribute('stroke', 'none');
+
+      const radialBorderPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      radialBorderPath1.setAttribute('d', radialBorderPathData1);
+      radialBorderPath1.setAttribute('fill', 'none');
+      radialBorderPath1.setAttribute('stroke', borderColor);
+      radialBorderPath1.setAttribute('stroke-width', radialBorderWidth);
+      radialBorderPath1.setAttribute('stroke-linecap', 'round');
+
+      const radialBorderPath2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      radialBorderPath2.setAttribute('d', radialBorderPathData2);
+      radialBorderPath2.setAttribute('fill', 'none');
+      radialBorderPath2.setAttribute('stroke', borderColor);
+      radialBorderPath2.setAttribute('stroke-width', radialBorderWidth);
+      radialBorderPath2.setAttribute('stroke-linecap', 'round');
+
+      svg.appendChild(fillPath);
+      svg.appendChild(innerBorderPath);
+      svg.appendChild(radialBorderPath1);
+      svg.appendChild(radialBorderPath2);
+      svg.appendChild(outerBorderPath);
+
+      return svg;
+    }
+
+    // セグメントの縁取りSVG生成
+    function createSegmentBorder(startAngle, endAngle, borderColor) {
+      const radius = 280;
+      const center = { x: 280, y: 280 };
+      const arcBorderWidth = 5;
+      const lineBorderWidth = 1;
+
+      const adjustedStartAngle = startAngle + GAP_ANGLE / 2;
+      const adjustedEndAngle = endAngle - GAP_ANGLE / 2;
+
+      let angleDiff = adjustedEndAngle - adjustedStartAngle;
+
+      if (angleDiff <= 0) {
+        angleDiff = 360;
+      }
+
+      const minAngle = 0.01;
+      if (angleDiff < minAngle) {
+        angleDiff = minAngle;
+      }
+
+      const startRad = (adjustedStartAngle - 90) * Math.PI / 180;
+      let endRad;
+
+      if (angleDiff >= 360) {
+        endRad = startRad + (359.9 * Math.PI / 180);
+      } else {
+        endRad = (adjustedStartAngle + angleDiff - 90) * Math.PI / 180;
+      }
+
+      const outerStartX = center.x + Math.cos(startRad) * radius;
+      const outerStartY = center.y + Math.sin(startRad) * radius;
+      const outerEndX = center.x + Math.cos(endRad) * radius;
+      const outerEndY = center.y + Math.sin(endRad) * radius;
+
+      const innerRadius = 15;
+      const innerStartX = center.x + Math.cos(startRad) * innerRadius;
+      const innerStartY = center.y + Math.sin(startRad) * innerRadius;
+      const innerEndX = center.x + Math.cos(endRad) * innerRadius;
+      const innerEndY = center.y + Math.sin(endRad) * innerRadius;
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '560');
+      svg.setAttribute('height', '560');
+      svg.style.position = 'absolute';
+      svg.style.top = '0';
+      svg.style.left = '0';
+      svg.style.pointerEvents = 'none';
+      svg.style.zIndex = '1';
+
+      const largeArcFlag = angleDiff > 180 ? 1 : 0;
+      const outerArcPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      outerArcPath.setAttribute('d', `M ${outerStartX} ${outerStartY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${outerEndX} ${outerEndY}`);
+      outerArcPath.setAttribute('fill', 'none');
+      outerArcPath.setAttribute('stroke', borderColor);
+      outerArcPath.setAttribute('stroke-width', arcBorderWidth);
+      outerArcPath.setAttribute('stroke-linecap', 'round');
+
+      svg.appendChild(outerArcPath);
+      return svg;
+    }
+
+    // セグメントのクリップパス生成
+    function createSegmentClipPath(startAngle, endAngle) {
+      const radius = 280;
+      const center = { x: 280, y: 280 };
+      const steps = 10;
+
+      const adjustedStartAngle = startAngle + GAP_ANGLE / 2;
+      const adjustedEndAngle = endAngle - GAP_ANGLE / 2;
+
+      let angleDiff = adjustedEndAngle - adjustedStartAngle;
+
+      if (angleDiff <= 0) {
+        angleDiff = 360;
+      }
+
+      if (angleDiff >= 179 && angleDiff <= 181) {
+        angleDiff = 182;
+      }
+
+      const minAngle = 0.01;
+      if (angleDiff < minAngle) {
+        angleDiff = minAngle;
+      }
+
+      const startRad = (adjustedStartAngle - 90) * Math.PI / 180;
+      let endRad;
+
+      if (angleDiff >= 360) {
+        endRad = startRad + (359.9 * Math.PI / 180);
+      } else {
+        endRad = (adjustedStartAngle + angleDiff - 90) * Math.PI / 180;
+      }
+
+      let path = `${center.x}px ${center.y}px, `;
+
+      if (angleDiff >= 360) {
+        const circleSteps = 36;
+        for (let i = 0; i <= circleSteps; i++) {
+          const rad = startRad + (2 * Math.PI * i / circleSteps);
+          const x = center.x + radius * Math.cos(rad);
+          const y = center.y + radius * Math.sin(rad);
+          path += `${x}px ${y}px, `;
+        }
+      } else {
+        path += `${center.x + radius * Math.cos(startRad)}px ${center.y + radius * Math.sin(startRad)}px, `;
+
+        for (let i = 1; i < steps; i++) {
+          const rad = startRad + (endRad - startRad) * (i / steps);
+          const x = center.x + radius * Math.cos(rad);
+          const y = center.y + radius * Math.sin(rad);
+          path += `${x}px ${y}px, `;
+        }
+
+        const endX = center.x + radius * Math.cos(endRad);
+        const endY = center.y + radius * Math.sin(endRad);
+        path += `${endX}px ${endY}px`;
+
+        const innerRadius = 15;
+        const innerEndX = center.x + innerRadius * Math.cos(endRad);
+        const innerEndY = center.y + innerRadius * Math.sin(endRad);
+        path += `, ${innerEndX}px ${innerEndY}px`;
+
+        const innerStartX = center.x + innerRadius * Math.cos(startRad);
+        const innerStartY = center.y + innerRadius * Math.sin(startRad);
+        path += `, ${innerStartX}px ${innerStartY}px`;
+
+        if (angleDiff >= 179 && angleDiff <= 181) {
+          for (let j = 0.1; j <= 0.9; j += 0.1) {
+            const midRad = startRad + (endRad - startRad) * j;
+            const midX = center.x + radius * Math.cos(midRad);
+            const midY = center.y + radius * Math.sin(midRad);
+            path += `, ${midX}px ${midY}px`;
+          }
+        }
+      }
+
+      return `polygon(${path})`;
+    }
+
+    // ルーレットの回転処理
+    function spinRoulette(names) {
+      if (isProcessing) return;
+
+      setBusyState(true);
+      setSettingsLocked(true);
+      resultDisplay.classList.remove('visible');
+      spinButton.textContent = 'ルーレット回転中...';
+
+      const minSpins = 5;
+      const maxSpins = 8;
+      const spins = getRandomValue(minSpins, maxSpins);
+      const targetRotation = currentRotation + (spins * 360) + getRandomValue(0, 360);
+
+      rouletteElement.style.transform = `rotate(${targetRotation}deg)`;
+      currentRotation = targetRotation;
+
+      setTimeout(() => {
+        const normalizedRotation = targetRotation % 360;
+        const segmentAngle = 360 / names.length;
+        const selectedIndex = Math.floor((360 - normalizedRotation) % 360 / segmentAngle);
+
+        const segments = document.querySelectorAll('.segment');
+        segments.forEach(segment => segment.classList.remove('selected'));
+        segments[selectedIndex].classList.add('selected');
+
+        const winner = names[selectedIndex];
+        lastWinner = winner;
+
+        resultDisplay.innerHTML = winnerDisplay(winner);
+        resultDisplay.classList.add('visible');
+        saveStateToURL();
+        setBusyState(false);
+        captureButton.disabled = false;
+        enableShareButtons(sharePayload || {
+          htmlContent: null,
+          url: window.location.href,
+          blob: null,
+          winner
+        });
+        spinButton.textContent = 'ルーレットを回す';
+      }, 3000);
+    }
+
+    // 処理状態の設定
+    function setBusyState(processing) {
+      isProcessing = processing;
+      spinButton.disabled = processing;
+      captureButton.disabled = processing;
+      infoButton.disabled = processing;
+      copyLinkButton.disabled = processing;
+      resetButton.disabled = processing;
+      updateShareButtonsState();
+
+      if (processing) {
+        rouletteElement.style.cursor = 'not-allowed';
+      } else {
+        rouletteElement.style.cursor = 'pointer';
+      }
+    }
+
+    // 設定変更制御の管理
+    function setSettingsLocked(locked) {
+      settingsLocked = locked;
+      excludeWinnerModeCheckbox.disabled = locked;
+      tournamentModeCheckbox.disabled = locked || !excludeWinnerModeCheckbox.checked;
+
+      if (locked) {
+        replaceTextareaWithDiv();
+      }
+
+      const optionsContainer = document.querySelector('.options-container');
+      if (locked) {
+        optionsContainer.style.opacity = '0.6';
+        optionsContainer.style.pointerEvents = 'none';
+      } else {
+        optionsContainer.style.opacity = '1';
+        optionsContainer.style.pointerEvents = 'auto';
+      }
+    }
+
+    // テキストエリアをdivに置き換える関数
+    function replaceTextareaWithDiv() {
+      const namesTextarea = document.getElementById('names');
+      if (namesTextarea.style.display === 'none') return;
+
+      const parentElement = namesTextarea.parentElement;
+      const nextSibling = namesTextarea.nextSibling;
+
+      const textareaStyles = window.getComputedStyle(namesTextarea);
+      const textareaRect = namesTextarea.getBoundingClientRect();
+
+      const replacementDiv = document.createElement('div');
+      replacementDiv.id = 'names-display';
+      replacementDiv.textContent = namesTextarea.value || namesTextarea.placeholder;
+      replacementDiv.style.width = textareaRect.width + 'px';
+      replacementDiv.style.height = textareaRect.height + 'px';
+      replacementDiv.style.padding = textareaStyles.padding;
+      replacementDiv.style.border = textareaStyles.border;
+      replacementDiv.style.borderRadius = textareaStyles.borderRadius;
+      replacementDiv.style.backgroundColor = textareaStyles.backgroundColor;
+      replacementDiv.style.color = namesTextarea.value ? textareaStyles.color : '#999';
+      replacementDiv.style.fontSize = textareaStyles.fontSize;
+      replacementDiv.style.fontFamily = textareaStyles.fontFamily;
+      replacementDiv.style.lineHeight = textareaStyles.lineHeight;
+      replacementDiv.style.whiteSpace = 'pre-wrap';
+      replacementDiv.style.wordWrap = 'break-word';
+      replacementDiv.style.overflow = 'hidden';
+      replacementDiv.style.boxSizing = 'border-box';
+      replacementDiv.style.display = 'block';
+      replacementDiv.style.boxShadow = textareaStyles.boxShadow;
+      replacementDiv.style.outline = textareaStyles.outline;
+      replacementDiv.style.margin = textareaStyles.margin;
+      replacementDiv.style.position = textareaStyles.position;
+      replacementDiv.style.zIndex = textareaStyles.zIndex;
+      replacementDiv.style.opacity = '0.6';
+      replacementDiv.style.pointerEvents = 'none';
+
+      namesTextarea.style.display = 'none';
+      parentElement.insertBefore(replacementDiv, nextSibling);
+    }
+
+    // divをテキストエリアに復元する関数
+    function restoreTextareaFromDiv() {
+      const namesTextarea = document.getElementById('names');
+      const replacementDiv = document.getElementById('names-display');
+
+      if (replacementDiv && namesTextarea.style.display === 'none') {
+        const parentElement = replacementDiv.parentElement;
+        const nextSibling = replacementDiv.nextSibling;
+
+        parentElement.removeChild(replacementDiv);
+        namesTextarea.style.display = '';
+      }
+    }
+
+    // チェックボックス状態の復元
+    function restoreCheckboxStates(savedState) {
+      if (isReload) {
+        excludeWinnerModeCheckbox.checked = true;
+        tournamentModeCheckbox.checked = false;
+        tournamentModeCheckbox.disabled = false;
+        return;
+      }
+      if (savedState && savedState.excludeWinnerMode !== undefined) {
+        excludeWinnerModeCheckbox.checked = savedState.excludeWinnerMode;
+      }
+      if (savedState && savedState.tournamentMode !== undefined) {
+        tournamentModeCheckbox.checked = savedState.tournamentMode;
+      }
+    }
+
+    // アクティブな名前リストの取得
+    function getActiveNames() {
+      const inputNames = namesInput.value.split('\n').map(name => name.trim()).filter(name => name);
+
+      if (tournamentModeCheckbox.checked) {
+        if (excludeWinnerModeCheckbox.checked) {
+          return inputNames.filter(name => !excludedNames.has(name));
+        }
+        return inputNames;
+      }
+
+      if (excludeWinnerModeCheckbox.checked && !tournamentModeCheckbox.checked) {
+        const lastWinner = Array.from(excludedNames).pop();
+        if (lastWinner) {
+          return inputNames.filter(name => name !== lastWinner);
+        }
+        return inputNames;
+      }
+
+      return inputNames;
+    }
+
+    // ========================================
+    // 扇状クリック領域判定
+    // ========================================
+
+    // クリック座標が扇状領域内かどうかを判定する関数
+    function isPointInSector(clickX, clickY, centerX, centerY, startAngle, endAngle, radius) {
+      const dx = clickX - centerX;
+      const dy = clickY - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > radius) return false;
+
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      const normalizedAngle = (angle + 90 + 360) % 360;
+
+      return normalizedAngle >= startAngle && normalizedAngle < endAngle;
+    }
+
+    // マウス座標が扇状領域内かどうかを判定する関数
+    function isMouseInSector(mouseX, mouseY, centerX, centerY, startAngle, endAngle, radius) {
+      const dx = mouseX - centerX;
+      const dy = mouseY - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance > radius) return false;
+
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      const normalizedAngle = (angle + 90 + 360) % 360;
+
+      return normalizedAngle >= startAngle && normalizedAngle < endAngle;
+    }
+
+    // マウス移動時のカーソル変更処理
+    function updateCursorOnMouseMove(e) {
+      if (isProcessing) {
+        rouletteElement.style.cursor = 'not-allowed';
+        return;
+      }
+
+      const rect = rouletteElement.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const currentNames = getActiveNames();
+      if (!currentNames.length) {
+        rouletteElement.style.cursor = 'default';
+        return;
+      }
+
+      const anglePerSegment = 360 / currentNames.length;
+
+      let isInSector = false;
+      for (let i = 0; i < currentNames.length; i++) {
+        const startAngle = i * anglePerSegment;
+        const endAngle = (i + 1) * anglePerSegment;
+
+        if (isMouseInSector(mouseX, mouseY, centerX, centerY, startAngle, endAngle, 280)) {
+          isInSector = true;
+          break;
+        }
+      }
+
+      rouletteElement.style.cursor = isInSector ? 'pointer' : 'default';
+    }
+
+    // ========================================
+    // イベントリスナー
+    // ========================================
+    // ルーレットのマウス移動イベント
+    rouletteElement.addEventListener('mousemove', updateCursorOnMouseMove);
+
+    // ルーレットのマウス離脱イベント
+    rouletteElement.addEventListener('mouseleave', () => {
+      rouletteElement.style.cursor = 'default';
+    });
+
+    // ルーレットのクリックイベント
+    rouletteElement.addEventListener('click', (e) => {
+      if (isProcessing) return;
+
+      const rect = rouletteElement.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      const currentNames = getActiveNames();
+      if (!currentNames.length) return;
+
+      const anglePerSegment = 360 / currentNames.length;
+
+      let clickedSegmentIndex = -1;
+      for (let i = 0; i < currentNames.length; i++) {
+        const startAngle = i * anglePerSegment;
+        const endAngle = (i + 1) * anglePerSegment;
+
+        if (isPointInSector(clickX, clickY, centerX, centerY, startAngle, endAngle, 280)) {
+          clickedSegmentIndex = i;
+          break;
+        }
+      }
+
+      if (clickedSegmentIndex !== -1) {
+        resultDisplay.classList.remove('visible');
+        renderRoulette(currentNames);
+        spinRoulette(currentNames);
+      }
+      enableShareButtons(null);
+    });
+
+    // スピンボタンのクリックイベント
+    spinButton.addEventListener('click', () => {
+      if (isProcessing) return;
+      if (excludeWinnerModeCheckbox.checked && lastWinner) {
+        if (!tournamentModeCheckbox.checked) {
+          excludedNames.clear();
+        }
+        excludedNames.add(lastWinner);
+      }
+
+      const currentNames = getActiveNames();
+      if (currentNames.length) {
+        resultDisplay.classList.remove('visible');
+        renderRoulette(currentNames);
+        spinRoulette(currentNames);
+      }
+      enableShareButtons(null);
+    });
+
+    // 除外チェックボックスの変更イベント
+    excludeWinnerModeCheckbox.addEventListener('change', () => {
+      if (isProcessing || settingsLocked) return;
+
+      if (!excludeWinnerModeCheckbox.checked) {
+        tournamentModeCheckbox.checked = false;
+        tournamentModeCheckbox.disabled = true;
+        excludedNames.clear();
+      } else {
+        tournamentModeCheckbox.disabled = false;
+      }
+
+      const currentNames = getActiveNames();
+      if (currentNames.length) {
+        renderRoulette(currentNames);
+        saveStateToURL();
+      }
+    });
+
+    // トーナメント方式チェックボックスの変更イベント
+    tournamentModeCheckbox.addEventListener('change', () => {
+      if (isProcessing || settingsLocked) return;
+
+      if (!tournamentModeCheckbox.checked) {
+        excludedNames.clear();
+      }
+
+      const currentNames = getActiveNames();
+      if (currentNames.length) {
+        renderRoulette(currentNames);
+        saveStateToURL();
+      }
+    });
+
+    // テキストエリアの入力イベント
+    namesInput.addEventListener('input', () => {
+      if (isProcessing) return;
+      const inputNames = namesInput.value.split('\n').map(name => name.trim()).filter(name => name);
+      if (inputNames.length) {
+        renderRoulette(inputNames);
+        saveStateToURL();
+      }
+    });
+
+    // 情報ボタンのクリックイベント
+    infoButton.addEventListener('click', () => {
+      if (isProcessing) return;
+      openUserGuide();
+    });
+
+    // リンクコピーボタンのクリックイベント
+    copyLinkButton.addEventListener('click', async () => {
+      if (isProcessing) return;
+      try {
+        const members = namesInput.value.split('\n').map(name => name.trim()).filter(name => name);
+        const initialState = {
+          members: members,
+          rotation: 0,
+          excluded: [],
+          colors: Object.fromEntries(nameColors)
+        };
+        const encodedState = encodeState(JSON.stringify(initialState));
+        const baseURL = window.location.origin + window.location.pathname;
+        const initialURL = `${baseURL}?state=${encodedState}`;
+
+        await navigator.clipboard.writeText(initialURL);
+        displayMessage('初期状態のリンクをクリップボードにコピーしました！');
+      } catch (error) {
+        console.error('リンクコピーエラー:', error);
+        displayMessage('リンクのコピーに失敗しました。');
+      }
+    });
+
+    // リセットボタンのクリックイベント
+    resetButton.addEventListener('click', () => {
+      if (isProcessing) return;
+      const timeoutDuration = (rouletteElement.style.transform === 'rotate(0deg)') ? 500 : 3000;
+      setBusyState(true);
+      setSettingsLocked(false);
+
+      restoreTextareaFromDiv();
+
+      rouletteElement.style.transform = 'rotate(0deg)';
+      excludedNames.clear();
+      resultDisplay.classList.remove('visible');
+      resultDisplay.innerHTML = '';
+
+      restoreCheckboxStates();
+
+      const segments = document.querySelectorAll('.segment');
+      segments.forEach(segment => segment.classList.remove('selected'));
+
+      const currentState = loadStateFromURL();
+      if (currentState && currentState.members) {
+        namesInput.value = currentState.members.join('\n');
+        renderRoulette(currentState.members, true);
+      } else {
+        namesInput.value = defaultNames.join('\n');
+        renderRoulette(defaultNames, true);
+      }
+
+      saveStateToURL();
+      displayMessage('ルーレットをリセットしました！');
+
+      setTimeout(() => {
+        setBusyState(false);
+        captureButton.disabled = true;
+        enableShareButtons(null);
+      }, timeoutDuration);
+    });
+
+    // 外部ライブラリの利用可能性をチェックしてキャプチャボタンの状態を設定
+    // キャプチャボタンのクリックイベント
+    captureButton.addEventListener('click', async () => {
+      try {
+        captureButton.disabled = true;
+        captureButton.textContent = 'キャプチャ中...';
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const sectionElement = document.querySelector('main');
+        const rect = sectionElement.getBoundingClientRect();
+
+        const excludeWinnerCheckbox = document.getElementById('excludeWinnerMode');
+        const tournamentCheckbox = document.getElementById('tournamentMode');
+
+        if (excludeWinnerCheckbox.checked) {
+          excludeWinnerCheckbox.setAttribute('checked', 'checked');
+        } else {
+          excludeWinnerCheckbox.removeAttribute('checked');
+        }
+
+        if (tournamentCheckbox.checked) {
+          tournamentCheckbox.setAttribute('checked', 'checked');
+        } else {
+          tournamentCheckbox.removeAttribute('checked');
+        }
+
+        excludeWinnerCheckbox.style.display = 'none';
+        excludeWinnerCheckbox.offsetHeight;
+        excludeWinnerCheckbox.style.display = '';
+
+        tournamentCheckbox.style.display = 'none';
+        tournamentCheckbox.offsetHeight;
+        tournamentCheckbox.style.display = '';
+
+        const fullCanvas = await html2canvas(document.body, {
+          backgroundColor: '#e0eafc',
+          scale: 1,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          removeContainer: false,
+          foreignObjectRendering: true
+        });
+
+        excludeWinnerCheckbox.checked = excludeWinnerCheckbox.hasAttribute('checked');
+        tournamentCheckbox.checked = tournamentCheckbox.hasAttribute('checked');
+
+        const sectionCanvas = document.createElement('canvas');
+        const sectionCtx = sectionCanvas.getContext('2d');
+        sectionCanvas.width = rect.width;
+        sectionCanvas.height = rect.height;
+
+        sectionCtx.drawImage(
+          fullCanvas,
+          rect.left, rect.top, rect.width, rect.height,
+          0, 0, rect.width, rect.height
+        );
+
+        const resizedCanvas = document.createElement('canvas');
+        const resizedCtx = resizedCanvas.getContext('2d');
+        resizedCanvas.width = 640;
+        resizedCanvas.height = (sectionCanvas.height * 640) / sectionCanvas.width;
+        resizedCtx.drawImage(sectionCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+        const trimmedCanvas = resizedCanvas;
+
+        const blob = await new Promise(resolve => {
+          trimmedCanvas.toBlob(resolve, 'image/png');
+        });
+
+        const currentURL = window.location.href;
+        const selectedSegment = document.querySelector('.segment.selected');
+        const currentWinner = selectedSegment ? selectedSegment.querySelector('span').textContent : null;
+        const base64Image = blob ? await blobToBase64(blob) : null;
+
+        const htmlContent = `
+          <div style="text-align: center; font-family: 'Montserrat', 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); padding: 20px; border-radius: 15px;">
+            ${base64Image ? `<div style="margin-top: 12px;">
+              <img src="data:image/png;base64,${base64Image}" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="ルーレット抽選結果" />
+              </div>` : ''}
+            <div style="margin-bottom: 16px;">
+              <a href="${currentURL}" style="color: #3498db; text-decoration: none;">${currentURL}</a>
+            </div>
+          </div>
+        `;
+
+        try {
+          const clipboardPayload = new ClipboardItem({
+            'image/png': blob,
+            'text/plain': new Blob([currentURL], { type: 'text/plain' })
+          });
+
+          await navigator.clipboard.write([clipboardPayload]);
+          displayMessage('キャプチャをクリップボードにコピーしました！');
+        } catch (clipboardError) {
+          console.error('キャプチャコピーエラー:', clipboardError);
+          displayMessage('クリップボードへのコピーに失敗しました。', true);
+        }
+
+        enableShareButtons({
+          blob,
+          htmlContent,
+          url: currentURL,
+          winner: currentWinner
+        });
+      } catch (error) {
+        console.error('キャプチャエラー:', error);
+        displayMessage('キャプチャに失敗しました。', true);
+      } finally {
+        captureButton.disabled = false;
+        captureButton.textContent = '結果をキャプチャ';
+      }
+    });
+
+    function enableShareButtons(capturePayload) {
+      if (!capturePayload) {
+        sharePayload = null;
+        delete teamsButton.dataset.capturePayload;
+        delete slackButton.dataset.capturePayload;
+        updateShareButtonsState();
+        return;
+      }
+
+      sharePayload = {
+        html: capturePayload.htmlContent,
+        url: capturePayload.url,
+        blob: capturePayload.blob,
+        winner: capturePayload.winner || null,
+        text: createShareText(capturePayload),
+        hasImage: !!capturePayload.blob
+      };
+
+      const sanitized = sanitizeCapturePayload(sharePayload);
+
+      teamsButton.dataset.capturePayload = JSON.stringify({
+        html: sanitized.html,
+        url: sanitized.url
+      });
+
+      slackButton.dataset.capturePayload = JSON.stringify(sanitized);
+
+      updateShareButtonsState();
+    }
+
+    function sanitizeCapturePayload(payload) {
+      return {
+        html: payload.html,
+        url: payload.url,
+        hasImage: !!payload.blob,
+        winner: payload.winner || null,
+        text: payload.text
+      };
+    }
+
+    function updateShareButtonsState() {
+      const disable = isProcessing;
+      teamsButton.disabled = disable;
+      slackButton.disabled = disable;
+      hideTooltip(teamsButton);
+      hideTooltip(slackButton);
+    }
+
+    function createShareText(payload) {
+      return payload.url || '';
+    }
+
+    function hideTooltip(element) {
+      if (!element) return;
+      if (!element.matches(':disabled') && element.getAttribute('aria-disabled') !== 'true') return;
+      const tooltip = element.querySelector('.custom-tooltip');
+      if (tooltip) {
+        tooltip.classList.remove('show');
+      }
+    }
+
+    function updateCaptureButtonWidth() {
+      const computedWidth = captureButton.offsetWidth;
+      if (computedWidth) {
+        document.documentElement.style.setProperty('--capture-button-min-width', `${computedWidth}px`);
+      }
+    }
+
+    teamsButton.addEventListener('click', async () => {
+      if (teamsButton.disabled) return;
+
+      try {
+        if (!sharePayload || !sharePayload.html) {
+          teamsButton.disabled = true;
+
+          await new Promise(resolve => setTimeout(resolve, 50));
+
+          const sectionElement = document.querySelector('main');
+          const rect = sectionElement.getBoundingClientRect();
+
+          const excludeWinnerCheckbox = document.getElementById('excludeWinnerMode');
+          const tournamentCheckbox = document.getElementById('tournamentMode');
+
+          const excludeWinnerInitiallyChecked = excludeWinnerCheckbox.checked;
+          const tournamentInitiallyChecked = tournamentCheckbox.checked;
+
+          if (excludeWinnerCheckbox.checked) {
+            excludeWinnerCheckbox.setAttribute('checked', 'checked');
+          } else {
+            excludeWinnerCheckbox.removeAttribute('checked');
+          }
+
+          if (tournamentCheckbox.checked) {
+            tournamentCheckbox.setAttribute('checked', 'checked');
+          } else {
+            tournamentCheckbox.removeAttribute('checked');
+          }
+
+          excludeWinnerCheckbox.style.display = 'none';
+          excludeWinnerCheckbox.offsetHeight;
+          excludeWinnerCheckbox.style.display = '';
+
+          tournamentCheckbox.style.display = 'none';
+          tournamentCheckbox.offsetHeight;
+          tournamentCheckbox.style.display = '';
+
+          const fullCanvas = await html2canvas(document.body, {
+            backgroundColor: '#e0eafc',
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            removeContainer: false,
+            foreignObjectRendering: true
+          });
+
+          excludeWinnerCheckbox.checked = excludeWinnerInitiallyChecked;
+          tournamentCheckbox.checked = tournamentInitiallyChecked;
+
+          const sectionCanvas = document.createElement('canvas');
+          const sectionCtx = sectionCanvas.getContext('2d');
+          sectionCanvas.width = rect.width;
+          sectionCanvas.height = rect.height;
+
+          sectionCtx.drawImage(
+            fullCanvas,
+            rect.left, rect.top, rect.width, rect.height,
+            0, 0, rect.width, rect.height
+          );
+
+          const resizedCanvas = document.createElement('canvas');
+          const resizedCtx = resizedCanvas.getContext('2d');
+          resizedCanvas.width = 640;
+          resizedCanvas.height = (sectionCanvas.height * 640) / sectionCanvas.width;
+          resizedCtx.drawImage(sectionCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+          const trimmedCanvas = resizedCanvas;
+
+          const blob = await new Promise(resolve => {
+            trimmedCanvas.toBlob(resolve, 'image/png');
+          });
+
+          const currentURL = window.location.href;
+          const selectedSegment = document.querySelector('.segment.selected');
+          const currentWinner = selectedSegment ? selectedSegment.querySelector('span').textContent : null;
+          const base64Image = blob ? await blobToBase64(blob) : null;
+          const htmlContent = `
+            <div style="text-align: center; font-family: 'Montserrat', 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); padding: 20px; border-radius: 15px;">
+              ${base64Image ? `<div style="margin-bottom: 16px;">
+                <img src="data:image/png;base64,${base64Image}" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="ルーレット抽選結果" />
+              </div>` : ''}
+              <div style="margin-top: 12px;">
+                <a href="${currentURL}" style="color: #3498db; text-decoration: none;">${currentURL}</a>
+              </div>
+            </div>
+          `;
+
+          enableShareButtons({
+            blob,
+            htmlContent,
+            url: currentURL,
+            winner: currentWinner
+          });
+        }
+
+        const clipboardItem = new ClipboardItem({
+          'text/html': new Blob([sharePayload.html], { type: 'text/html' })
+        });
+        await navigator.clipboard.write([clipboardItem]);
+        displayMessage('キャプチャをクリップボードにコピーしました！');
+      } catch (error) {
+        console.error('Teams共有エラー:', error);
+        displayMessage('Teams用のコピーに失敗しました。', true);
+        return;
+      } finally {
+        updateShareButtonsState();
+      }
+
+      await openExternalApplication('msteams://', 'Teamsアプリを起動できませんでした。');
+    });
+
+    slackButton.addEventListener('click', async () => {
+      if (slackButton.disabled) return;
+
+      try {
+        if (!sharePayload || !sharePayload.blob) {
+          slackButton.disabled = true;
+
+          await new Promise(resolve => setTimeout(resolve, 50));
+
+          const sectionElement = document.querySelector('main');
+          const rect = sectionElement.getBoundingClientRect();
+
+          const excludeWinnerCheckbox = document.getElementById('excludeWinnerMode');
+          const tournamentCheckbox = document.getElementById('tournamentMode');
+
+          const excludeWinnerInitiallyChecked = excludeWinnerCheckbox.checked;
+          const tournamentInitiallyChecked = tournamentCheckbox.checked;
+
+          if (excludeWinnerCheckbox.checked) {
+            excludeWinnerCheckbox.setAttribute('checked', 'checked');
+          } else {
+            excludeWinnerCheckbox.removeAttribute('checked');
+          }
+
+          if (tournamentCheckbox.checked) {
+            tournamentCheckbox.setAttribute('checked', 'checked');
+          } else {
+            tournamentCheckbox.removeAttribute('checked');
+          }
+
+          excludeWinnerCheckbox.style.display = 'none';
+          excludeWinnerCheckbox.offsetHeight;
+          excludeWinnerCheckbox.style.display = '';
+
+          tournamentCheckbox.style.display = 'none';
+          tournamentCheckbox.offsetHeight;
+          tournamentCheckbox.style.display = '';
+
+          const fullCanvas = await html2canvas(document.body, {
+            backgroundColor: '#e0eafc',
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            removeContainer: false,
+            foreignObjectRendering: true
+          });
+
+          excludeWinnerCheckbox.checked = excludeWinnerInitiallyChecked;
+          tournamentCheckbox.checked = tournamentInitiallyChecked;
+
+          const sectionCanvas = document.createElement('canvas');
+          const sectionCtx = sectionCanvas.getContext('2d');
+          sectionCanvas.width = rect.width;
+          sectionCanvas.height = rect.height;
+
+          sectionCtx.drawImage(
+            fullCanvas,
+            rect.left, rect.top, rect.width, rect.height,
+            0, 0, rect.width, rect.height
+          );
+
+          const resizedCanvas = document.createElement('canvas');
+          const resizedCtx = resizedCanvas.getContext('2d');
+          resizedCanvas.width = 640;
+          resizedCanvas.height = (sectionCanvas.height * 640) / sectionCanvas.width;
+          resizedCtx.drawImage(sectionCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+          const trimmedCanvas = resizedCanvas;
+
+          const blob = await new Promise(resolve => {
+            trimmedCanvas.toBlob(resolve, 'image/png');
+          });
+
+          const currentURL = window.location.href;
+          const selectedSegment = document.querySelector('.segment.selected');
+          const currentWinner = selectedSegment ? selectedSegment.querySelector('span').textContent : null;
+          const base64Image = blob ? await blobToBase64(blob) : null;
+          const htmlContent = `
+            <div style="text-align: center; font-family: 'Montserrat', 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); padding: 20px; border-radius: 15px;">
+              ${base64Image ? `<div style="margin-top: 12px;">
+                <img src="data:image/png;base64,${base64Image}" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="ルーレット抽選結果" />
+              </div>` : ''}
+              <div style="margin-bottom: 16px;">
+                <a href="${currentURL}" style="color: #3498db; text-decoration: none;">${currentURL}</a>
+              </div>
+            </div>
+          `;
+
+          enableShareButtons({
+            blob,
+            htmlContent,
+            url: currentURL,
+            winner: currentWinner
+          });
+        }
+
+        const clipboardContents = new ClipboardItem({
+          'image/png': sharePayload.blob,
+          'text/plain': new Blob([sharePayload.text], { type: 'text/plain' })
+        });
+
+        await navigator.clipboard.write([clipboardContents]);
+        displayMessage('Slack 共有用にクリップボードへコピーしました！');
+      } catch (error) {
+        console.error('Slack共有エラー:', error);
+        displayMessage('Slack用のコピーに失敗しました。', true);
+        return;
+      } finally {
+        updateShareButtonsState();
+      }
+
+      await openExternalApplication('slack://open', 'Slackアプリを起動できませんでした。');
+    });
+
+    let protocolLaunchFrame = null;
+    let lastProtocolAttemptTimestamp = 0;
+    function openExternalApplication(url, errorMessage) {
+      const minInterval = 500;
+      const now = Date.now();
+      if (now - lastProtocolAttemptTimestamp < minInterval) {
+        return Promise.resolve(false);
+      }
+      lastProtocolAttemptTimestamp = now;
+
+      return new Promise(resolve => {
+        let resolved = false;
+        let didLoseFocus = false;
+        let timeoutId = null;
+
+        const cleanup = () => {
+          if (timeoutId) {
+            window.clearTimeout(timeoutId);
+          }
+          window.removeEventListener('blur', handleBlur, true);
+          document.removeEventListener('visibilitychange', handleVisibility, true);
+
+          if (protocolLaunchFrame) {
+            protocolLaunchFrame.src = 'about:blank';
+          }
+        };
+
+        const finish = (success) => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          resolve(success);
+        };
+
+        const handleBlur = () => {
+          didLoseFocus = true;
+          finish(true);
+        };
+
+        const handleVisibility = () => {
+          if (document.hidden) {
+            didLoseFocus = true;
+            finish(true);
+          }
+        };
+
+        window.addEventListener('blur', handleBlur, true);
+        document.addEventListener('visibilitychange', handleVisibility, true);
+
+        timeoutId = window.setTimeout(() => {
+          if (!didLoseFocus) {
+            displayMessage(errorMessage, true);
+          }
+          finish(didLoseFocus);
+        }, 2000);
+
+        try {
+          if (!protocolLaunchFrame) {
+            protocolLaunchFrame = document.createElement('iframe');
+            protocolLaunchFrame.style.display = 'none';
+            protocolLaunchFrame.setAttribute('aria-hidden', 'true');
+            protocolLaunchFrame.setAttribute('tabindex', '-1');
+            document.body.appendChild(protocolLaunchFrame);
+          }
+
+          protocolLaunchFrame.src = url;
+        } catch (error) {
+          console.error('外部アプリ起動エラー:', error);
+          displayMessage(errorMessage, true);
+          finish(false);
+        }
+      });
+    }
+
+    // ========================================
+    // ユーティリティ関数
+    // ========================================
+
+    // BlobをBase64文字列に変換する関数
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    // ランダム値の生成
+    function getRandomValue(min = 0, max = 1) {
+      if (min === 0 && max === 1) {
+        return crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
+      }
+      return min + getRandomValue() * (max - min);
+    }
+
+    // 色を濃くする関数
+    function darkenColor(color, amount = 0.3) {
+      const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+      if (!hslMatch) return color;
+
+      const hue = parseInt(hslMatch[1]);
+      const saturation = Math.min(100, parseInt(hslMatch[2]) + 20);
+      const lightness = Math.max(0, parseInt(hslMatch[3]) - (amount * 100));
+
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+
+    // アプリテイストに合わせたパステルカラーの生成
+    let baseColorHistory = [];
+    function createColor(previousHue = null) {
+      const minHueDiff = 45;
+      let hue;
+      let attempts = 0;
+      const maxAttempts = 20;
+
+      const baseColors = [
+        { hue: 320, name: 'ローズ', saturation: { min: 40, max: 55 }, lightness: { min: 70, max: 80 } },
+        { hue: 300, name: 'ピンク', saturation: { min: 45, max: 60 }, lightness: { min: 75, max: 85 } },
+        { hue: 280, name: 'ラベンダー', saturation: { min: 40, max: 55 }, lightness: { min: 75, max: 85 } },
+        { hue: 220, name: 'ネイビーブルー', saturation: { min: 40, max: 55 }, lightness: { min: 70, max: 80 } },
+        { hue: 200, name: 'スカイブルー', saturation: { min: 45, max: 60 }, lightness: { min: 75, max: 85 } },
+        { hue: 140, name: 'エメラルド', saturation: { min: 45, max: 60 }, lightness: { min: 70, max: 80 } },
+        { hue: 120, name: 'ミントグリーン', saturation: { min: 50, max: 65 }, lightness: { min: 75, max: 85 } },
+        { hue: 50, name: 'クリーム', saturation: { min: 35, max: 50 }, lightness: { min: 80, max: 90 } },
+        { hue: 30, name: 'ピーチ', saturation: { min: 50, max: 65 }, lightness: { min: 75, max: 85 } },
+        { hue: 0, name: 'パウダーグレー', saturation: { min: 5, max: 20 }, lightness: { min: 75, max: 85 } }
+      ];
+
+      do {
+        attempts++;
+        if (attempts >= maxAttempts) { break; }
+
+        let availableIndices = [];
+        for (let i = 0; i < baseColors.length; i++) {
+          if (!baseColorHistory.includes(i)) {
+            availableIndices.push(i);
+          }
+        }
+
+        if (availableIndices.length === 0) {
+          baseColorHistory = [];
+          availableIndices = Array.from({ length: baseColors.length }, (_, i) => i);
+        }
+
+        const selectedIndex = availableIndices[Math.floor(getRandomValue(0, availableIndices.length))];
+        const selectedBase = baseColors[selectedIndex];
+        const hueVariation = Math.floor(getRandomValue(-10, 11));
+        hue = (selectedBase.hue + hueVariation + 360) % 360;
+
+        baseColorHistory.unshift(selectedIndex);
+        if (baseColorHistory.length > 3) {
+          baseColorHistory.pop();
+        }
+      } while (previousHue !== null && Math.abs(hue - previousHue) < minHueDiff);
+
+      const selectedBase = baseColors.find(base => {
+        const hueDiff = Math.abs(hue - base.hue);
+        return hueDiff <= 10 || hueDiff >= 350;
+      }) || baseColors[0];
+
+      const saturation = Math.floor(getRandomValue(selectedBase.saturation.min, selectedBase.saturation.max + 1));
+      const lightness = Math.floor(getRandomValue(selectedBase.lightness.min, selectedBase.lightness.max + 1));
+
+      lastColorHue = hue;
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+
+    // 状態のエンコード
+    function encodeState(str) {
+      try {
+        const utf8Str = unescape(encodeURIComponent(str));
+        return btoa(utf8Str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      } catch (error) {
+        console.warn('エンコードエラー:', error);
+        return str;
+      }
+    }
+
+    // 状態のデコード
+    function decodeState(str) {
+      try {
+        str += '==='.slice((str.length + 3) % 4);
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = atob(str);
+        return decodeURIComponent(escape(decoded));
+      } catch (error) {
+        console.warn('デコードエラー:', error);
+        return str;
+      }
+    }
+
+    // URLに状態を保存
+    function saveStateToURL() {
+      const selectedSegment = document.querySelector('.segment.selected');
+      const currentWinner = selectedSegment ? selectedSegment.querySelector('span').textContent : null;
+
+      const state = {
+        members: namesInput.value.split('\n').map(name => name.trim()).filter(name => name),
+        rotation: currentRotation,
+        excluded: Array.from(excludedNames),
+        colors: Object.fromEntries(nameColors),
+        winner: currentWinner,
+        excludeWinnerMode: excludeWinnerModeCheckbox.checked,
+        tournamentMode: tournamentModeCheckbox.checked
+      };
+
+      const encodedState = encodeState(JSON.stringify(state));
+      const params = new URLSearchParams(window.location.search);
+      params.set('state', encodedState);
+      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+    }
+
+    // URLから状態を読み込み
+    function loadStateFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const encodedState = params.get('state');
+
+      if (!encodedState) return null;
+
+      try {
+        const decodedState = decodeState(encodedState);
+        return JSON.parse(decodedState);
+      } catch (error) {
+        console.error('URL state decode error:', error);
+        return null;
+      }
+    }
+
+    // メッセージの表示
+    function displayMessage(message, isError = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = message;
+
+      const backgroundColor = isError ? '#FFB6C1' : '#FFF8DC';
+      messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        background-color: ${backgroundColor};
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-width: 300px;
+        word-wrap: break-word;
+        border: 2px solid ${isError ? '#FF6B6B' : '#FFD93D'};
+        animation: slideIn 0.3s ease-out;
+      `;
+
+      if (!document.getElementById('messageAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'messageAnimation';
+        style.textContent = `
+          @keyframes slideIn {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(messageDiv);
+
+      setTimeout(() => {
+        if (messageDiv.parentNode) {
+          messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
+          setTimeout(() => {
+            if (messageDiv.parentNode) {
+              document.body.removeChild(messageDiv);
+            }
+          }, 300);
+        }
+      }, 3000);
+    }
+
+    // HTMLコメントからユーザーガイドコンテンツを取得する関数
+    function getUserGuideContent() {
+      const walker = document.createTreeWalker(
+        document,
+        NodeFilter.SHOW_COMMENT,
+        null,
+        false
+      );
+
+      let comment = walker.nextNode();
+      if (!comment) return '';
+
+      let content = comment.textContent;
+      content = content.replace(/^=+\s*$/gm, '');
+      content = content.replace(/^\s*$/gm, '');
+      content = content.replace(/\n\s*\n/g, '\n');
+
+      return content.trim();
+    }
+
+    function convertTextToHtml(text) {
+      let html = '';
+      const lines = text.split('\n');
+      let inExample = false;
+      let inList = false;
+
+      const closeExampleIfOpen = () => {
+        if (inExample) {
+          html += '</div>\n';
+          inExample = false;
+        }
+      };
+
+      const closeListIfOpen = () => {
+        if (inList) {
+          html += '</ul>\n';
+          inList = false;
+        }
+      };
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        if (!line) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          continue;
+        }
+
+        if (line.includes('ルーレットアプリ - ユーザーガイド')) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += `<h2>${line}</h2>\n`;
+          continue;
+        }
+
+        if (line.match(/^【.*】$/)) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += `<h3>${line}</h3>\n`;
+          continue;
+        }
+
+        if (line.match(/^■\s+.*$/)) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += `<h4>${line}</h4>\n`;
+          continue;
+        }
+
+        if (line === '• 例：') {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += '<div class="example">';
+          inExample = true;
+          continue;
+        }
+
+        if (inExample) {
+          html += `${lines[i]}<br>`;
+          continue;
+        }
+
+        if (line.startsWith('•')) {
+          closeExampleIfOpen();
+          if (!inList) {
+            html += '<ul>\n';
+            inList = true;
+          }
+
+          let listContent = line.substring(1).trim();
+          listContent = listContent.replace(/「([^」]+)」/g, '<span class="highlight">「$1」</span>');
+          html += `<li>${listContent}</li>\n`;
+          continue;
+        }
+
+        if (line.match(/^\d+\./)) {
+          closeExampleIfOpen();
+          if (!inList) {
+            html += '<ul>\n';
+            inList = true;
+          }
+
+          let listContent = line.replace(/^\d+\.\s*/, '');
+          listContent = listContent.replace(/「([^」]+)」/g, '<span class="highlight">「$1」</span>');
+          html += `<li>${listContent}</li>\n`;
+          continue;
+        }
+
+        if (line && !line.startsWith('•') && !line.match(/^\d+\./)) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          let paragraphContent = line;
+          paragraphContent = paragraphContent.replace(/「([^」]+)」/g, '<span class="highlight">「$1」</span>');
+          html += `<p>${paragraphContent}</p>\n`;
+        }
+      }
+
+      closeListIfOpen();
+      closeExampleIfOpen();
+
+      return html;
+    }
+
+    // ユーザーガイドの表示
+    function openUserGuide() {
+      const existingOverlay = document.querySelector('.user-guide-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+
+      const overlay = document.createElement('div');
+      overlay.className = 'user-guide-overlay';
+
+      const textContent = getUserGuideContent();
+      const htmlContent = convertTextToHtml(textContent);
+
+      overlay.innerHTML = `
+        <div class="user-guide-container">
+          <div class="user-guide-dialog">
+            <button class="user-guide-close" onclick="closeUserGuide()">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="white"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+            </button>
+            ${htmlContent}
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      setTimeout(() => {
+        overlay.classList.add('show');
+      }, 10);
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          closeUserGuide();
+        }
+      });
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          closeUserGuide();
+          document.removeEventListener('keydown', handleKeyDown);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    // ユーザーガイドの非表示
+    function closeUserGuide() {
+      const overlay = document.querySelector('.user-guide-overlay');
+      if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+          }
+        }, 300);
+      }
+    }
+
+    // ========================================
+    // アプリケーションの初期化
+    // ========================================
+
+    if (savedState) {
+      namesInput.value = savedState.members.join('\n');
+      excludedNames = new Set(savedState.excluded || []);
+      currentRotation = savedState.rotation || 0;
+
+      restoreCheckboxStates(savedState);
+
+      if (savedState.colors) {
+        nameColors = new Map(Object.entries(savedState.colors));
+        const colorValues = Array.from(nameColors.values());
+        if (colorValues.length > 0) {
+          const lastColor = colorValues[colorValues.length - 1];
+          const hueMatch = lastColor.match(/hsl\((\d+),/);
+          lastColorHue = hueMatch ? parseInt(hueMatch[1]) : null;
+        }
+      } else {
+        nameColors.clear();
+        lastColorHue = null;
+      }
+
+      const activeNames = savedState.members.filter(name => !excludedNames.has(name));
+
+      if (savedState.winner) {
+        // 当選者が確定している場合は、回転させずに直接確定状態を表示
+        lastWinner = savedState.winner;
+        isProcessing = false;
+
+        // アニメーションを無効にして即座に回転状態を設定
+        rouletteElement.style.transition = 'none';
+        rouletteElement.style.transform = `rotate(${currentRotation}deg)`;
+
+        renderRoulette(activeNames, false);
+
+        // ルーレットの描画完了を待ってから当選者を表示
+        setTimeout(() => {
+          resultDisplay.innerHTML = winnerDisplay(savedState.winner);
+          resultDisplay.classList.add('visible');
+
+          const segments = document.querySelectorAll('.segment');
+          segments.forEach(segment => {
+            const segmentName = segment.querySelector('span').textContent;
+            if (segmentName === savedState.winner) {
+              segment.classList.add('selected');
+            }
+          });
+
+          captureButton.disabled = false;
+          setSettingsLocked(true);
+
+          // アニメーションを再有効化
+          rouletteElement.style.transition = '';
+        }, 50);
+      } else {
+        // 当選者が未確定の場合は通常の描画
+        lastWinner = null;
+        isProcessing = false;
+        rouletteElement.style.transform = `rotate(${currentRotation}deg)`;
+        renderRoulette(activeNames, false);
+      }
+    } else if (savedState && isReload) {
+      namesInput.value = savedState.members.join('\n');
+
+      restoreCheckboxStates(savedState);
+
+      nameColors.clear();
+      lastColorHue = null;
+
+      currentRotation = 0;
+      rouletteElement.style.transform = 'rotate(0deg)';
+      excludedNames.clear();
+      resultDisplay.classList.remove('visible');
+      resultDisplay.innerHTML = '';
+      captureButton.disabled = true;
+
+      tournamentModeCheckbox.disabled = !excludeWinnerModeCheckbox.checked;
+      setSettingsLocked(false);
+
+      renderRoulette(savedState.members, false);
+    } else {
+      namesInput.value = defaultNames.join('\n');
+      excludedNames = new Set();
+      currentRotation = 0;
+
+      tournamentModeCheckbox.disabled = !excludeWinnerModeCheckbox.checked;
+      setSettingsLocked(false);
+
+      renderRoulette(defaultNames, true);
+      saveStateToURL();
+    }
+  </script>
+</body>
+
+</html>

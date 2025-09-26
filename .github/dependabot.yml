@@ -1,0 +1,61 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    open-pull-requests-limit: 20
+    target-branch: dependabot/consolidated-updates
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    labels:
+      - 'Type: Dependency'
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    groups:
+      cdktf:
+        patterns:
+          - '@cdktf*'
+          - 'cdktf*'
+          - 'constructs'
+          - 'ts-node'
+      lint:
+        patterns:
+          - '@eslint*'
+          - '@stylistic/eslint-plugin'
+          - 'eslint*'
+          - 'knip'
+          - 'npm-run-all'
+          - 'typescript-eslint'
+      tsyringe:
+        patterns:
+          - 'reflect-metadata'
+          - 'tsyringe'
+      typescript:
+        patterns:
+          - '@types/node'
+          - 'typescript'
+      misc:
+        patterns:
+          - 'fixme'
+          - 'rimraf'
+
+  - package-ecosystem: github-actions
+    directory: /
+    open-pull-requests-limit: 10
+    target-branch: dependabot/consolidated-updates
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    labels:
+      - 'Type: Dependency'
+    commit-message:
+      prefix: 'chore(deps-ci)'
+    groups:
+      github-actions:
+        patterns:
+          - 'actions/*'
+          - 'pnpm/*'

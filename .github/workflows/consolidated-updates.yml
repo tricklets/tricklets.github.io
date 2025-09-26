@@ -1,0 +1,89 @@
+name: Consolidated Updates
+
+on:
+  workflow_dispatch:
+  delete:
+  push:
+    branches:
+      - dependabot/consolidated-updates
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  create-pr:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dependabot/consolidated-updates'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Create PR
+        run: |
+          git remote set-url origin https://x-access-token:"${GITHUB_TOKEN}"@github.com/"${GITHUB_REPOSITORY}".git
+          git fetch origin main:main
+          if ! git diff --quiet main...dependabot/consolidated-updates; then
+            gh pr list --head dependabot/consolidated-updates --base main --state open --json number \
+            | jq -e '.[0]' > /dev/null || {
+                gh pr create \
+                  --title "Merge dependabot/consolidated-updates into main" \
+                  --body "Auto-generated PR to merge updated dependencies." \
+                  --base main \
+                  --head dependabot/consolidated-updates \
+                  --label "Type: Dependency"
+            }
+          fi
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  re-create-branch:
+    if: github.event_name == 'delete'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # Required to update dependency files and create PRs
+    steps:
+      - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+          if git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Re-create branch if not exists
+        if: steps.check_branch.outputs.exists == 'false'
+        run: |
+          git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+          git checkout -b dependabot/consolidated-updates
+          git push -f origin dependabot/consolidated-updates

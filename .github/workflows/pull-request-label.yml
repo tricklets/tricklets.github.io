@@ -1,0 +1,211 @@
+name: PR Label
+
+on:
+  pull_request:
+    types: [ opened, edited, synchronize, reopened, labeled, unlabeled ]
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # Labeled with add-labels-change-type to start duplicates, but auto-approve does not cancel because the label is specified
+
+
+jobs:
+  add-labels-change-type:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const ret = await github.rest.issues.listLabelsForRepo({ owner: context.repo.owner, repo: context.repo.repo, });
+            const definitions = ret.data.filter(value => value.name.includes(': ')).map(value => value.name.split(':')[1].toLowerCase().trim());
+
+            const commits = await github.rest.pulls.listCommits({ owner: context.repo.owner, repo: context.repo.repo, pull_number: context.payload.pull_request.number, });
+            const chunk = Array.from(new Set(commits.data.map(data => data.commit.message).filter(msg => msg.includes(': ')).map(msg => msg.startsWith('chore: release') ? msg : msg.split(': ')[0])));
+
+            const prefixes = chunk.map(value => {
+              if (value === 'fix' || value === 'hotfix') { return 'bugfix'; }
+              if (value.startsWith('chore(deps')) { return 'dependency'; }
+              if (value.startsWith('chore: release')) { return 'release'; }
+              return value;
+            }).filter(value => 4 <= value.length);
+
+            const labels = definitions.filter(definition => prefixes.filter(prefix => definition.startsWith(prefix)).length !== 0).map(value => `type: ${value}`);
+            if (labels && labels.length !== 0) {
+              await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, labels, });
+            }
+
+  check-labels-change-type:
+    needs: [ add-labels-change-type ]
+    if: always() && !startsWith(github.head_ref, 'releases/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { changelog } = require('./package.json');
+
+            const ret = await github.rest.issues.listLabelsOnIssue({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, });
+            const labels = new Set(ret.data.map(label => label.name));
+
+            const definitions = new Set(Object.keys(changelog.labels));
+            if (ret.data.length === 0 || new Set([...labels].filter(label => (definitions.has(label)))).size === 0) {
+              const comments = await github.rest.issues.listComments({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number, });
+              const comment = comments.data.find(comment => comment.body && comment.body.startsWith('<!-- templates-label-change-type --'));
+
+              if (!comment) {
+                let body = '<!-- templates-label-change-type -- この行は Label コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n';
+                body += '### Labels for Release Note\n'
+                body += '**[ERROR]**  \n';
+                body += '- リリースノートの自動生成のためにラベルを付けてください。\n\n';
+                body += 'The available labels are as follows:\n'
+                body += '| Label | Release Note |   | Label | Release Note |\n'
+                body += '|:------|:-------------|:-:|:------|:-------------|\n'
+
+                const entries = Object.entries(changelog.labels)
+                for (let i = 0; i < entries.length; i++) {
+                  body += `| ${entries[i][0]} | ${entries[i][1]} |`;
+                  body += entries[++i] ? `| ${entries[i][0]} | ${entries[i][1]} |\n` : '|||\n';
+                }
+
+                body += '* If commit log prefix is included in the label string, it will be automatically labeled. ';
+                body += 'See [README.md](../#%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9) for label details.  \n';
+                body += 'e.g. [feature: xxxx] will automatically add the "Type: Feature" label.  \n';
+
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body, });
+              }
+              return core.setFailed('No label has been set.');
+            }
+
+  auto-approve:
+    if: "github.event.action == 'labeled' && github.event.label.name == 'Review: Auto approve'"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+      - name: Check labeled user is product owner
+        id: check-approver
+        run: |
+          USER="${GITHUB_ACTOR}"
+          readarray -t PO_TEAMS < <(jq -r '.repository.productOwners[]' package.json)
+
+          IS_PO="false"
+          for PO_TEAM in "${PO_TEAMS[@]}"; do
+            RESPONSE=$(curl -s https://api.github.com/orgs/${{ github.repository_owner }}/teams/"$PO_TEAM"/memberships/"$USER" -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}")
+            STATE=$(echo "$RESPONSE" | jq -r ".state")
+            if [ "$STATE" = "active" ]; then
+              IS_PO="true"
+              break
+            fi
+          done
+
+          if [ "$IS_PO" = "true" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+          else
+            PO_TEAMS_URLS=()
+            for PO_TEAM in "${PO_TEAMS[@]}"; do
+              PO_TEAMS_URLS+=("[${PO_TEAM}](https://github.com/orgs/${{ github.repository_owner }}/teams/${PO_TEAM})")
+            done
+            PO_TEAMS_URLS_STR=$(IFS='、'; echo "${PO_TEAMS_URLS[*]}")
+
+            LABEL_URL="https://github.com/${{ github.repository_owner }}/${GITHUB_EVENT_REPOSITORY_NAME}/labels/Review%3A%20Auto%20approve"
+            COMMENT="<!-- templates-auto-approve -- この行は auto-approve コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n"
+            COMMENT="${COMMENT}${LABEL_URL} による自動承認は、${PO_TEAMS_URLS_STR} に所属しているユーザーが実行できます。\n"
+            curl -X POST "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"body\": \"$COMMENT\"}"
+          fi
+        env:
+          GITHUB_EVENT_REPOSITORY_NAME: ${{ github.event.repository.name }}
+      - name: Check target PR if author is dependabot or team member
+        id: check-target
+        run: |
+          AUTHOR="${GITHUB_EVENT_PULL_REQUEST_USER_LOGIN}"
+
+          if [ "$AUTHOR" = "dependabot[bot]" ] || [ "$AUTHOR" = "tricklets-release-flow-app[bot]" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          IS_PO="false"
+          readarray -t PO_TEAMS < <(jq -r '.repository.productOwners[]' package.json)
+          for PO_TEAM in "${PO_TEAMS[@]}"; do
+            RESPONSE=$(curl -s https://api.github.com/orgs/${{ github.repository_owner }}/teams/"$PO_TEAM"/memberships/"$AUTHOR" -H "Authorization: Bearer ${{ steps.app-token.outputs.token }}")
+            STATE=$(echo "$RESPONSE" | jq -r ".state")
+            if [ "$STATE" = "active" ]; then
+              IS_PO="true"
+              break
+            fi
+          done
+
+          if [ "$IS_PO" = "true" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+          else
+            PO_TEAMS_URLS=()
+            for PO_TEAM in "${PO_TEAMS[@]}"; do
+              PO_TEAMS_URLS+=("[${PO_TEAM}](https://github.com/orgs/${{ github.repository_owner }}/teams/${PO_TEAM})")
+            done
+            PO_TEAMS_URLS_STR=$(IFS='、'; echo "${PO_TEAMS_URLS[*]}")
+
+            LABEL_URL="https://github.com/${{ github.repository_owner }}/${GITHUB_EVENT_REPOSITORY_NAME}/labels/Review%3A%20Auto%20approve"
+            COMMENT="<!-- templates-auto-approve -- この行は auto-approve コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n"
+            COMMENT="${COMMENT}${LABEL_URL} による自動承認は、Dependabot または ${PO_TEAMS_URLS_STR} に所属しているユーザーが作成したプルリクエストに対して実行できます。\n"
+            curl -X POST "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"body\": \"$COMMENT\"}"
+          fi
+        env:
+          GITHUB_EVENT_PULL_REQUEST_USER_LOGIN: ${{ github.event.pull_request.user.login }}
+          GITHUB_EVENT_REPOSITORY_NAME: ${{ github.event.repository.name }}
+      - name: Approve or remove auto-approve label
+        run: |
+          if [ ${{ steps.check-approver.outputs.result }} = "true" ] && [ ${{ steps.check-target.outputs.result }} = "true" ]; then
+            curl -X POST "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/assignees" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"assignees\": [\"${GITHUB_ACTOR}\"]}"
+
+            curl -X POST "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"event\": \"APPROVE\"}"
+          else
+            curl -X DELETE "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels/Review:%20Auto%20approve" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json"
+          fi
