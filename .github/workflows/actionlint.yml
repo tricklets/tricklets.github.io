@@ -1,0 +1,75 @@
+name: actionlint
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Actionlint
+        run: |
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
+
+  zizmor:
+    runs-on: ubuntu-latest
+    container: ghcr.io/zizmorcore/zizmor:latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: |
+          apk add --no-cache libstdc++
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Zizmor
+        shell: sh
+        run: |
+          zizmor --pedantic --strict-collection --min-severity low --min-confidence low --format github .
+
+
+  check-status:
+    needs: [ actionlint, zizmor ]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check Status
+        run: |
+          # Note: Add check implementation when needs are increased
+          FAILED=0
+          [ "${NEEDS_ACTIONLINT_RESULT}" = "success" ] || FAILED=$((FAILED + 1))
+          [ "${NEEDS_ZIZMOR_RESULT}" = "success" ] || FAILED=$((FAILED + 1))
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error ::$FAILED required jobs failed or were cancelled"
+            exit 1
+          fi
+          echo "Checking completed successfully"
+        env:
+          NEEDS_ACTIONLINT_RESULT: ${{ needs.actionlint.result }}
+          NEEDS_ZIZMOR_RESULT: ${{ needs.zizmor.result }}

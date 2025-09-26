@@ -1,0 +1,3597 @@
+<!DOCTYPE html>
+<html lang="ja">
+<!--
+================================================================================
+あみだくじアプリ - ユーザーガイド
+================================================================================
+
+【このアプリでできること】
+参加者名と結果を入力して、公平にあみだくじで結果を決めることができます。
+結果を画像として保存したり、他の人と共有することも可能です。
+
+【基本的な使い方】
+
+■ 1. 参加者名と結果を入力する
+   • 左側のテキストボックスに参加者名を1行ずつ入力
+   • 右側のテキストボックスに対応する結果を1行ずつ入力
+   • 例：
+     参加者：    結果：
+     Alice      1
+     Bob        2
+     Charlie    3
+     Dave       4
+     Eve        5
+
+■ 2. あみだくじを生成する
+   • 「あみだくじを生成」ボタンをクリック
+   • ランダムな横線が生成され、あみだくじが完成します
+   • 参加者名がシャッフルされて表示されます
+
+■ 3. 運試しを実行する
+   • 「いざ、運試し！」ボタンをクリック
+   • ドットが上から下に移動して、結果を決定します
+   • 各参加者の結果が色付きで表示されます
+
+【便利な機能】
+
+■ 結果を保存・共有する
+   • 「結果をキャプチャ」ボタンをクリック
+   • あみだくじの結果画像とURLがクリップボードにコピーされます
+   • 画像をSNSやメールで共有できます
+
+■ Teams・Slack での共有
+   • Teams ボタン：HTML形式で画像とURLをクリップボードにコピーし、Teamsアプリを起動
+   • Slack ボタン：画像とURLをクリップボードにコピーし、Slackアプリを起動
+   • 各ボタンは独立して動作し、最初から使用可能です
+
+■ 初期状態のリンクを作成
+   • リンクコピーボタン（🔗）をクリック
+   • 現在の参加者リストと結果の初期状態のリンクがコピーされます
+   • このリンクを他の人に送ると、同じ設定であみだくじを開始できます
+
+■ リセット機能
+   • リセットボタン（🔄）をクリック
+   • あみだくじが初期状態に戻ります
+   • 参加者名と結果の順番も元に戻ります
+
+【画面の見方】
+
+■ あみだくじ盤面
+   • 縦線：参加者の数だけ表示
+   • 横線：ランダムに生成される橋
+   • 参加者名：上部に表示（シャッフルされる）
+   • 結果：下部に表示
+
+■ 操作パネル
+   • 「あみだくじを生成」ボタン：あみだくじを作成
+   • 「いざ、運試し！」ボタン：運試しを実行
+   • 「結果をキャプチャ」ボタン：結果を画像保存
+   • Teams ボタン：Teams アプリで共有
+   • Slack ボタン：Slack アプリで共有
+   • テキストエリア：参加者名と結果の入力・編集
+
+■ ボタンの説明
+   • リンクコピーボタン（🔗）：初期状態のリンクをコピー
+   • リセットボタン（🔄）：あみだくじを完全リセット
+
+【使用例】
+
+■ 会議での役割分担
+   1. 参加者全員の名前を入力
+   2. 役割（司会、記録、発表など）を結果として入力
+   3. あみだくじを生成して運試しを実行
+   4. 結果をキャプチャして会議資料に保存
+
+■ イベントの景品配布
+   1. 参加者名を入力
+   2. 景品名を結果として入力
+   3. あみだくじで公平に景品を配布
+   4. 結果を共有して参加者に通知
+
+■ チーム分け
+   1. メンバー全員の名前を入力
+   2. チーム名（A、B、Cなど）を結果として入力
+   3. あみだくじでランダムにチーム分け
+   4. 結果を保存してチーム編成を記録
+
+■ 順番決め
+   1. 参加者名を入力
+   2. 順番（1番、2番、3番など）を結果として入力
+   3. あみだくじで公平に順番を決定
+   4. 結果を共有して進行に活用
+
+【注意点】
+• 参加者名と結果は1行に1つずつ入力してください
+• 参加者名と結果の数は同じである必要があります
+• 空行は自動的に無視されます
+• 運試しは1回だけ実行できます
+• ブラウザによってはキャプチャ機能が制限される場合があります
+• あみだくじ生成後でないと運試しは実行できません
+• Teams・Slack ボタンは順番に依存せず、最初から使用可能です
+• アプリが起動できない場合は、エラーメッセージが表示されます
+
+================================================================================
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>あみだくじ</title>
+  <link rel="icon" type="image/svg+xml" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 20h60v60h-60z" fill="none" stroke="black" stroke-width="0" /><path d="M25 15v70 M50 15v70 M75 15v70 M25 35h25 M50 50h25 M25 65h25" stroke="black" stroke-width="8" stroke-linecap="square" /><circle cx="48" cy="85" r="6" fill="red" /><circle cx="50" cy="85" r="6" fill="red" /><circle cx="52" cy="85" r="6" fill="red" /></svg>'>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Zen+Maru+Gothic:wght@400;500;700&display=block" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // 外部ライブラリの読み込み状況を検出する関数
+    function checkLibraryAvailability() {
+      if (typeof html2canvas === 'undefined') {
+        console.warn('html2canvasライブラリが読み込まれていません。外部リソースへのアクセスが制限されている可能性があります。');
+        return false;
+      }
+      return true;
+    }
+  </script>
+  <style>
+    * {
+      font-family: "Montserrat", "Zen Maru Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 20px;
+      gap: 30px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 30px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    }
+
+    .amidakuji {
+      position: relative;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .amidakuji-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: radial-gradient(circle at 35% 35%, #ff6b6b 0%, #e74c3c 60%, #c0392b 100%);
+      border-radius: 50%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 20;
+      box-shadow:
+        inset -1px -1px 2px rgba(0, 0, 0, 0.3),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .canvas-container {
+      position: relative;
+    }
+
+    canvas {
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 233px;
+      resize: none;
+      font-size: 16px;
+      font-family: "Montserrat", "Zen Maru Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.1),
+        0 0 20px rgba(100, 149, 237, 0.2);
+      background: rgba(255, 255, 255, 0.4);
+      transition: all 0.3s ease;
+      line-height: 1.6;
+      backdrop-filter: blur(5px);
+      box-sizing: border-box;
+    }
+
+    textarea:focus {
+      outline: none;
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.15),
+        0 0 30px rgba(100, 149, 237, 0.3);
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .textarea-label {
+      font-size: 14px;
+      color: #2c3e50;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .textarea-container {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    button {
+      padding: 15px 40px;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: "Montserrat", "Zen Maru Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      color: white;
+      background: linear-gradient(45deg, #4b6cb7 0%, #6487db 100%);
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(100, 149, 237, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(100, 149, 237, 0.4);
+      background: linear-gradient(45deg, #3b5998 0%, #4b6cb7 100%);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .input-area {
+      position: relative;
+    }
+
+    .reset-icon {
+      position: absolute;
+      bottom: 12px;
+      right: 8px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(231, 76, 60, 0.9);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      padding: 0;
+      min-width: 40px;
+      min-height: 40px;
+      max-width: 40px;
+      max-height: 40px;
+      box-sizing: border-box;
+    }
+
+    .reset-icon:hover {
+      background: rgba(192, 57, 43, 0.95);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .reset-icon:active {
+      transform: scale(0.95);
+    }
+
+    .reset-icon:disabled {
+      background: rgba(200, 200, 200, 0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .reset-icon:disabled:hover {
+      background: rgba(200, 200, 200, 0.3);
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .copy-link-icon {
+      position: absolute;
+      bottom: 12px;
+      right: 56px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(52, 152, 219, 0.9);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      padding: 0;
+      min-width: 40px;
+      min-height: 40px;
+      max-width: 40px;
+      max-height: 40px;
+      box-sizing: border-box;
+    }
+
+    .copy-link-icon:hover {
+      background: rgba(41, 128, 185, 0.95);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .copy-link-icon:active {
+      transform: scale(0.95);
+    }
+
+    .copy-link-icon:disabled {
+      background: rgba(200, 200, 200, 0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .copy-link-icon:disabled:hover {
+      background: rgba(200, 200, 200, 0.3);
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-icon {
+      position: absolute;
+      bottom: 12px;
+      right: 104px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #666;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      padding: 0;
+      min-width: 40px;
+      min-height: 40px;
+      max-width: 40px;
+      max-height: 40px;
+      box-sizing: border-box;
+    }
+
+    .info-icon:hover {
+      background: rgba(240, 240, 240, 0.95);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .info-icon:active {
+      transform: scale(0.95);
+    }
+
+    .info-icon:disabled {
+      background: rgba(200, 200, 200, 0.3);
+      color: white;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .info-icon:disabled:hover {
+      background: rgba(200, 200, 200, 0.3);
+      color: white;
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* ユーザーガイドダイアログのスタイル */
+    .user-guide-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .user-guide-overlay.show {
+      display: flex;
+    }
+
+    .user-guide-container {
+      background: white;
+      border-radius: 20px;
+      padding: 0;
+      padding: 8px 3px;
+      max-width: 800px;
+      max-height: 80vh;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      font-family: "Zen Maru Gothic", "Montserrat", sans-serif;
+    }
+
+    .user-guide-dialog {
+      padding: 30px;
+      padding-right: 20px;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-family: "Zen Maru Gothic", "Montserrat", sans-serif;
+    }
+
+    .user-guide-dialog h2 {
+      color: #2c3e50;
+      margin: 0 0 20px 0;
+      font-size: 24px;
+      border-bottom: 2px solid #e74c3c;
+      padding-bottom: 10px;
+    }
+
+    .user-guide-dialog h3 {
+      color: #34495e;
+      margin: 20px 0 10px 0;
+      font-size: 18px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+
+    .user-guide-dialog h4 {
+      color: #2c3e50;
+      margin: 15px 0 8px 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .user-guide-dialog p {
+      margin: 8px 0;
+      line-height: 1.6;
+      color: #2c3e50;
+    }
+
+    .user-guide-dialog ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .user-guide-dialog li {
+      margin: 4px 0;
+      line-height: 1.5;
+      color: #2c3e50;
+    }
+
+    .user-guide-dialog .highlight {
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .user-guide-dialog .example {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    .user-guide-close {
+      position: absolute;
+      top: 15px;
+      right: 19px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      min-height: 24px;
+      max-width: 24px;
+      max-height: 24px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .user-guide-close:hover {
+      background: #c0392b;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .user-guide-close:active {
+      transform: scale(0.95);
+    }
+
+    /* カスタムスクロールバーのスタイル */
+    .user-guide-dialog::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      margin: 10px 5px 10px 0;
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      border-radius: 10px;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      transform: scale(1.05);
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-thumb:active {
+      background: linear-gradient(135deg, #a93226 0%, #922b21 100%);
+    }
+
+    .user-guide-dialog::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    /* Firefox用のスクロールバーカスタマイズ */
+    .user-guide-dialog {
+      scrollbar-width: thin;
+      scrollbar-color: #e74c3c rgba(0, 0, 0, 0.05);
+    }
+
+    .custom-tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 8px;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      white-space: pre-line;
+      z-index: 1000;
+      width: max-content;
+      min-width: 120px;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .custom-tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .custom-tooltip.show {
+      opacity: 1;
+    }
+
+    [data-tooltip]:disabled:hover .custom-tooltip {
+      opacity: 0.3;
+    }
+
+    @keyframes tooltipFadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* キャプチャボタン */
+    .capture-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .share-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-shrink: 0;
+      justify-content: center;
+    }
+
+    #captureButton {
+      flex: 1 0 var(--capture-button-min-width, auto);
+      min-width: var(--capture-button-min-width, auto);
+      max-width: 100%;
+      min-height: 54px;
+      height: 54px;
+      padding: 0 24px;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(45deg, #27ae60 0%, #2ecc71 100%);
+      border-radius: 25px;
+      box-shadow:
+        0 5px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px rgba(46, 204, 113, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #captureButton:hover:not(:disabled) {
+      background: linear-gradient(45deg, #229954 0%, #27ae60 100%);
+      box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(46, 204, 113, 0.4);
+      transform: translateY(-2px);
+    }
+
+    #captureButton:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    #captureButton:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .share-button {
+      width: 54px !important;
+      height: 54px !important;
+      min-width: 54px !important;
+      min-height: 54px !important;
+      max-width: 54px !important;
+      max-height: 54px !important;
+      border-radius: 50% !important;
+      border: 2px solid #27ae60;
+      background: rgba(255, 255, 255, 0.4);
+      color: #27ae60;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow:
+        0 5px 15px rgba(39, 174, 96, 0.2),
+        0 0 12px rgba(46, 204, 113, 0.25);
+      position: relative;
+      background-color: rgba(255, 255, 255, 0.4);
+      box-sizing: border-box;
+      flex: none !important;
+      flex-shrink: 0 !important;
+      flex-grow: 0 !important;
+      aspect-ratio: 1 / 1;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .share-button .share-icon {
+      pointer-events: none;
+    }
+
+    .share-button .share-icon svg {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+
+    .share-button:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.6);
+      box-shadow:
+        0 8px 18px rgba(39, 174, 96, 0.25),
+        0 0 18px rgba(46, 204, 113, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .share-button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .share-button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    [data-tooltip]:disabled .custom-tooltip,
+    [aria-disabled="true"] .custom-tooltip {
+      display: none !important;
+      opacity: 0 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <div class="container">
+    <div class="amidakuji">
+      <div class="canvas-container">
+        <canvas id="amidakujiCanvas"></canvas>
+      </div>
+    </div>
+    <div class="input-container">
+      <div class="button-container">
+        <button id="generateButton">あみだくじを生成</button>
+        <button id="addLinesButton">いざ、運試し！</button>
+        <div class="capture-controls">
+          <button id="captureButton" disabled>結果をキャプチャ</button>
+          <div class="share-buttons">
+            <button id="teamsButton" class="share-button" data-tooltip="結果をキャプして Teams へ共有" disabled>
+              <span class="share-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2228.833 2073.333" fill="none">
+                  <path fill="#5059C9" d="M1554.637 777.5h575.713a98.483 98.483 0 0 1 98.483 98.483v524.398c0 199.901-162.051 361.952-361.952 361.952h-1.711c-199.901.028-361.975-162-362.004-361.901V828.971c0-28.427 23.044-51.471 51.471-51.471z" />
+                  <circle fill="#5059C9" cx="1943.75" cy="440.583" r="233.25" />
+                  <circle fill="#7B83EB" cx="1218.083" cy="336.917" r="336.917" />
+                  <path fill="#7B83EB" d="M1667.323 777.5H717.01c-53.743 1.33-96.257 45.931-95.01 99.676v598.105c-7.505 322.519 247.657 590.16 570.167 598.053 322.51-7.893 577.671-275.534 570.167-598.053V877.176c-.755-53.745-43.268-98.346-97.011-99.676z" />
+                  <path fill="#5A62C3" d="M95.01 466.5h950.312a95.01 95.01 0 0 1 95.01 95.01v950.312a95.01 95.01 0 0 1-95.01 95.01H95.01A95.01 95.01 0 0 1 0 1511.822V561.51A95.01 95.01 0 0 1 95.01 466.5z" />
+                  <path fill="#FFF" d="M820.211 828.193H630.241v517.297H509.211V828.193H320.123V727.844h500.088v100.349z" />
+                </svg>
+              </span>
+            </button>
+            <button id="slackButton" class="share-button" data-tooltip="結果をキャプして Slack へ共有" disabled>
+              <span class="share-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127 127" fill="none">
+                  <path fill="#E01E5A" d="M27.2 80c0 7.3-5.9 13.2-13.2 13.2C6.7 93.2.8 87.3.8 80c0-7.3 5.9-13.2 13.2-13.2h13.2V80zm6.6 0c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2v33c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V80z" />
+                  <path fill="#36C5F0" d="M47 27c-7.3 0-13.2-5.9-13.2-13.2C33.8 6.5 39.7.6 47 .6c7.3 0 13.2 5.9 13.2 13.2V27H47zm0 6.7c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H13.9C6.6 60.1.7 54.2.7 46.9c0-7.3 5.9-13.2 13.2-13.2H47z" />
+                  <path fill="#2EB67D" d="M99.9 46.9c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H99.9V46.9zm-6.6 0c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V13.8C66.9 6.5 72.8.6 80.1.6c7.3 0 13.2 5.9 13.2 13.2v33.1z" />
+                  <path fill="#ECB22E" d="M80.1 99.8c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V99.8h13.2zm0-6.6c-7.3 0-13.2-5.9-13.2-13.2 0-7.3 5.9-13.2 13.2-13.2h33.1c7.3 0 13.2 5.9 13.2 13.2 0 7.3-5.9 13.2-13.2 13.2H80.1z" />
+                </svg>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="textarea-container">
+        <div class="textarea-label">参加者（1行に1人）</div>
+        <textarea id="names"></textarea>
+      </div>
+      <div class="textarea-container">
+        <div class="textarea-label">結果（1行に1つ）</div>
+        <div class="input-area">
+          <textarea id="results"></textarea>
+          <button id="infoButton" class="info-icon" data-tooltip="ユーザーガイド">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+              <path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+            </svg>
+          </button>
+          <button id="copyLinkButton" class="copy-link-icon" data-tooltip="初期状態のリンクをコピー">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+              <path d="M440-280H280q-83 0-141.5-58.5T80-480q0-83 58.5-141.5T280-680h160v80H280q-50 0-85 35t-35 85q0 50 35 85t85 35h160v80ZM320-440v-80h320v80H320Zm200 160v-80h160q50 0 85-35t35-85q0-50-35-85t-85-35H520v-80h160q83 0 141.5 58.5T880-480q0 83-58.5 141.5T680-280H520Z" />
+            </svg>
+          </button>
+          <button id="resetButton" class="reset-icon" data-tooltip="あみだくじをリセット">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+              <path d="M480-280q0-45 18.5-83t49.5-66l86 149H480Zm100 172q-37-21-62-55t-34-77h173l-77 132Zm77-212-77-132q23-13 48-20.5t52-7.5q17 0 32.5 3t30.5 8l-86 149Zm23 240q-17 0-32.5-3T617-91l86-149 77 132q-23 13-48 20.5T680-80Zm23-240 77-132q37 21 62 55t34 77H703Zm109 189-86-149h154q0 45-18 83t-50 66Zm19-429h-83q-26-88-99-144t-169-56q-117 0-198.5 81.5T200-480q0 72 32.5 132t87.5 98v-110h80v240H160v-80h94q-62-50-98-122.5T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q129 0 226.5 79.5T831-560Z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <script>
+    // ========================================
+    // グローバル変数の宣言
+    // ========================================
+    const canvas = document.getElementById('amidakujiCanvas');
+    const ctx = canvas.getContext('2d');
+    const namesTextarea = document.getElementById('names');
+    const resultsTextarea = document.getElementById('results');
+    const generateButton = document.getElementById('generateButton');
+    const addLinesButton = document.getElementById('addLinesButton');
+    const captureButton = document.getElementById('captureButton');
+    const infoButton = document.getElementById('infoButton');
+    const copyLinkButton = document.getElementById('copyLinkButton');
+    const resetButton = document.getElementById('resetButton');
+    const teamsButton = document.getElementById('teamsButton');
+    const slackButton = document.getElementById('slackButton');
+
+    // ========================================
+    // ツールチップの初期化
+    // ========================================
+    function initTooltips() {
+      const tooltipElements = document.querySelectorAll('[data-tooltip]');
+      tooltipElements.forEach(element => {
+        const tooltipText = element.getAttribute('data-tooltip');
+        if (tooltipText) {
+          const tooltip = document.createElement('div');
+          tooltip.className = 'custom-tooltip';
+          tooltip.innerHTML = tooltipText.replace(/\\n/g, '<br>');
+          element.appendChild(tooltip);
+
+          element.addEventListener('mouseenter', () => {
+            tooltip.classList.add('show');
+          });
+
+          element.addEventListener('mouseleave', () => {
+            tooltip.classList.remove('show');
+          });
+        }
+      });
+    }
+
+    // ツールチップを初期化
+    initTooltips();
+    updateCaptureButtonWidth();
+
+    // ========================================
+    // あみだくじの設定と初期値
+    // ========================================
+    const config = {
+      lineWidth: 3,
+      verticalSpacing: 80,
+      horizontalSpacing: 100,
+      verticalLineHeight: 610,  // テキストエリアの高さ（200px）に合わせて調整
+      marginTop: 30,
+      marginLeft: 50,
+      bridgeHeight: 20,
+      nameMargin: 30,
+      resultMargin: 35,
+      minBridges: 4,
+      maxBridges: 7,
+      bridgeSpacing: 50,
+      manyBridgesMinMultiplier: 1.3,  // 運試しの最小倍率
+      manyBridgesMaxMultiplier: 1.8   // 運試しの最大倍率
+    };
+
+    // 初期設定
+    const defaultNames = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve'];
+    const defaultResults = ['1', '2', '3', '4', '5'];
+
+    // ========================================
+    // あみだくじの描画処理
+    // ========================================
+    function initCanvas(names) {
+      const width = (names.length - 1) * config.horizontalSpacing + config.marginLeft * 2;
+      const height = config.verticalLineHeight + config.marginTop + config.nameMargin + config.resultMargin;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.textRendering = 'optimizeLegibility';
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      ctx.font = 'bold 16px "Montserrat", "Zen Maru Gothic", sans-serif';
+
+      return { width, height };
+    }
+
+    function drawVerticalLines(names, width, height) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#aaaaaa';
+      ctx.lineWidth = config.lineWidth;
+
+      for (let i = 0; i < names.length; i++) {
+        const x = config.marginLeft + i * config.horizontalSpacing;
+        ctx.moveTo(x, config.marginTop);
+        ctx.lineTo(x, config.marginTop + config.verticalLineHeight);
+      }
+
+      ctx.stroke();
+    }
+
+    // 軌跡を描画する関数（シンプル版）
+    function drawTracedPaths() {
+      if (tracedPaths.length < 2) return;
+
+      const pathsByParticipant = {};
+      tracedPaths.forEach(point => {
+        if (!pathsByParticipant[point.participantIndex]) {
+          pathsByParticipant[point.participantIndex] = [];
+        }
+        pathsByParticipant[point.participantIndex].push(point);
+      });
+
+      Object.values(pathsByParticipant).forEach(points => {
+        if (points.length < 2) return;
+
+        ctx.beginPath();
+        const hslColor = points[0].color;
+        const rgbaColor = hslToRgba(hslColor, 0.65);
+        ctx.strokeStyle = rgbaColor;
+        ctx.lineWidth = config.lineWidth + 2;
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+      });
+    }
+
+    // あみだくじの線をグレーに戻す関数
+    function resetLinesToGray(names) {
+      const { width, height } = initCanvas(names);
+
+      ctx.beginPath();
+      ctx.strokeStyle = '#aaaaaa';
+      ctx.lineWidth = config.lineWidth;
+
+      for (let i = 0; i < names.length; i++) {
+        const x = config.marginLeft + i * config.horizontalSpacing;
+        ctx.moveTo(x, config.marginTop);
+        ctx.lineTo(x, config.marginTop + config.verticalLineHeight);
+      }
+      ctx.stroke();
+
+      if (currentBridges.length > 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#aaaaaa';
+        ctx.lineWidth = config.lineWidth;
+
+        currentBridges.forEach(bridge => {
+          const x1 = config.marginLeft + bridge.x * config.horizontalSpacing;
+          const x2 = x1 + config.horizontalSpacing;
+          ctx.moveTo(x1, bridge.y);
+          ctx.lineTo(x2, bridge.y);
+        });
+        ctx.stroke();
+      }
+
+      tracedPaths = [];
+
+      drawNames(names, names, true);
+    }
+
+    // 結果が確定した人の情報を保持する配列 [{participantIndex: 0, resultIndex: 1}, ...]
+    let confirmedResults = [];
+
+    function drawNames(names, results, isResetMode = false) {
+      ctx.textAlign = 'center';
+
+      ctx.font = 'bold 16px "Montserrat", "Zen Maru Gothic", sans-serif';
+      names.forEach((name, i) => {
+        const x = config.marginLeft + i * config.horizontalSpacing;
+        const nameColor = getNameColor(name);
+        const darkColor = darkenColor(nameColor, 0.4);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillText(name, x + 1, config.marginTop - 9);
+
+        ctx.fillStyle = darkColor;
+        ctx.fillText(name, x, config.marginTop - 10);
+      });
+
+      results.forEach((result, i) => {
+        const x = config.marginLeft + i * config.horizontalSpacing;
+        const y = config.marginTop + config.verticalLineHeight + 20;
+        const resultY = config.marginTop + config.verticalLineHeight + 45;
+
+        const confirmedResult = confirmedResults.find(cr => cr.resultIndex === i);
+
+        ctx.font = 'bold 16px "Montserrat", "Zen Maru Gothic", sans-serif';
+
+        if (isResetMode) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+          ctx.fillText(result, x + 1, y + 1);
+
+          ctx.fillStyle = '#2c3e50';
+          ctx.fillText(result, x, y);
+        } else {
+          if (confirmedResult) {
+            const confirmedName = names[confirmedResult.participantIndex];
+            const nameColor = getNameColor(confirmedName);
+            const darkColor = darkenColor(nameColor, 0.4);
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillText(result, x + 1, y + 1);
+
+            ctx.fillStyle = darkColor;
+            ctx.fillText(result, x, y);
+          } else {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillText(result, x + 1, y + 1);
+
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillText(result, x, y);
+          }
+
+          if (confirmedResult) {
+            const confirmedName = names[confirmedResult.participantIndex];
+            ctx.font = 'bold 16px "Montserrat", "Zen Maru Gothic", sans-serif';
+            const nameColor = getNameColor(confirmedName);
+            const darkColor = darkenColor(nameColor, 0.4);
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillText(confirmedName, x + 1, resultY + 1);
+
+            ctx.fillStyle = darkColor;
+            ctx.fillText(confirmedName, x, resultY);
+          }
+        }
+      });
+    }
+
+    // 現在の横線を保持する変数
+    let currentBridges = [];
+    let newBridges = [];
+
+    // ルート追跡用の変数
+    let tracedPaths = [];
+
+    function drawBridges(bridges, fadeInProgress = 1) {
+      if (!bridges || bridges.length === 0) {
+        return;
+      }
+
+      ctx.beginPath();
+      ctx.strokeStyle = '#aaaaaa';
+      ctx.lineWidth = config.lineWidth;
+
+      const existingBridges = newBridges.length > 0 ?
+        bridges.filter(bridge => !newBridges.includes(bridge)) :
+        bridges;
+
+      existingBridges.forEach((bridge, index) => {
+        const x1 = config.marginLeft + bridge.x * config.horizontalSpacing;
+        const x2 = x1 + config.horizontalSpacing;
+        ctx.moveTo(x1, bridge.y);
+        ctx.lineTo(x2, bridge.y);
+      });
+      ctx.stroke();
+
+      if (newBridges.length > 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(170, 170, 170, ${fadeInProgress})`;
+        newBridges.forEach(bridge => {
+          const x1 = config.marginLeft + bridge.x * config.horizontalSpacing;
+          const x2 = x1 + config.horizontalSpacing;
+          ctx.moveTo(x1, bridge.y);
+          ctx.lineTo(x2, bridge.y);
+        });
+        ctx.stroke();
+      }
+    }
+
+    function generateBridges(names, isMany = false, keepExisting = false) {
+      const bridges = keepExisting ? [...currentBridges] : [];
+      const existingCount = bridges.length;
+      let targetCount;
+
+      if (isMany) {
+        const multiplier = config.manyBridgesMinMultiplier +
+          (config.manyBridgesMaxMultiplier - config.manyBridgesMinMultiplier) * random();
+
+        const additionalLines = Math.ceil(names.length * multiplier);
+        targetCount = existingCount + additionalLines;
+      } else {
+        targetCount = Math.floor(randomRange(config.minBridges, config.maxBridges + 1));
+      }
+
+      const additionalCount = Math.max(0, targetCount - existingCount);
+      const availableHeight = config.verticalLineHeight - config.bridgeSpacing;
+
+      newBridges = [];
+
+      for (let i = 0; i < additionalCount; i++) {
+        let x, y;
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        do {
+          x = Math.floor(randomRange(0, names.length - 1));
+          y = config.marginTop + config.bridgeSpacing +
+            Math.floor(randomRange(0, availableHeight - config.bridgeSpacing));
+          attempts++;
+        } while (
+          bridges.some(bridge =>
+            Math.abs(bridge.y - y) < config.bridgeSpacing &&
+            (bridge.x === x || bridge.x === x - 1 || bridge.x === x + 1)
+          ) && attempts < maxAttempts
+        );
+
+        if (attempts < maxAttempts) {
+          const newBridge = { x, y };
+          bridges.push(newBridge);
+          newBridges.push(newBridge);
+        }
+      }
+
+      for (let i = 0; i < names.length - 1; i++) {
+
+        const hasRightBridge = bridges.some(bridge => bridge.x === i);
+
+        if (!hasRightBridge) {
+
+          let y;
+          let attempts = 0;
+          const maxAttempts = 50;
+
+          do {
+            y = config.marginTop + config.bridgeSpacing +
+              Math.floor(randomRange(0, availableHeight - config.bridgeSpacing));
+            attempts++;
+          } while (
+            bridges.some(bridge =>
+              Math.abs(bridge.y - y) < config.bridgeSpacing &&
+              (bridge.x === i || bridge.x === i - 1 || bridge.x === i + 1)
+            ) && attempts < maxAttempts
+          );
+
+          if (attempts < maxAttempts) {
+            const newBridge = { x: i, y };
+            bridges.push(newBridge);
+            newBridges.push(newBridge);
+          }
+        }
+      }
+
+      currentBridges = bridges;
+      return bridges;
+    }
+
+    // 配列をシャッフルする関数
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    // メッセージの表示
+    function displayMessage(message, isError = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = message;
+
+      const backgroundColor = isError ? '#FFB6C1' : '#FFF8DC';
+      messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: #2c3e50;
+                font-weight: bold;
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                background: ${backgroundColor};
+            `;
+
+      document.body.appendChild(messageDiv);
+
+      setTimeout(() => messageDiv.style.opacity = '1', 100);
+      setTimeout(() => {
+        messageDiv.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(messageDiv), 300);
+      }, 3000);
+    }
+
+    // ========================================
+    // 状態管理用の変数
+    // ========================================
+    let hasGeneratedOnce = false;
+    let hasTriedLuck = false;
+    let isTracingPaths = false;
+    let currentShuffledNames = [];
+    let currentShuffledResults = [];
+    let activeDot = null;
+
+    // 色管理用の変数
+    let nameColors = new Map();
+    let lastColorHue = null;
+
+    // 共有機能用の変数
+    let sharePayload = null;
+
+    // ========================================
+    // ユーティリティ関数
+    // ========================================
+
+    // 乱数生成関数
+    function random() {
+      return crypto.getRandomValues(new Uint32Array(1))[0] / 0x100000000;
+    }
+
+    // 指定された範囲の乱数を生成
+    function randomRange(min, max) {
+      return min + random() * (max - min);
+    }
+
+    // 色を濃くする関数（roulette.htmlから移植）
+    function darkenColor(color, amount = 0.3) {
+      const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+      if (!hslMatch) return color;
+
+      const hue = parseInt(hslMatch[1]);
+      const saturation = Math.min(100, parseInt(hslMatch[2]) + 20);
+      const lightness = Math.max(0, parseInt(hslMatch[3]) - (amount * 100));
+
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+
+    // HSL色をRGBAに変換する関数
+    function hslToRgba(hsl, alpha = 1) {
+      const hslMatch = hsl.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+      if (!hslMatch) return hsl;
+
+      const h = parseInt(hslMatch[1]) / 360;
+      const s = parseInt(hslMatch[2]) / 100;
+      const l = parseInt(hslMatch[3]) / 100;
+
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+      };
+
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+      }
+
+      return `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${alpha})`;
+    }
+
+    // アプリテイストに合わせたパステルカラーの生成（roulette.htmlから移植）
+    let baseColorHistory = [];
+    function createColor(previousHue = null) {
+      const minHueDiff = 45;
+      let hue;
+      let attempts = 0;
+      const maxAttempts = 20;
+
+      const baseColors = [
+        { hue: 320, name: 'ローズ', saturation: { min: 40, max: 55 }, lightness: { min: 70, max: 80 } },
+        { hue: 300, name: 'ピンク', saturation: { min: 45, max: 60 }, lightness: { min: 75, max: 85 } },
+        { hue: 280, name: 'ラベンダー', saturation: { min: 40, max: 55 }, lightness: { min: 75, max: 85 } },
+        { hue: 220, name: 'ネイビーブルー', saturation: { min: 40, max: 55 }, lightness: { min: 70, max: 80 } },
+        { hue: 200, name: 'スカイブルー', saturation: { min: 45, max: 60 }, lightness: { min: 75, max: 85 } },
+        { hue: 140, name: 'エメラルド', saturation: { min: 45, max: 60 }, lightness: { min: 70, max: 80 } },
+        { hue: 120, name: 'ミントグリーン', saturation: { min: 50, max: 65 }, lightness: { min: 75, max: 85 } },
+        { hue: 50, name: 'クリーム', saturation: { min: 35, max: 50 }, lightness: { min: 80, max: 90 } },
+        { hue: 30, name: 'ピーチ', saturation: { min: 50, max: 65 }, lightness: { min: 75, max: 85 } },
+        { hue: 0, name: 'パウダーグレー', saturation: { min: 5, max: 20 }, lightness: { min: 75, max: 85 } }
+      ];
+
+      do {
+        attempts++;
+        if (attempts >= maxAttempts) { break; }
+
+        let availableIndices = [];
+        for (let i = 0; i < baseColors.length; i++) {
+          if (!baseColorHistory.includes(i)) {
+            availableIndices.push(i);
+          }
+        }
+
+        if (availableIndices.length === 0) {
+          baseColorHistory = [];
+          availableIndices = Array.from({ length: baseColors.length }, (_, i) => i);
+        }
+
+        const selectedIndex = availableIndices[Math.floor(randomRange(0, availableIndices.length))];
+        const selectedBase = baseColors[selectedIndex];
+        const hueVariation = Math.floor(randomRange(-10, 11));
+        hue = (selectedBase.hue + hueVariation + 360) % 360;
+
+        baseColorHistory.unshift(selectedIndex);
+        if (baseColorHistory.length > 3) {
+          baseColorHistory.pop();
+        }
+      } while (previousHue !== null && Math.abs(hue - previousHue) < minHueDiff);
+
+      const selectedBase = baseColors.find(base => {
+        const hueDiff = Math.abs(hue - base.hue);
+        return hueDiff <= 10 || hueDiff >= 350;
+      }) || baseColors[0];
+
+      const saturation = Math.floor(randomRange(selectedBase.saturation.min, selectedBase.saturation.max + 1));
+      const lightness = Math.floor(randomRange(selectedBase.lightness.min, selectedBase.lightness.max + 1));
+
+      lastColorHue = hue;
+      return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+
+    // 名前の色を取得または生成する関数
+    function getNameColor(name) {
+      if (!nameColors.has(name)) {
+        const color = createColor(lastColorHue);
+        nameColors.set(name, color);
+      }
+      return nameColors.get(name);
+    }
+
+    // 名前の色をリセットする関数
+    function resetNameColors() {
+      nameColors.clear();
+      lastColorHue = null;
+    }
+
+    // BlobをBase64文字列に変換する関数
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = reader.result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    // テキストエリアをdivに置き換える関数
+    function replaceTextareaWithDiv(textarea, id) {
+      if (textarea.style.display === 'none') return;
+
+      const parentElement = textarea.parentElement;
+      const nextSibling = textarea.nextSibling;
+
+      const textareaStyles = window.getComputedStyle(textarea);
+      const textareaRect = textarea.getBoundingClientRect();
+
+      const replacementDiv = document.createElement('div');
+      replacementDiv.id = id + '-display';
+      replacementDiv.textContent = textarea.value || textarea.placeholder;
+      replacementDiv.style.width = textareaRect.width + 'px';
+      replacementDiv.style.height = '233px';
+      replacementDiv.style.padding = textareaStyles.padding;
+      replacementDiv.style.border = textareaStyles.border;
+      replacementDiv.style.borderRadius = textareaStyles.borderRadius;
+      replacementDiv.style.backgroundColor = textareaStyles.backgroundColor;
+      replacementDiv.style.color = textarea.value ? textareaStyles.color : '#999';
+      replacementDiv.style.fontSize = textareaStyles.fontSize;
+      replacementDiv.style.fontFamily = textareaStyles.fontFamily;
+      replacementDiv.style.lineHeight = textareaStyles.lineHeight;
+      replacementDiv.style.whiteSpace = 'pre-wrap';
+      replacementDiv.style.wordWrap = 'break-word';
+      replacementDiv.style.overflow = 'hidden';
+      replacementDiv.style.boxSizing = 'border-box';
+      replacementDiv.style.display = 'block';
+      replacementDiv.style.boxShadow = textareaStyles.boxShadow;
+      replacementDiv.style.outline = textareaStyles.outline;
+      replacementDiv.style.margin = textareaStyles.margin;
+      replacementDiv.style.position = textareaStyles.position;
+      replacementDiv.style.zIndex = textareaStyles.zIndex;
+      replacementDiv.style.opacity = '0.6';
+      replacementDiv.style.pointerEvents = 'none';
+
+      textarea.style.display = 'none';
+      parentElement.insertBefore(replacementDiv, nextSibling);
+    }
+
+    // divをテキストエリアに復元する関数
+    function restoreTextareaFromDiv(textarea, id) {
+      const replacementDiv = document.getElementById(id + '-display');
+
+      if (replacementDiv && textarea.style.display === 'none') {
+        const parentElement = replacementDiv.parentElement;
+        const nextSibling = replacementDiv.nextSibling;
+
+        parentElement.removeChild(replacementDiv);
+        textarea.style.display = '';
+      }
+    }
+
+    // テキストエリアのロック状態を管理する関数
+    function setTextareasLocked(locked) {
+      if (locked) {
+
+        replaceTextareaWithDiv(namesTextarea, 'names');
+        replaceTextareaWithDiv(resultsTextarea, 'results');
+      } else {
+
+        restoreTextareaFromDiv(namesTextarea, 'names');
+        restoreTextareaFromDiv(resultsTextarea, 'results');
+      }
+    }
+
+    // メンバーリストの名前以外をリセットする関数
+    function resetStateExceptNames() {
+
+      confirmedResults = [];
+      hasGeneratedOnce = false;
+      hasTriedLuck = false;
+      isTracingPaths = false;
+      currentShuffledNames = [];
+      currentShuffledResults = [];
+      activeDot = null;
+
+      resetNameColors();
+
+      setTextareasLocked(false);
+
+      updateButtonStates();
+
+    }
+
+    // ドットのアニメーション用関数
+    function createDot() {
+      if (activeDot) {
+        activeDot.remove();
+      }
+      const dot = document.createElement('div');
+      dot.className = 'amidakuji-dot';
+      document.querySelector('.canvas-container').appendChild(dot);
+      return dot;
+    }
+
+    function updateDotPosition(dot, x, y) {
+      dot.style.left = `${x}px`;
+      dot.style.top = `${y}px`;
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function tracePath(bridges, names, results, startIndex) {
+      const dot = createDot();
+      activeDot = dot;
+
+      let currentX = config.marginLeft + startIndex * config.horizontalSpacing;
+      let currentY = config.marginTop;
+      updateDotPosition(dot, currentX, currentY);
+
+      const participantName = names[startIndex];
+      const participantColor = getNameColor(participantName);
+      const darkColor = darkenColor(participantColor, 0.4);
+      tracedPaths.push({
+        x: currentX,
+        y: currentY,
+        color: darkColor,
+        participantIndex: startIndex
+      });
+
+      await sleep(500);
+
+      let currentIndex = startIndex;
+      const sortedBridges = bridges.sort((a, b) => a.y - b.y);
+
+      while (currentY < config.marginTop + config.verticalLineHeight) {
+
+        const nextBridge = sortedBridges.find(b => {
+          const isAtHigherY = b.y > currentY;
+          const isConnectedToCurrentPosition = (
+            (b.x === currentIndex) || // 現在位置から左に伸びる線
+            (b.x === currentIndex - 1) // 現在位置から右に伸びる線
+          );
+
+          const bridgeExists = bridges.some(bridge =>
+            Math.abs(bridge.y - b.y) < 2 &&
+            bridge.x === (isConnectedToCurrentPosition ? b.x : b.x - 1)
+          );
+          return isAtHigherY && isConnectedToCurrentPosition && bridgeExists;
+        });
+
+        if (nextBridge) {
+
+          const steps = Math.max(1, Math.floor((nextBridge.y - currentY) / 2));
+          for (let i = 0; i < steps; i++) {
+            currentY += 2;
+            updateDotPosition(dot, currentX, currentY);
+
+            tracedPaths.push({
+              x: currentX,
+              y: currentY,
+              color: darkColor,
+              participantIndex: startIndex
+            });
+
+            if (i % 5 === 0) {
+              const { width, height } = initCanvas(names);
+              drawVerticalLines(names, width, height);
+              drawBridges(currentBridges);
+              drawTracedPaths();
+              drawNames(names, results);
+            }
+
+            await sleep(1);
+          }
+          currentY = nextBridge.y;
+          updateDotPosition(dot, currentX, currentY);
+          await sleep(10);
+
+          const isLeftBridge = nextBridge.x === currentIndex - 1;
+          const targetX = isLeftBridge
+            ? currentX - config.horizontalSpacing
+            : currentX + config.horizontalSpacing;
+
+          const horizontalSteps = 40;
+          const xStep = (targetX - currentX) / horizontalSteps;
+          for (let i = 0; i < horizontalSteps; i++) {
+            currentX += xStep;
+            updateDotPosition(dot, currentX, currentY);
+
+            tracedPaths.push({
+              x: currentX,
+              y: currentY,
+              color: darkColor,
+              participantIndex: startIndex
+            });
+
+            if (i % 3 === 0) {
+              const { width, height } = initCanvas(names);
+              drawVerticalLines(names, width, height);
+              drawBridges(currentBridges);
+              drawTracedPaths();
+              drawNames(names, results);
+            }
+
+            await sleep(3);
+          }
+          currentX = targetX;
+          updateDotPosition(dot, currentX, currentY);
+          await sleep(10);
+
+          currentIndex = isLeftBridge ? currentIndex - 1 : currentIndex + 1;
+        } else {
+
+          const targetY = config.marginTop + config.verticalLineHeight;
+          const steps = Math.max(1, Math.floor((targetY - currentY) / 2));
+          for (let i = 0; i < steps; i++) {
+            currentY += 2;
+            updateDotPosition(dot, currentX, currentY);
+
+            tracedPaths.push({
+              x: currentX,
+              y: currentY,
+              color: darkColor,
+              participantIndex: startIndex
+            });
+
+            if (i % 5 === 0) {
+              const { width, height } = initCanvas(names);
+              drawVerticalLines(names, width, height);
+              drawBridges(currentBridges);
+              drawTracedPaths();
+              drawNames(names, results);
+            }
+
+            await sleep(1);
+          }
+          currentY = targetY;
+          updateDotPosition(dot, currentX, currentY);
+          break;
+        }
+      }
+
+      await sleep(300);
+
+      const resultIndex = currentIndex;
+      const memberName = names[startIndex];
+
+      confirmedResults.push({
+        participantIndex: startIndex,
+        resultIndex: resultIndex
+      });
+
+      let fadeProgress = 0;
+      const fadeInterval = 20;
+      const fadeDuration = 1000;
+      const fadeStep = fadeInterval / fadeDuration;
+
+      const fadeAnimation = () => {
+        fadeProgress = Math.min(1, fadeProgress + fadeStep);
+
+        const clearX = config.marginLeft + resultIndex * config.horizontalSpacing;
+        const clearY = config.marginTop + config.verticalLineHeight + 10;
+        const clearWidth = config.horizontalSpacing;
+        const clearHeight = 50;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.fillRect(clearX - clearWidth / 2, clearY, clearWidth, clearHeight);
+
+        let color;
+        if (fadeProgress <= 0.5) {
+
+          const ratio = fadeProgress * 2;
+          const black = Math.floor(44 * (1 - ratio));
+          const red = Math.floor(255 * ratio);
+          color = `rgb(${red}, ${black}, ${black})`;
+        } else {
+
+          const ratio = (fadeProgress - 0.5) * 2;
+          const black = Math.floor(44 * ratio);
+          const red = Math.floor(255 * (1 - ratio));
+          color = `rgb(${red}, ${black}, ${black})`;
+        }
+
+        ctx.font = 'bold 16px "Montserrat", "Zen Maru Gothic", sans-serif';
+        ctx.textAlign = 'center';
+
+        const y = config.marginTop + config.verticalLineHeight + 20;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillText(results[resultIndex], currentX + 1, y + 1);
+
+        ctx.fillStyle = color;
+        ctx.fillText(results[resultIndex], currentX, y);
+
+        const resultY = config.marginTop + config.verticalLineHeight + 45;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillText(memberName, currentX + 1, resultY + 1);
+
+        ctx.fillStyle = color;
+        ctx.fillText(memberName, currentX, resultY);
+
+        if (fadeProgress < 1) {
+          setTimeout(fadeAnimation, fadeInterval);
+        } else {
+
+          const { width, height } = initCanvas(names);
+          drawVerticalLines(names, width, height);
+          drawBridges(currentBridges);
+          drawTracedPaths();
+          drawNames(names, results);
+        }
+      };
+
+      fadeAnimation();
+
+      await sleep(200);
+      dot.remove();
+      activeDot = null;
+
+      return resultIndex;
+    }
+
+    async function traceAllPaths(bridges, names, results) {
+
+      tracedPaths = [];
+
+      for (let i = 0; i < names.length; i++) {
+        await tracePath(bridges, names, results, i);
+      }
+
+      isTracingPaths = false;
+
+      resetButton.title = '';
+
+      addLinesButton.textContent = 'いざ、運試し！';
+      generateButton.disabled = false;
+      addLinesButton.disabled = false;
+      captureButton.disabled = false;
+      copyLinkButton.disabled = false;
+      resetButton.disabled = false;
+      infoButton.disabled = false;
+      updateButtonStates();
+
+      enableShareButtons(null);
+      saveStateToURL();
+
+    }
+
+    // ボタンの状態を更新する関数
+    function updateButtonStates() {
+
+      generateButton.disabled = isTracingPaths;
+      addLinesButton.disabled = !hasGeneratedOnce || hasTriedLuck;
+
+      captureButton.disabled = !hasTriedLuck;
+
+      resetButton.disabled = false;
+
+      copyLinkButton.disabled = isTracingPaths;
+
+      infoButton.disabled = isTracingPaths;
+
+      updateShareButtonsState();
+
+      resetButton.title = '';
+
+      if (isTracingPaths) {
+        copyLinkButton.title = '運試し中です';
+      } else {
+        copyLinkButton.title = '';
+      }
+
+      if (isTracingPaths) {
+        infoButton.title = '運試し中です';
+      } else {
+        infoButton.title = '';
+      }
+
+    }
+
+    // キャプチャボタンの幅を調整する関数
+    function updateCaptureButtonWidth() {
+      const computedWidth = captureButton.offsetWidth;
+      if (computedWidth) {
+        document.documentElement.style.setProperty('--capture-button-min-width', `${computedWidth}px`);
+      }
+    }
+
+    // 共有ボタンの状態を更新する関数
+    function updateShareButtonsState() {
+      const disable = isTracingPaths || !hasTriedLuck;
+      teamsButton.disabled = disable;
+      slackButton.disabled = disable;
+      hideTooltip(teamsButton);
+      hideTooltip(slackButton);
+    }
+
+    // ツールチップを非表示にする関数
+    function hideTooltip(element) {
+      if (!element) return;
+      if (!element.matches(':disabled') && element.getAttribute('aria-disabled') !== 'true') return;
+      const tooltip = element.querySelector('.custom-tooltip');
+      if (tooltip) {
+        tooltip.classList.remove('show');
+      }
+    }
+
+    // 共有ボタンを有効にする関数
+    function enableShareButtons(capturePayload) {
+      if (!capturePayload) {
+        sharePayload = null;
+        delete teamsButton.dataset.capturePayload;
+        delete slackButton.dataset.capturePayload;
+        updateShareButtonsState();
+        return;
+      }
+
+      sharePayload = {
+        html: capturePayload.htmlContent,
+        url: capturePayload.url,
+        blob: capturePayload.blob,
+        text: createShareText(capturePayload),
+        hasImage: !!capturePayload.blob
+      };
+
+      const sanitized = sanitizeCapturePayload(sharePayload);
+
+      teamsButton.dataset.capturePayload = JSON.stringify({
+        html: sanitized.html,
+        url: sanitized.url
+      });
+
+      slackButton.dataset.capturePayload = JSON.stringify(sanitized);
+
+      updateShareButtonsState();
+    }
+
+    // 復元された状態で共有ボタンを有効にする関数
+    function enableShareButtonsForRestoredState() {
+      // 結果が確定している場合は、共有ボタンを有効にする
+      if (hasTriedLuck && confirmedResults.length > 0) {
+        // キャプチャペイロードはnullのまま、ボタンの状態のみを更新
+        updateShareButtonsState();
+        console.log('復元された状態で共有ボタンを有効にしました');
+      }
+    }
+
+    // キャプチャペイロードをサニタイズする関数
+    function sanitizeCapturePayload(payload) {
+      return {
+        html: payload.html,
+        url: payload.url,
+        hasImage: !!payload.blob,
+        text: payload.text
+      };
+    }
+
+    // 共有テキストを作成する関数
+    function createShareText(payload) {
+      return payload.url || '';
+    }
+
+    function generateAmidakuji(shouldShuffle = false, isMany = false, keepExisting = false) {
+      if (!keepExisting) {
+        confirmedResults = [];
+      }
+      let names = namesTextarea.value.split('\n').map(name => name.trim()).filter(name => name);
+      let results = resultsTextarea.value.split('\n').map(result => result.trim()).filter(result => result);
+      if (names.length < 2 || names.length !== results.length) return;
+
+      if (shouldShuffle && !keepExisting) {
+
+        generateButton.disabled = true;
+        addLinesButton.disabled = true;
+        captureButton.disabled = true;
+        copyLinkButton.disabled = true;
+        resetButton.disabled = true;
+        infoButton.disabled = true;
+
+        let confirmedSlots = [];
+        let shuffleCount = 0;
+        const maxShuffles = 30;
+        const shuffleInterval = 100;
+        let nextConfirmTime = 12;
+        let usedNames = [];
+        let usedResults = [];
+        let finalNameOrder = [];
+
+        const shuffle = () => {
+
+          const unconfirmedIndices = names.map((_, index) => index).filter(index => !confirmedSlots.includes(index));
+
+          if (unconfirmedIndices.length > 0) {
+
+            const availableNames = names.filter(name => !usedNames.includes(name));
+
+            const availableResults = results.filter(result => !usedResults.includes(result));
+
+            if (availableNames.length > 0 && availableResults.length > 0) {
+
+              const shuffledAvailableNames = shuffleArray([...availableNames]);
+
+              const shuffledAvailableResults = shuffleArray([...availableResults]);
+
+              unconfirmedIndices.forEach((originalIndex, shuffleIndex) => {
+                if (shuffleIndex < shuffledAvailableNames.length) {
+                  currentShuffledNames[originalIndex] = shuffledAvailableNames[shuffleIndex];
+                }
+                if (shuffleIndex < shuffledAvailableResults.length) {
+                  currentShuffledResults[originalIndex] = shuffledAvailableResults[shuffleIndex];
+                }
+              });
+            }
+          }
+
+          const { width, height } = initCanvas(names);
+          drawVerticalLines(names, width, height);
+          const bridges = generateBridges(names, isMany, keepExisting);
+          drawBridges(bridges);
+          drawNames(currentShuffledNames, currentShuffledResults);
+
+          shuffleCount++;
+
+          if (shuffleCount >= nextConfirmTime && confirmedSlots.length < names.length) {
+            const nextSlotToConfirm = confirmedSlots.length;
+            confirmedSlots.push(nextSlotToConfirm);
+
+            const availableNames = names.filter(name => !usedNames.includes(name));
+
+            const availableResults = results.filter(result => !usedResults.includes(result));
+
+            if (availableNames.length > 0 && availableResults.length > 0) {
+              const randomName = availableNames[Math.floor(Math.random() * availableNames.length)];
+              const randomResult = availableResults[Math.floor(Math.random() * availableResults.length)];
+
+              currentShuffledNames[nextSlotToConfirm] = randomName;
+              currentShuffledResults[nextSlotToConfirm] = randomResult;
+
+              usedNames.push(randomName);
+              usedResults.push(randomResult);
+              finalNameOrder[nextSlotToConfirm] = randomName;
+            }
+
+            nextConfirmTime = shuffleCount + Math.floor(Math.random() * 6) + 3;
+          }
+
+          if (shuffleCount < maxShuffles && confirmedSlots.length < names.length) {
+            setTimeout(shuffle, shuffleInterval);
+          } else {
+
+            if (confirmedSlots.length < names.length) {
+
+              const remainingNames = names.filter(name => !usedNames.includes(name));
+              const remainingResults = results.filter(result => !usedResults.includes(result));
+              const unconfirmedIndices = names.map((_, index) => index).filter(index => !confirmedSlots.includes(index));
+
+              unconfirmedIndices.forEach((index, i) => {
+                if (i < remainingNames.length) {
+                  currentShuffledNames[index] = remainingNames[i];
+                  usedNames.push(remainingNames[i]);
+                }
+                if (i < remainingResults.length) {
+                  currentShuffledResults[index] = remainingResults[i];
+                  usedResults.push(remainingResults[i]);
+                }
+              });
+
+              const { width, height } = initCanvas(names);
+              drawVerticalLines(names, width, height);
+              const bridges = generateBridges(names, isMany, keepExisting);
+              drawBridges(bridges);
+              drawNames(currentShuffledNames, currentShuffledResults);
+            }
+
+            if (!keepExisting) {
+              hasGeneratedOnce = true;
+              hasTriedLuck = false;
+            }
+
+            resetButton.title = '';
+
+            generateButton.textContent = 'あみだくじを生成';
+            generateButton.disabled = false;
+            addLinesButton.disabled = false;
+            copyLinkButton.disabled = false;
+            resetButton.disabled = false;
+            infoButton.disabled = false;
+            updateButtonStates();
+          }
+        };
+
+        currentShuffledNames = [...names];
+        currentShuffledResults = shuffleArray([...results]);
+        finalNameOrder = new Array(names.length);
+        usedNames = [];
+        usedResults = [];
+        shuffle();
+      } else {
+        const { width, height } = initCanvas(names);
+        drawVerticalLines(names, width, height);
+        const bridges = generateBridges(names, isMany, keepExisting);
+
+        if (keepExisting && newBridges.length > 0) {
+
+          let fadeProgress = 0;
+          const fadeInterval = 20;
+          const fadeDuration = 1000;
+          const fadeStep = fadeInterval / fadeDuration;
+
+          const fadeIn = () => {
+            fadeProgress = Math.min(1, fadeProgress + fadeStep);
+
+            const { width, height } = initCanvas(names);
+            drawVerticalLines(names, width, height);
+
+            let color;
+            if (fadeProgress <= 0.5) {
+
+              const ratio = fadeProgress * 2;
+              const gray = Math.floor(170 * (1 - ratio));
+              const red = Math.floor(170 + 85 * ratio);
+              color = `rgb(${red}, ${gray}, ${gray})`;
+            } else {
+
+              const ratio = (fadeProgress - 0.5) * 2;
+              const gray = Math.floor(170 * ratio);
+              const red = Math.floor(255 - 85 * ratio);
+              color = `rgb(${red}, ${gray}, ${gray})`;
+            }
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#aaaaaa';
+            ctx.lineWidth = config.lineWidth;
+            bridges.filter(bridge => !newBridges.includes(bridge)).forEach(bridge => {
+              const x1 = config.marginLeft + bridge.x * config.horizontalSpacing;
+              const x2 = x1 + config.horizontalSpacing;
+              ctx.moveTo(x1, bridge.y);
+              ctx.lineTo(x2, bridge.y);
+            });
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = config.lineWidth;
+            newBridges.forEach(bridge => {
+              const x1 = config.marginLeft + bridge.x * config.horizontalSpacing;
+              const x2 = x1 + config.horizontalSpacing;
+              ctx.moveTo(x1, bridge.y);
+              ctx.lineTo(x2, bridge.y);
+            });
+            ctx.stroke();
+
+            drawNames(hasGeneratedOnce ? currentShuffledNames : names, hasGeneratedOnce ? currentShuffledResults : results);
+
+            if (fadeProgress < 1) {
+              setTimeout(fadeIn, fadeInterval);
+            } else if (keepExisting) {
+
+              hasTriedLuck = true;
+
+              traceAllPaths(
+                bridges,
+                hasGeneratedOnce ? currentShuffledNames : names,
+                hasGeneratedOnce ? currentShuffledResults : results
+              );
+            } else {
+
+              const { width, height } = initCanvas(names);
+              drawVerticalLines(names, width, height);
+              drawBridges(bridges);
+              drawNames(hasGeneratedOnce ? currentShuffledNames : names, hasGeneratedOnce ? currentShuffledResults : results);
+            }
+          };
+
+          fadeIn();
+        } else {
+          drawBridges(bridges);
+          drawNames(hasGeneratedOnce ? currentShuffledNames : names, hasGeneratedOnce ? currentShuffledResults : results);
+        }
+
+      }
+    }
+
+    // テキストエリアの変更を監視して盤面を更新する関数
+    function updateBoardOnTextChange() {
+      let names = namesTextarea.value.split('\n').map(name => name.trim()).filter(name => name);
+      let results = resultsTextarea.value.split('\n').map(result => result.trim()).filter(result => result);
+
+      if (names.length >= 2 && names.length === results.length) {
+
+        resetNameColors();
+
+        currentBridges = [];
+        newBridges = [];
+
+        const { width, height } = initCanvas(names);
+        drawVerticalLines(names, width, height);
+        const bridges = generateBridges(names, false, false);
+        drawBridges(bridges);
+        drawNames(names, results);
+      }
+    }
+
+    // ========================================
+    // イベントリスナー
+    // ========================================
+
+    // テキストエリアの変更監視
+    namesTextarea.addEventListener('input', () => {
+      updateBoardOnTextChange();
+      saveStateToURL();
+    });
+    resultsTextarea.addEventListener('input', () => {
+      updateBoardOnTextChange();
+      saveStateToURL();
+    });
+
+    // 生成ボタンのイベントリスナー
+    generateButton.addEventListener('click', () => {
+
+      generateButton.textContent = 'あみだくじ生成中...';
+      generateButton.disabled = true;
+      addLinesButton.disabled = true;
+      captureButton.disabled = true;
+      copyLinkButton.disabled = true;
+      resetButton.disabled = true;
+      infoButton.disabled = true;
+
+      confirmedResults = [];
+      hasGeneratedOnce = false;
+      hasTriedLuck = false;
+      isTracingPaths = false;
+
+      resetNameColors();
+      currentShuffledNames = [];
+      currentShuffledResults = [];
+      activeDot = null;
+      tracedPaths = [];
+
+      setTextareasLocked(true);
+
+      generateAmidakuji(true, false, false);
+
+      setTimeout(() => {
+        saveStateToURL();
+
+      }, 1000);
+
+    });
+    addLinesButton.addEventListener('click', () => {
+
+      addLinesButton.textContent = '運試し中...';
+      addLinesButton.disabled = true;
+
+      setTextareasLocked(true);
+      generateButton.disabled = true;
+      captureButton.disabled = true;
+      copyLinkButton.disabled = true;
+      resetButton.disabled = true;
+      infoButton.disabled = true;
+
+      isTracingPaths = true;
+      generateAmidakuji(false, true, true);
+
+      setTimeout(() => {
+        saveStateToURL();
+      }, 1000);
+    });
+
+    // リセットボタンのイベントリスナー
+    resetButton.addEventListener('click', () => {
+
+      generateButton.disabled = true;
+      addLinesButton.disabled = true;
+      captureButton.disabled = true;
+      copyLinkButton.disabled = true;
+      resetButton.disabled = true;
+      infoButton.disabled = true;
+
+      let names = namesTextarea.value.split('\n').map(name => name.trim()).filter(name => name);
+      let results = resultsTextarea.value.split('\n').map(result => result.trim()).filter(result => result);
+
+      if (names.length >= 2 && names.length === results.length) {
+
+        resetLinesToGray(names);
+
+        let resetConfirmedSlots = [];
+        let resetShuffleCount = 0;
+        const maxResetShuffles = 20;
+        const resetShuffleInterval = 80;
+        let nextResetConfirmTime = 8;
+        let resetUsedNames = [];
+        let resetUsedResults = [];
+        let finalResetNameOrder = [];
+
+        const resetShuffle = () => {
+
+          const unconfirmedIndices = names.map((_, index) => index).filter(index => !resetConfirmedSlots.includes(index));
+
+          if (unconfirmedIndices.length > 0) {
+
+            const availableNames = names.filter(name => !resetUsedNames.includes(name));
+
+            const availableResults = results.filter(result => !resetUsedResults.includes(result));
+
+            if (availableNames.length > 0 && availableResults.length > 0) {
+
+              const shuffledAvailableNames = shuffleArray([...availableNames]);
+
+              const shuffledAvailableResults = shuffleArray([...availableResults]);
+
+              unconfirmedIndices.forEach((originalIndex, shuffleIndex) => {
+                if (shuffleIndex < shuffledAvailableNames.length) {
+                  currentShuffledNames[originalIndex] = shuffledAvailableNames[shuffleIndex];
+                }
+                if (shuffleIndex < shuffledAvailableResults.length) {
+                  currentShuffledResults[originalIndex] = shuffledAvailableResults[shuffleIndex];
+                }
+              });
+            }
+          }
+
+          const { width, height } = initCanvas(names);
+          drawVerticalLines(names, width, height);
+          const bridges = generateBridges(names, false, true);
+          drawBridges(bridges);
+          drawTracedPaths();
+          drawNames(currentShuffledNames, currentShuffledResults, true);
+
+          resetShuffleCount++;
+
+          if (resetShuffleCount >= nextResetConfirmTime && resetConfirmedSlots.length < names.length) {
+            const nextSlotToConfirm = names.length - 1 - resetConfirmedSlots.length;
+            resetConfirmedSlots.push(nextSlotToConfirm);
+
+            const targetName = names[nextSlotToConfirm];
+            const targetResult = results[nextSlotToConfirm];
+
+            currentShuffledNames[nextSlotToConfirm] = targetName;
+            currentShuffledResults[nextSlotToConfirm] = targetResult;
+
+            resetUsedNames.push(targetName);
+            resetUsedResults.push(targetResult);
+            finalResetNameOrder[nextSlotToConfirm] = targetName;
+
+            nextResetConfirmTime = resetShuffleCount + Math.floor(Math.random() * 4) + 2;
+          }
+
+          if (resetShuffleCount < maxResetShuffles && resetConfirmedSlots.length < names.length) {
+            setTimeout(resetShuffle, resetShuffleInterval);
+          } else {
+
+            if (resetConfirmedSlots.length < names.length) {
+
+              const remainingNames = names.filter(name => !resetUsedNames.includes(name));
+              const remainingResults = results.filter(result => !resetUsedResults.includes(result));
+              const unconfirmedIndices = names.map((_, index) => index).filter(index => !resetConfirmedSlots.includes(index));
+
+              unconfirmedIndices.forEach((index, i) => {
+                if (i < remainingNames.length) {
+                  currentShuffledNames[index] = remainingNames[i];
+                  resetUsedNames.push(remainingNames[i]);
+                }
+                if (i < remainingResults.length) {
+                  currentShuffledResults[index] = remainingResults[i];
+                  resetUsedResults.push(remainingResults[i]);
+                }
+              });
+            }
+
+            const { width, height } = initCanvas(names);
+            drawVerticalLines(names, width, height);
+            const bridges = generateBridges(names, false, true);
+            drawBridges(bridges);
+            drawTracedPaths();
+            drawNames(currentShuffledNames, currentShuffledResults, true);
+
+            confirmedResults = [];
+            hasGeneratedOnce = false;
+            hasTriedLuck = false;
+            isTracingPaths = false;
+            activeDot = null;
+            tracedPaths = [];
+
+            setTextareasLocked(false);
+
+            saveStateToURL();
+
+            setTimeout(() => {
+              generateButton.textContent = 'あみだくじを生成';
+              addLinesButton.textContent = 'いざ、運試し！';
+              generateButton.disabled = false;
+              addLinesButton.disabled = false;
+              captureButton.disabled = false;
+              copyLinkButton.disabled = false;
+              resetButton.disabled = false;
+              infoButton.disabled = false;
+              updateButtonStates();
+            }, 100);
+          }
+        };
+
+        currentShuffledNames = [...names];
+        currentShuffledResults = [...results];
+        finalResetNameOrder = new Array(names.length);
+        resetUsedNames = [];
+        resetUsedResults = [];
+        resetShuffle();
+      } else {
+
+        confirmedResults = [];
+        hasGeneratedOnce = false;
+        hasTriedLuck = false;
+        isTracingPaths = false;
+        currentShuffledNames = [];
+        currentShuffledResults = [];
+        activeDot = null;
+        tracedPaths = [];
+
+        namesTextarea.value = defaultNames.join('\n');
+        resultsTextarea.value = defaultResults.join('\n');
+
+        setTextareasLocked(false);
+
+        saveStateToURL();
+
+        setTimeout(() => {
+          generateButton.textContent = 'あみだくじを生成';
+          addLinesButton.textContent = 'いざ、運試し！';
+          generateButton.disabled = false;
+          addLinesButton.disabled = false;
+          captureButton.disabled = false;
+          copyLinkButton.disabled = false;
+          resetButton.disabled = false;
+          infoButton.disabled = false;
+          updateButtonStates();
+        }, 100);
+      }
+    });
+
+    // 外部ライブラリの利用可能性をチェックしてキャプチャボタンの状態を設定
+    function initializeCaptureButton() {
+      const isLibraryAvailable = checkLibraryAvailability();
+      if (!isLibraryAvailable) {
+        captureButton.disabled = true;
+        captureButton.textContent = 'キャプチャ機能は利用できません';
+        console.warn('キャプチャボタンを無効化しました: 外部リソースへのアクセスが制限されています');
+      }
+    }
+
+    // キャプチャボタンのクリックイベント
+    captureButton.addEventListener('click', async () => {
+      try {
+        const isLibraryAvailable = checkLibraryAvailability();
+        if (!isLibraryAvailable) {
+          displayMessage('キャプチャ機能は利用できません。外部リソースへのアクセスが制限されています。', true);
+          return;
+        }
+
+        captureButton.disabled = true;
+        captureButton.textContent = 'キャプチャ中...';
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        const sectionElement = document.querySelector('main');
+        if (!sectionElement) {
+          throw new Error('main要素が見つかりません');
+        }
+
+        const rect = sectionElement.getBoundingClientRect();
+
+        const fullCanvas = await html2canvas(document.body, {
+          backgroundColor: '#e0eafc',
+          scale: 1,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          removeContainer: false,
+          foreignObjectRendering: true
+        });
+
+        const sectionCanvas = document.createElement('canvas');
+        const sectionCtx = sectionCanvas.getContext('2d');
+        sectionCanvas.width = rect.width;
+        sectionCanvas.height = rect.height;
+
+        sectionCtx.drawImage(
+          fullCanvas,
+          rect.left, rect.top, rect.width, rect.height,
+          0, 0, rect.width, rect.height
+        );
+
+        const resizedCanvas = document.createElement('canvas');
+        const resizedCtx = resizedCanvas.getContext('2d');
+        resizedCanvas.width = 640;
+        resizedCanvas.height = (sectionCanvas.height * 640) / sectionCanvas.width;
+        resizedCtx.drawImage(sectionCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+        const trimmedCanvas = resizedCanvas;
+
+        const blob = await new Promise(resolve => {
+          trimmedCanvas.toBlob(resolve, 'image/png');
+        });
+
+        const currentURL = window.location.href;
+        const base64Image = blob ? await blobToBase64(blob) : null;
+
+        const htmlContent = `
+          <div style="text-align: center; font-family: 'Montserrat', 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); padding: 20px; border-radius: 15px;">
+            ${base64Image ? `<div style="margin-top: 12px;">
+              <img src="data:image/png;base64,${base64Image}" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="あみだくじ抽選結果" />
+              </div>` : ''}
+            <div style="margin-bottom: 16px;">
+              <a href="${currentURL}" style="color: #3498db; text-decoration: none;">${currentURL}</a>
+            </div>
+          </div>
+        `;
+
+        try {
+          const clipboardPayload = new ClipboardItem({
+            'image/png': blob,
+            'text/plain': new Blob([currentURL], { type: 'text/plain' })
+          });
+
+          await navigator.clipboard.write([clipboardPayload]);
+          displayMessage('キャプチャをクリップボードにコピーしました！');
+        } catch (clipboardError) {
+          console.error('キャプチャコピーエラー:', clipboardError);
+          displayMessage('クリップボードへのコピーに失敗しました。', true);
+        }
+
+        enableShareButtons({
+          blob,
+          htmlContent,
+          url: currentURL
+        });
+
+      } catch (error) {
+        console.error('キャプチャエラー:', error);
+        displayMessage('キャプチャに失敗しました。', true);
+      } finally {
+        captureButton.disabled = false;
+        captureButton.textContent = '結果をキャプチャ';
+      }
+    });
+
+    // 情報ボタンのクリックイベント
+    infoButton.addEventListener('click', () => {
+      openUserGuide();
+    });
+
+    // リンクコピーボタンのイベントリスナー
+    copyLinkButton.addEventListener('click', async () => {
+      try {
+        const names = namesTextarea.value.split('\n').map(name => name.trim()).filter(name => name);
+        const results = resultsTextarea.value.split('\n').map(result => result.trim()).filter(result => result);
+
+        const initialState = {
+          names: names,
+          results: results,
+          nameColors: Object.fromEntries(nameColors),
+          bridges: currentBridges,
+          hasGeneratedOnce: false,
+          hasTriedLuck: false
+        };
+
+        const encodedState = encodeState(JSON.stringify(initialState));
+        const baseURL = window.location.origin + window.location.pathname;
+        const initialURL = `${baseURL}?state=${encodedState}`;
+
+        await navigator.clipboard.writeText(initialURL);
+        displayMessage('初期状態のリンクをクリップボードにコピーしました！');
+
+      } catch (error) {
+        console.error('リンクコピーエラー:', error);
+        displayMessage('リンクのコピーに失敗しました。', true);
+      }
+    });
+
+    // Teamsボタンのイベントリスナー
+    teamsButton.addEventListener('click', async () => {
+      if (teamsButton.disabled) return;
+
+      try {
+        if (!sharePayload || !sharePayload.html) {
+          teamsButton.disabled = true;
+
+          await new Promise(resolve => setTimeout(resolve, 50));
+
+          const sectionElement = document.querySelector('main');
+          const rect = sectionElement.getBoundingClientRect();
+
+          const fullCanvas = await html2canvas(document.body, {
+            backgroundColor: '#e0eafc',
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            removeContainer: false,
+            foreignObjectRendering: true
+          });
+
+          const sectionCanvas = document.createElement('canvas');
+          const sectionCtx = sectionCanvas.getContext('2d');
+          sectionCanvas.width = rect.width;
+          sectionCanvas.height = rect.height;
+
+          sectionCtx.drawImage(
+            fullCanvas,
+            rect.left, rect.top, rect.width, rect.height,
+            0, 0, rect.width, rect.height
+          );
+
+          const resizedCanvas = document.createElement('canvas');
+          const resizedCtx = resizedCanvas.getContext('2d');
+          resizedCanvas.width = 640;
+          resizedCanvas.height = (sectionCanvas.height * 640) / sectionCanvas.width;
+          resizedCtx.drawImage(sectionCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+          const trimmedCanvas = resizedCanvas;
+
+          const blob = await new Promise(resolve => {
+            trimmedCanvas.toBlob(resolve, 'image/png');
+          });
+
+          const currentURL = window.location.href;
+          const base64Image = blob ? await blobToBase64(blob) : null;
+          const htmlContent = `
+            <div style="text-align: center; font-family: 'Montserrat', 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); padding: 20px; border-radius: 15px;">
+              ${base64Image ? `<div style="margin-bottom: 16px;">
+                <img src="data:image/png;base64,${base64Image}" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="あみだくじ抽選結果" />
+              </div>` : ''}
+              <div style="margin-top: 12px;">
+                <a href="${currentURL}" style="color: #3498db; text-decoration: none;">${currentURL}</a>
+              </div>
+            </div>
+          `;
+
+          enableShareButtons({
+            blob,
+            htmlContent,
+            url: currentURL
+          });
+        }
+
+        const clipboardItem = new ClipboardItem({
+          'text/html': new Blob([sharePayload.html], { type: 'text/html' })
+        });
+        await navigator.clipboard.write([clipboardItem]);
+        displayMessage('キャプチャをクリップボードにコピーしました！');
+      } catch (error) {
+        console.error('Teams共有エラー:', error);
+        displayMessage('Teams用のコピーに失敗しました。', true);
+        return;
+      } finally {
+        updateShareButtonsState();
+      }
+
+      await openExternalApplication('teams', 'Teamsアプリを起動できませんでした。');
+    });
+
+    // Slackボタンのイベントリスナー
+    slackButton.addEventListener('click', async () => {
+      if (slackButton.disabled) return;
+
+      try {
+        if (!sharePayload || !sharePayload.blob) {
+          slackButton.disabled = true;
+
+          await new Promise(resolve => setTimeout(resolve, 50));
+
+          const sectionElement = document.querySelector('main');
+          const rect = sectionElement.getBoundingClientRect();
+
+          const fullCanvas = await html2canvas(document.body, {
+            backgroundColor: '#e0eafc',
+            scale: 1,
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            removeContainer: false,
+            foreignObjectRendering: true
+          });
+
+          const sectionCanvas = document.createElement('canvas');
+          const sectionCtx = sectionCanvas.getContext('2d');
+          sectionCanvas.width = rect.width;
+          sectionCanvas.height = rect.height;
+
+          sectionCtx.drawImage(
+            fullCanvas,
+            rect.left, rect.top, rect.width, rect.height,
+            0, 0, rect.width, rect.height
+          );
+
+          const resizedCanvas = document.createElement('canvas');
+          const resizedCtx = resizedCanvas.getContext('2d');
+          resizedCanvas.width = 640;
+          resizedCanvas.height = (sectionCanvas.height * 640) / sectionCanvas.width;
+          resizedCtx.drawImage(sectionCanvas, 0, 0, resizedCanvas.width, resizedCanvas.height);
+
+          const trimmedCanvas = resizedCanvas;
+
+          const blob = await new Promise(resolve => {
+            trimmedCanvas.toBlob(resolve, 'image/png');
+          });
+
+          const currentURL = window.location.href;
+          const base64Image = blob ? await blobToBase64(blob) : null;
+          const htmlContent = `
+            <div style="text-align: center; font-family: 'Montserrat', 'Zen Maru Gothic', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); padding: 20px; border-radius: 15px;">
+              ${base64Image ? `<div style="margin-top: 12px;">
+                <img src="data:image/png;base64,${base64Image}" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" alt="あみだくじ抽選結果" />
+              </div>` : ''}
+              <div style="margin-bottom: 16px;">
+                <a href="${currentURL}" style="color: #3498db; text-decoration: none;">${currentURL}</a>
+              </div>
+            </div>
+          `;
+
+          enableShareButtons({
+            blob,
+            htmlContent,
+            url: currentURL
+          });
+        }
+
+        const clipboardContents = new ClipboardItem({
+          'image/png': sharePayload.blob,
+          'text/plain': new Blob([sharePayload.text], { type: 'text/plain' })
+        });
+
+        await navigator.clipboard.write([clipboardContents]);
+        displayMessage('Slack 共有用にクリップボードへコピーしました！');
+      } catch (error) {
+        console.error('Slack共有エラー:', error);
+        displayMessage('Slack用のコピーに失敗しました。', true);
+        return;
+      } finally {
+        updateShareButtonsState();
+      }
+
+      await openExternalApplication('slack', 'Slackアプリを起動できませんでした。');
+    });
+
+    // CSP対応の外部アプリ起動関数
+    function openExternalApplication(appType, errorMessage) {
+      return new Promise(resolve => {
+        let resolved = false;
+        let didLoseFocus = false;
+        let timeoutId = null;
+
+        const cleanup = () => {
+          if (timeoutId) {
+            window.clearTimeout(timeoutId);
+          }
+          window.removeEventListener('blur', handleBlur, true);
+          document.removeEventListener('visibilitychange', handleVisibility, true);
+        };
+
+        const finish = (success) => {
+          if (resolved) return;
+          resolved = true;
+          cleanup();
+          resolve(success);
+        };
+
+        const handleBlur = () => {
+          didLoseFocus = true;
+          finish(true);
+        };
+
+        const handleVisibility = () => {
+          if (document.hidden) {
+            didLoseFocus = true;
+            finish(true);
+          }
+        };
+
+        window.addEventListener('blur', handleBlur, true);
+        document.addEventListener('visibilitychange', handleVisibility, true);
+
+        timeoutId = window.setTimeout(() => {
+          if (!didLoseFocus) {
+            showAppLaunchDialog(appType, errorMessage);
+          }
+          finish(didLoseFocus);
+        }, 1500);
+
+        tryMultipleLaunchMethods(appType);
+      });
+    }
+
+    // 複数の起動方法を試行する関数（CSPエラー対応）
+    function tryMultipleLaunchMethods(appType) {
+      const methods = getLaunchMethods(appType);
+
+      for (let i = 0; i < methods.length; i++) {
+        try {
+          methods[i]();
+          if (i === 0) {
+            break;
+          }
+        } catch (error) {
+          console.warn(`起動方法 ${i + 1} が失敗:`, error);
+
+          if (error.message && (
+            error.message.includes('frame-src') ||
+            error.message.includes('Content Security Policy') ||
+            error.message.includes('CSP')
+          )) {
+            console.warn('CSPエラーが検出されました。次の方法を試行します。');
+            continue;
+          }
+
+          if (i === methods.length - 1) {
+            showAppLaunchDialog(appType, 'アプリの自動起動に失敗しました。');
+          }
+        }
+      }
+    }
+
+    // プロトコルリンクをクリックする関数
+    function createProtocolClick(protocolUrl) {
+      const link = document.createElement('a');
+      link.href = protocolUrl;
+      link.style.display = 'none';
+      link.target = '_self';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        if (link.parentNode) {
+          document.body.removeChild(link);
+        }
+      }, 100);
+    }
+
+    // ユーザーアクション経由でプロトコルリンクをクリックする関数
+    function createProtocolClickWithEvent(protocolUrl) {
+      const link = document.createElement('a');
+      link.href = protocolUrl;
+      link.style.position = 'absolute';
+      link.style.left = '-9999px';
+      link.style.top = '-9999px';
+      link.style.opacity = '0';
+      link.style.pointerEvents = 'none';
+      document.body.appendChild(link);
+
+      const event = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true
+      });
+      link.dispatchEvent(event);
+
+      setTimeout(() => {
+        if (link.parentNode) {
+          document.body.removeChild(link);
+        }
+      }, 100);
+    }
+
+    // アプリタイプに応じた起動方法を取得
+    function getLaunchMethods(appType) {
+      if (appType === 'teams') {
+        return [
+          () => createProtocolClick('msteams://'),
+          () => createProtocolClickWithEvent('msteams://'),
+          () => window.open('https://teams.microsoft.com', '_blank')
+        ];
+      } else if (appType === 'slack') {
+        return [
+          () => createProtocolClick('slack://open'),
+          () => createProtocolClickWithEvent('slack://open'),
+          () => window.open('https://slack.com', '_blank')
+        ];
+      }
+      return [];
+    }
+
+    // アプリ起動ダイアログを表示
+    function showAppLaunchDialog(appType, errorMessage) {
+      const appInfo = getAppInfo(appType);
+
+      const dialog = document.createElement('div');
+      dialog.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+      `;
+
+      dialog.innerHTML = `
+        <div style="
+          background: white;
+          border-radius: 15px;
+          padding: 30px;
+          max-width: 500px;
+          width: 90%;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          text-align: center;
+        ">
+          <div style="font-size: 48px; margin-bottom: 20px;">${appInfo.icon}</div>
+          <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 24px;">${appInfo.name}アプリを開く</h3>
+          <p style="color: #666; margin: 0 0 25px 0; line-height: 1.6;">
+            ${appInfo.message}
+          </p>
+          <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <button id="tryAppLaunch" style="
+              background: ${appInfo.color};
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            ">アプリを起動</button>
+            <button id="openWebApp" style="
+              background: #27ae60;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            ">Web版を開く</button>
+            <button id="copyInstructions" style="
+              background: #3498db;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            ">手順をコピー</button>
+            <button id="closeDialog" style="
+              background: #95a5a6;
+              color: white;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              font-size: 16px;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            ">閉じる</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(dialog);
+
+      document.getElementById('tryAppLaunch').addEventListener('click', () => {
+        tryMultipleLaunchMethods(appType);
+        displayMessage(`${appInfo.name}アプリの起動を試行中...`);
+      });
+
+      document.getElementById('openWebApp').addEventListener('click', () => {
+        window.open(appInfo.webUrl, '_blank');
+        closeDialog();
+      });
+
+      document.getElementById('copyInstructions').addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(appInfo.instructions);
+          displayMessage('手順をクリップボードにコピーしました！');
+        } catch (error) {
+          console.error('コピーエラー:', error);
+          displayMessage('コピーに失敗しました。', true);
+        }
+      });
+
+      document.getElementById('closeDialog').addEventListener('click', closeDialog);
+
+      dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+          closeDialog();
+        }
+      });
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          closeDialog();
+          document.removeEventListener('keydown', handleKeyDown);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+
+      function closeDialog() {
+        dialog.remove();
+        document.removeEventListener('keydown', handleKeyDown);
+      }
+    }
+
+    // アプリ情報を取得
+    function getAppInfo(appType) {
+      if (appType === 'teams') {
+        return {
+          name: 'Teams',
+          icon: '💼',
+          color: '#5059C9',
+          webUrl: 'https://teams.microsoft.com',
+          message: 'Teamsアプリの起動を試行します。自動で開かない場合は、以下の方法をお試しください：',
+          instructions: `1. Teamsアプリを手動で開く
+2. チャットまたはチャンネルを選択
+3. クリップボードにコピーされた内容を貼り付け（Ctrl+V）
+4. 送信ボタンをクリック
+
+または、Web版のTeamsを開いて同様の操作を行ってください。`
+        };
+      } else if (appType === 'slack') {
+        return {
+          name: 'Slack',
+          icon: '💬',
+          color: '#4A154B',
+          webUrl: 'https://slack.com',
+          message: 'Slackアプリの起動を試行します。自動で開かない場合は、以下の方法をお試しください：',
+          instructions: `1. Slackアプリを手動で開く
+2. チャンネルまたはDMを選択
+3. クリップボードにコピーされた画像を貼り付け（Ctrl+V）
+4. 送信ボタンをクリック
+
+または、Web版のSlackを開いて同様の操作を行ってください。`
+        };
+      }
+      return {
+        name: 'アプリ',
+        icon: '📱',
+        color: '#3498db',
+        webUrl: '#',
+        message: 'アプリが自動で開けませんでした。',
+        instructions: '手動でアプリを開いてください。'
+      };
+    }
+
+    // ========================================
+    // ユーザーガイド機能
+    // ========================================
+
+    // HTMLコメントからユーザーガイドコンテンツを取得する関数
+    function getUserGuideContent() {
+      const walker = document.createTreeWalker(
+        document,
+        NodeFilter.SHOW_COMMENT,
+        null,
+        false
+      );
+
+      let comment = walker.nextNode();
+      if (!comment) return '';
+
+      let content = comment.textContent;
+      content = content.replace(/^=+\s*$/gm, '');
+      content = content.replace(/^\s*$/gm, '');
+      content = content.replace(/\n\s*\n/g, '\n');
+
+      return content.trim();
+    }
+
+    function convertTextToHtml(text) {
+      let html = '';
+      const lines = text.split('\n');
+      let inExample = false;
+      let inList = false;
+
+      const closeExampleIfOpen = () => {
+        if (inExample) {
+          html += '</div>\n';
+          inExample = false;
+        }
+      };
+
+      const closeListIfOpen = () => {
+        if (inList) {
+          html += '</ul>\n';
+          inList = false;
+        }
+      };
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+
+        if (!line) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          continue;
+        }
+
+        if (line.includes('あみだくじアプリ - ユーザーガイド')) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += `<h2>${line}</h2>\n`;
+          continue;
+        }
+
+        if (line.match(/^【.*】$/)) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += `<h3>${line}</h3>\n`;
+          continue;
+        }
+
+        if (line.match(/^■\s+.*$/)) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += `<h4>${line}</h4>\n`;
+          continue;
+        }
+
+        if (line === '• 例：') {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          html += '<div class="example">';
+          inExample = true;
+          continue;
+        }
+
+        if (inExample) {
+          html += `${lines[i]}<br>`;
+          continue;
+        }
+
+        if (line.startsWith('•')) {
+          closeExampleIfOpen();
+          if (!inList) {
+            html += '<ul>\n';
+            inList = true;
+          }
+
+          let listContent = line.substring(1).trim();
+          listContent = listContent.replace(/「([^」]+)」/g, '<span class="highlight">「$1」</span>');
+          html += `<li>${listContent}</li>\n`;
+          continue;
+        }
+
+        if (line.match(/^\d+\./)) {
+          closeExampleIfOpen();
+          if (!inList) {
+            html += '<ul>\n';
+            inList = true;
+          }
+
+          let listContent = line.replace(/^\d+\.\s*/, '');
+          listContent = listContent.replace(/「([^」]+)」/g, '<span class="highlight">「$1」</span>');
+          html += `<li>${listContent}</li>\n`;
+          continue;
+        }
+
+        if (line && !line.startsWith('•') && !line.match(/^\d+\./)) {
+          closeListIfOpen();
+          closeExampleIfOpen();
+          let paragraphContent = line;
+          paragraphContent = paragraphContent.replace(/「([^」]+)」/g, '<span class="highlight">「$1」</span>');
+          html += `<p>${paragraphContent}</p>\n`;
+        }
+      }
+
+      closeListIfOpen();
+      closeExampleIfOpen();
+
+      return html;
+    }
+
+    // ユーザーガイドの表示
+    function openUserGuide() {
+      const existingOverlay = document.querySelector('.user-guide-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
+
+      const overlay = document.createElement('div');
+      overlay.className = 'user-guide-overlay';
+
+      const textContent = getUserGuideContent();
+      const htmlContent = convertTextToHtml(textContent);
+
+      overlay.innerHTML = `
+        <div class="user-guide-container">
+          <div class="user-guide-dialog">
+            <button class="user-guide-close" onclick="closeUserGuide()">
+              <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="white"><path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></svg>
+            </button>
+            ${htmlContent}
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      setTimeout(() => {
+        overlay.classList.add('show');
+      }, 10);
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          closeUserGuide();
+        }
+      });
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          closeUserGuide();
+          document.removeEventListener('keydown', handleKeyDown);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    // ユーザーガイドの非表示
+    function closeUserGuide() {
+      const overlay = document.querySelector('.user-guide-overlay');
+      if (overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+          }
+        }, 300);
+      }
+    }
+
+    // ========================================
+    // メッセージ表示機能
+    // ========================================
+
+    // メッセージの表示
+    function displayMessage(message, isError = false) {
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = message;
+
+      const backgroundColor = isError ? '#FFB6C1' : '#FFF8DC';
+      messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        background-color: ${backgroundColor};
+        color: #333;
+        font-size: 16px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-width: 300px;
+        word-wrap: break-word;
+        border: 2px solid ${isError ? '#FF6B6B' : '#FFD93D'};
+        animation: slideIn 0.3s ease-out;
+      `;
+
+      if (!document.getElementById('messageAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'messageAnimation';
+        style.textContent = `
+          @keyframes slideIn {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      document.body.appendChild(messageDiv);
+
+      setTimeout(() => {
+        if (messageDiv.parentNode) {
+          messageDiv.style.animation = 'slideIn 0.3s ease-out reverse';
+          setTimeout(() => {
+            if (messageDiv.parentNode) {
+              document.body.removeChild(messageDiv);
+            }
+          }, 300);
+        }
+      }, 3000);
+    }
+
+    // ========================================
+    // URL状態管理機能
+    // ========================================
+
+    // 状態のエンコード
+    function encodeState(str) {
+      try {
+        const utf8Str = unescape(encodeURIComponent(str));
+        return btoa(utf8Str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      } catch (error) {
+        console.warn('エンコードエラー:', error);
+        return str;
+      }
+    }
+
+    // 状態のデコード
+    function decodeState(str) {
+      try {
+        str += '==='.slice((str.length + 3) % 4);
+        str = str.replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = atob(str);
+        return decodeURIComponent(escape(decoded));
+      } catch (error) {
+        console.warn('デコードエラー:', error);
+        return str;
+      }
+    }
+
+    // URLに状態を保存
+    function saveStateToURL() {
+      const state = {
+        names: namesTextarea.value.split('\n').map(name => name.trim()).filter(name => name),
+        results: resultsTextarea.value.split('\n').map(result => result.trim()).filter(result => result),
+        nameColors: Object.fromEntries(nameColors),
+        nameOrder: currentShuffledNames.length > 0 ? currentShuffledNames : namesTextarea.value.split('\n').map(name => name.trim()).filter(name => name),
+        resultOrder: currentShuffledResults.length > 0 ? currentShuffledResults : resultsTextarea.value.split('\n').map(result => result.trim()).filter(result => result),
+        bridges: currentBridges,
+        confirmedResults: confirmedResults,
+        hasGeneratedOnce: hasGeneratedOnce,
+        hasTriedLuck: hasTriedLuck
+      };
+
+      const encodedState = encodeState(JSON.stringify(state));
+      const params = new URLSearchParams(window.location.search);
+      params.set('state', encodedState);
+      window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+
+      console.log('あみだくじの状態をURLに保存しました:', {
+        names: state.names,
+        results: state.results,
+        nameOrder: state.nameOrder,
+        resultOrder: state.resultOrder,
+        bridgesCount: state.bridges.length,
+        confirmedResultsCount: state.confirmedResults.length,
+        hasGeneratedOnce: state.hasGeneratedOnce,
+        hasTriedLuck: state.hasTriedLuck,
+        encodedState: encodedState
+      });
+    }
+
+    // URLから状態を読み込み
+    function loadStateFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const encodedState = params.get('state');
+
+      if (!encodedState) return null;
+
+      try {
+        const decodedState = decodeState(encodedState);
+        return JSON.parse(decodedState);
+      } catch (error) {
+        console.error('URL state decode error:', error);
+        return null;
+      }
+    }
+
+    // リロード検出
+    const nav = performance.getEntriesByType("navigation");
+    const isReload = 0 < nav.length ? nav[0].type === "reload" : false;
+
+    // テキストエリアの状態を復元する関数
+    function restoreTextareaState(savedState) {
+      if (!savedState) {
+
+        namesTextarea.value = defaultNames.join('\n');
+        resultsTextarea.value = defaultResults.join('\n');
+        return;
+      }
+
+      if (savedState.names && savedState.names.length > 0) {
+        namesTextarea.value = savedState.names.join('\n');
+      } else {
+        namesTextarea.value = defaultNames.join('\n');
+      }
+      if (savedState.results && savedState.results.length > 0) {
+        resultsTextarea.value = savedState.results.join('\n');
+      } else {
+        resultsTextarea.value = defaultResults.join('\n');
+      }
+
+      if (savedState.hasGeneratedOnce || savedState.hasTriedLuck) {
+        setTextareasLocked(true);
+      } else {
+        setTextareasLocked(false);
+      }
+
+      console.log('テキストエリアの状態を復元しました:', {
+        names: savedState.names,
+        results: savedState.results,
+        textareasLocked: savedState.hasGeneratedOnce || savedState.hasTriedLuck
+      });
+    }
+
+    // SVG盤面の縦線の状態を復元する関数
+    function restoreVerticalLinesState(savedState) {
+      if (!savedState || !savedState.names) return;
+
+      const names = savedState.names;
+      if (names.length < 2) return;
+
+      const { width, height } = initCanvas(names);
+      drawVerticalLines(names, width, height);
+
+      console.log('SVG盤面の縦線の状態を復元しました:', {
+        namesCount: names.length,
+        canvasWidth: width,
+        canvasHeight: height
+      });
+    }
+
+    // SVG盤面の上下の名前と結果を復元する関数
+    function restoreNamesAndResultsState(savedState) {
+      if (!savedState || !savedState.names || !savedState.results) return;
+
+      const names = savedState.names;
+      const results = savedState.results;
+
+      if (names.length < 2 || names.length !== results.length) return;
+
+      if (savedState.nameColors) {
+        nameColors = new Map(Object.entries(savedState.nameColors));
+
+        const colorValues = Array.from(nameColors.values());
+        if (colorValues.length > 0) {
+          const lastColor = colorValues[colorValues.length - 1];
+          const hueMatch = lastColor.match(/hsl\((\d+),/);
+          lastColorHue = hueMatch ? parseInt(hueMatch[1]) : null;
+        }
+      }
+
+      if (savedState.nameOrder && savedState.resultOrder) {
+        currentShuffledNames = savedState.nameOrder;
+        currentShuffledResults = savedState.resultOrder;
+      } else {
+        currentShuffledNames = names;
+        currentShuffledResults = results;
+      }
+
+      drawNames(currentShuffledNames, currentShuffledResults);
+
+      console.log('SVG盤面の上下の名前と結果を復元しました:', {
+        names: currentShuffledNames,
+        results: currentShuffledResults,
+        nameColorsCount: nameColors.size,
+        lastColorHue: lastColorHue
+      });
+    }
+
+    // ボタンのdisabled状態を復元する関数
+    function restoreButtonStates(savedState) {
+      if (!savedState) return;
+
+      hasGeneratedOnce = savedState.hasGeneratedOnce || false;
+      hasTriedLuck = savedState.hasTriedLuck || false;
+      isTracingPaths = false;
+
+      updateButtonStates();
+
+      console.log('ボタンのdisabled状態を復元しました:', {
+        hasGeneratedOnce: hasGeneratedOnce,
+        hasTriedLuck: hasTriedLuck,
+        isTracingPaths: isTracingPaths,
+        generateButtonDisabled: generateButton.disabled,
+        addLinesButtonDisabled: addLinesButton.disabled,
+        captureButtonDisabled: captureButton.disabled,
+        copyLinkButtonDisabled: copyLinkButton.disabled
+      });
+    }
+
+    // SVG盤面の横線の状態を復元する関数
+    function restoreBridgesState(savedState) {
+      if (!savedState || !savedState.bridges) return;
+
+      currentBridges = savedState.bridges || [];
+      newBridges = [];
+
+      if (currentBridges.length > 0) {
+        drawBridges(currentBridges);
+      }
+
+      console.log('SVG盤面の横線の状態を復元しました:', {
+        bridgesCount: currentBridges.length,
+        bridges: currentBridges
+      });
+    }
+
+    // 運試し実行後の結果の名前と軌跡を復元する関数
+    function restoreConfirmedResultsState(savedState) {
+      if (!savedState || !savedState.confirmedResults) return;
+
+      confirmedResults = savedState.confirmedResults || [];
+
+      if (savedState.hasTriedLuck && confirmedResults.length > 0) {
+
+        tracedPaths = [];
+
+        confirmedResults.forEach(confirmedResult => {
+          const participantIndex = confirmedResult.participantIndex;
+          const participantName = currentShuffledNames[participantIndex];
+          const participantColor = getNameColor(participantName);
+          const darkColor = darkenColor(participantColor, 0.4);
+
+          generateTracedPath(participantIndex, darkColor);
+        });
+
+        const names = currentShuffledNames;
+        const { width, height } = initCanvas(names);
+        drawVerticalLines(names, width, height);
+        drawBridges(currentBridges);
+        drawTracedPaths();
+        drawNames(currentShuffledNames, currentShuffledResults);
+
+        // 結果が確定している場合は共有ボタンを有効にする
+        enableShareButtonsForRestoredState();
+
+        console.log('運試し実行後の結果の名前と軌跡を復元しました:', {
+          confirmedResultsCount: confirmedResults.length,
+          confirmedResults: confirmedResults,
+          tracedPathsCount: tracedPaths.length
+        });
+      }
+    }
+
+    // 軌跡を生成する関数（復元用）
+    function generateTracedPath(participantIndex, color) {
+      const names = currentShuffledNames;
+      const results = currentShuffledResults;
+
+      let currentX = config.marginLeft + participantIndex * config.horizontalSpacing;
+      let currentY = config.marginTop;
+      let currentIndex = participantIndex;
+
+      tracedPaths.push({
+        x: currentX,
+        y: currentY,
+        color: color,
+        participantIndex: participantIndex
+      });
+
+      const sortedBridges = currentBridges.sort((a, b) => a.y - b.y);
+
+      while (currentY < config.marginTop + config.verticalLineHeight) {
+
+        const nextBridge = sortedBridges.find(b => {
+          const isAtHigherY = b.y > currentY;
+          const isConnectedToCurrentPosition = (
+            (b.x === currentIndex) || // 現在位置から左に伸びる線
+            (b.x === currentIndex - 1) // 現在位置から右に伸びる線
+          );
+
+          const bridgeExists = currentBridges.some(bridge =>
+            Math.abs(bridge.y - b.y) < 2 &&
+            bridge.x === (isConnectedToCurrentPosition ? b.x : b.x - 1)
+          );
+          return isAtHigherY && isConnectedToCurrentPosition && bridgeExists;
+        });
+
+        if (nextBridge) {
+
+          const steps = Math.max(1, Math.floor((nextBridge.y - currentY) / 2));
+          for (let i = 0; i < steps; i++) {
+            currentY += 2;
+            tracedPaths.push({
+              x: currentX,
+              y: currentY,
+              color: color,
+              participantIndex: participantIndex
+            });
+          }
+          currentY = nextBridge.y;
+
+          const isLeftBridge = nextBridge.x === currentIndex - 1;
+          const targetX = isLeftBridge
+            ? currentX - config.horizontalSpacing
+            : currentX + config.horizontalSpacing;
+
+          const horizontalSteps = 40;
+          const xStep = (targetX - currentX) / horizontalSteps;
+          for (let i = 0; i < horizontalSteps; i++) {
+            currentX += xStep;
+            tracedPaths.push({
+              x: currentX,
+              y: currentY,
+              color: color,
+              participantIndex: participantIndex
+            });
+          }
+          currentX = targetX;
+          currentIndex = isLeftBridge ? currentIndex - 1 : currentIndex + 1;
+        } else {
+
+          const targetY = config.marginTop + config.verticalLineHeight;
+          const steps = Math.max(1, Math.floor((targetY - currentY) / 2));
+          for (let i = 0; i < steps; i++) {
+            currentY += 2;
+            tracedPaths.push({
+              x: currentX,
+              y: currentY,
+              color: color,
+              participantIndex: participantIndex
+            });
+          }
+          currentY = targetY;
+          break;
+        }
+      }
+    }
+
+    // ========================================
+    // アプリケーションの初期化
+    // ========================================
+
+    // 初期値の設定とあみだくじの描画
+    // フォント読み込み完了後に初期描画を実行
+    document.fonts.ready.then(() => {
+      const savedState = loadStateFromURL();
+
+      if (savedState && !isReload) {
+
+        restoreTextareaState(savedState);
+
+        if (!namesTextarea.value.trim()) {
+          namesTextarea.value = defaultNames.join('\n');
+        }
+        if (!resultsTextarea.value.trim()) {
+          resultsTextarea.value = defaultResults.join('\n');
+        }
+
+        restoreVerticalLinesState(savedState);
+        restoreNamesAndResultsState(savedState);
+        restoreButtonStates(savedState);
+        restoreBridgesState(savedState);
+        restoreConfirmedResultsState(savedState);
+
+      } else if (savedState && isReload) {
+
+        restoreTextareaState(savedState);
+
+        if (!namesTextarea.value.trim()) {
+          namesTextarea.value = defaultNames.join('\n');
+        }
+        if (!resultsTextarea.value.trim()) {
+          resultsTextarea.value = defaultResults.join('\n');
+        }
+
+        generateAmidakuji(false);
+        setTextareasLocked(false);
+        updateButtonStates();
+        saveStateToURL();
+
+        console.log('リロード時：盤面をシャッフルして保存し直しました');
+      } else {
+
+        namesTextarea.value = defaultNames.join('\n');
+        resultsTextarea.value = defaultResults.join('\n');
+        generateAmidakuji(false);
+        setTextareasLocked(false);
+        updateButtonStates();
+
+        saveStateToURL();
+      }
+    });
+  </script>
+</body>
+
+</html>

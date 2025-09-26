@@ -1,0 +1,261 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [ opened, edited, synchronize, reopened ]
+
+env:
+  eslint-max-warnings: 10 # Default allowed value is 10
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: read # Required to read PR labels
+    outputs:
+      has_auto_approve: ${{ steps.check-label.outputs.has_auto_approve }}
+    steps:
+      - id: check-label
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+            const hasAutoApprove = labels.data.some(label => label.name === 'Review: Auto Approve');
+            if (hasAutoApprove) {
+              core.setOutput('has_auto_approve', 'true');
+              process.exit(0);
+            }
+
+  setup:
+    needs: [ init ]
+    if: needs.init.outputs.has_auto_approve != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: Setup
+        run: |
+          pnpm run setup
+
+  comment-fixmes:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: fixme
+        run: |
+          pnpm run setup
+          mkdir -p target/fixme
+          pnpm exec fixme --skip note '*' '*/**' '.github/**' 'eslint.config.js' > target/fixme/results.txt
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            fs.readFile('target/fixme/results.txt', 'utf8', async (err, results) => {
+              if (err) { return core.setFailed(`Action failed with error ${err}`); };
+              if (results.trim()) {
+                const comments = await github.rest.issues.listComments({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number, });
+                const comment = comments.data.find(comment => comment.body && comment.body.startsWith('<!-- templates-fixme --'));
+
+                let body = '<!-- templates-fixme -- この行は FIXME コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n';
+                body += '### "Postponed" type source comments\n';
+                body += `\`\`\`\n${results.trim()}\n\`\`\`\n`;
+                body += '**[Warning]**  \n';
+                body += '- 後回し系のソースコメントは短期利用にとどめるようにします。  \n';
+                body += '詳細を確認し解決するか、Issues の利用を検討してください。  \n';
+
+                if (!comment || comment.body !== body) {
+                  await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body, });
+                  if (comment && comment.body !== body) {
+                    await github.rest.issues.deleteComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: comment.id, });
+                  }
+                }
+              }
+            });
+
+  comment-lint-results:
+    needs: [ setup ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+      - name: ESLint
+        run: |
+          pnpm run setup
+          pnpm run lint:eslint -f table -o target/lint/results.txt --no-color || true
+          tail -n 5 target/lint/results.txt > target/lint/summary.txt
+          echo "* The maximum number of warnings allowed is ${{ env.eslint-max-warnings }}." >> target/lint/summary.txt
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            fs.readFile('target/lint/summary.txt', 'utf8', (err, summary) => {
+              if (err) { return core.setFailed(`Action failed with error ${err}`); };
+              fs.readFile('target/lint/results.txt', 'utf8', async (err, results) => {
+                if (err) { return core.setFailed(`Action failed with error ${err}`); };
+
+                const comments = await github.rest.issues.listComments({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number, });
+                const comment = comments.data.find(comment => comment.body && comment.body.startsWith('<!-- templates-lint --'));
+
+                const allowed = +/maximum.+ ([0-9]+)/u.exec(summary)[1];
+                const current = +/([0-9]+) Warning/u.exec(summary)[1];
+
+                let body = '<!-- templates-lint -- この行は Lint コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n';
+                body += '### Lint Results\n';
+                body += `\`\`\`\n${summary.trim()}\n\`\`\`\n`;
+                body += '<details>\n';
+                body += '<summary>Detail</summary>\n\n';
+                body += `\`\`\`\n${results.trim()}\n\`\`\`\n`;
+                body += '</details>\n\n';
+
+                if (10 < current || 10 < allowed - current) {
+                  body += '**[Warning]**  \n';
+                  if (10 < current) {
+                    body += '- 警告数は 10 以下に抑えるようにします。  \n';
+                    body += '詳細を確認し警告されたコードを修正してください。  \n';
+                  }
+                  if (10 < allowed - current) {
+                    body += '- 許容される最大の警告数は現在の警告数 +10 です。  \n';
+                    body += '[pull-request.yml](../blob/main/.github/workflows/pull-request.yml) の ';
+                    body += `\`/env/eslint-max-warnings\` の値を設定してください。  \n`;
+                  }
+                }
+
+                if (!comment || comment.body !== body) {
+                  await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body, });
+                  if (comment && comment.body !== body) {
+                    await github.rest.issues.deleteComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: comment.id, });
+                  }
+                }
+              });
+            });
+
+  comment-dependency-pulls:
+    needs: [ setup ]
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const ret = await github.rest.pulls.list({ owner: context.repo.owner, repo: context.repo.repo, state: 'open', });
+            const pulls = ret.data.filter(pull => pull.labels.filter(label => label.name === 'Type: Dependency').length !== 0).filter(pull => pull.number !== context.payload.number);
+            if (pulls.length !== 0) {
+              const comments = await github.rest.issues.listComments({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number, });
+              const comment = comments.data.find(comment => comment.body && comment.body.startsWith('<!-- templates-deps --'));
+
+              const now = new Date().getTime();
+              let body = '<!-- templates-deps -- この行は Dependency コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n';
+              body += '###  Dependency Pull Requests\n'
+              body += '| # | Title | Created |\n'
+              body += '|--:|:------|:--------|\n'
+              pulls.map(pr => body += `| [${pr.number}](${pr.html_url}) | [${pr.title}](${pr.html_url}) | ${Math.floor((now - new Date(pr.created_at).getTime()) / 1000 / 60 / 60 / 24) + 1} days ago |\n`);
+              body += '\n';
+              body += '**[Warning]**  \n';
+              body += '- リリース前に依存モジュールのバージョンアップのプルリクエストをマージしてください。  \n';
+              if (process.env.GITHUB_HEAD_REF.startsWith('releases/')) {
+                body += '  本リリースにプルリクエストのマージを含める場合は、本プルリクエストをクローズしブランチを削除、マージ後に再度リリースを開始してください。  \n';
+              }
+
+              if (!comment || comment.body !== body) {
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body, });
+                if (comment && comment.body !== body) {
+                  await github.rest.issues.deleteComment({ owner: context.repo.owner, repo: context.repo.repo, comment_id: comment.id, });
+                }
+              }
+            }
+
+  comment-code-rule-note:
+    needs: [ setup ]
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            fs.readFile('README.md', 'utf8', async (err, readme) => {
+              if (err) { return core.setFailed(`Action failed with error ${err}`); };
+
+              const rule = /(### 実装方針[\s\S]+)### プルリクエスト/gu.exec(readme)[1].trim();
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body: rule, });
+            });
+
+  add-assignees:
+    needs: [ init ]
+    if: github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            if (context.payload.pull_request.assignee) { return; }
+            try {
+              await github.rest.issues.addAssignees({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, assignees: context.payload.sender.login, });
+            } catch (error) { console.warn(error); }

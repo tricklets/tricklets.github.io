@@ -1,0 +1,57 @@
+name: CI/CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+      - '!wip/**'
+    paths:
+      - '**'
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  check-status:
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check Status
+        run: |
+          # Note: Add check implementation when needs are increased
+          FAILED=0
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error ::$FAILED required jobs failed or were cancelled"
+            exit 1
+          fi
+          echo "Checking completed successfully"
+
+
+  deploy-to-github-pages:
+    if: github.ref == 'refs/heads/main'
+    needs: [ check-status ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        with:
+          path: ./app
+      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
