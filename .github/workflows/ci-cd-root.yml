@@ -1,0 +1,76 @@
+name: CI/CD Root Directory
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+      - '!wip/**'
+    paths:
+      - '*'
+      - '.github/**'
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+env:
+  NODE_OPTIONS: --max-old-space-size=4096
+  matrix-node-versions: 24
+
+
+jobs:
+  init:
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "matrix=[ $MATRIX_NODE_VERSIONS ]" >> "$GITHUB_OUTPUT"
+        env:
+          MATRIX_NODE_VERSIONS: ${{ env.matrix-node-versions }}
+
+  setup:
+    needs: [ init ]
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: lts/*
+          cache: pnpm
+      - name: Setup
+        run: |
+          pnpm run setup
+
+
+  check-status:
+    if: always()
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - name: Check Status
+        run: |
+          # Note: Add check implementation when needs are increased
+          FAILED=0
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error ::$FAILED required jobs failed or were cancelled"
+            exit 1
+          fi
+          echo "Checking completed successfully"
