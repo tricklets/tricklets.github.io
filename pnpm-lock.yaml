@@ -20,6 +20,8 @@ importers:
 
   app/root: {}
 
+  app/roulette: {}
+
 packages:
 
   ansi-styles@4.3.0:

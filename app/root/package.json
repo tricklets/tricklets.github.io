@@ -3,6 +3,6 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "cp index.html ../../dist"
+    "build": "cp index.html ../../dist && cp ../../.assets/image/root/* ../../dist/image"
   }
 }

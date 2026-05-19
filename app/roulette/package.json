@@ -1,0 +1,8 @@
+{
+  "name": "@tricklets/roulette",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p ../../dist/roulette && cp index.html ../../dist/roulette"
+  }
+}
