@@ -1,0 +1,8 @@
+{
+  "name": "@tricklets/root",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "cp index.html ../../dist"
+  }
+}
