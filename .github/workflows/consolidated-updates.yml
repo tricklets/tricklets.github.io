@@ -1,0 +1,135 @@
+name: Consolidated Updates
+
+on:
+  workflow_dispatch:
+  delete:
+  push:
+    branches:
+      - dependabot/consolidated-updates
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  create-pr:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dependabot/consolidated-updates'
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
+          private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
+          repositories: tricklets.github.io
+          permission-contents: read
+          permission-pull-requests: write
+      - name: Create PR
+        run: |
+          git remote set-url origin https://x-access-token:"${GITHUB_TOKEN}"@github.com/"${GITHUB_REPOSITORY}".git
+          git fetch origin main:main
+          if ! git diff --quiet main...dependabot/consolidated-updates; then
+            gh pr list --head dependabot/consolidated-updates --base main --state open --json number \
+            | jq -e '.[0]' > /dev/null || {
+                gh pr create \
+                  --title "Merge dependabot/consolidated-updates into main" \
+                  --body "Auto-generated PR to merge updated dependencies." \
+                  --base main \
+                  --head dependabot/consolidated-updates \
+                  --label "Type: Dependency"
+            }
+          fi
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  rebase-consolidated-updates:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: write # Required to rebase the consolidated branch onto main
+    steps:
+      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
+          private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
+          repositories: tricklets.github.io
+          permission-contents: write
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Rebase consolidated branch onto main
+        run: |
+          git remote set-url origin "https://x-access-token:$APP_TOKEN@github.com/$REPOSITORY.git"
+          git fetch origin main
+          if git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
+          git fetch origin dependabot/consolidated-updates
+          git checkout -B dependabot/consolidated-updates origin/dependabot/consolidated-updates
+          git rebase origin/main
+          git push --force-with-lease origin dependabot/consolidated-updates
+          else
+            echo "Branch dependabot/consolidated-updates does not exist. Creating from main..."
+            git checkout -b dependabot/consolidated-updates origin/main
+            git push origin dependabot/consolidated-updates
+          fi
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+
+  re-create-branch:
+    if: github.event_name == 'delete' && github.event.ref == 'dependabot/consolidated-updates'
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: write # Required to update dependency files and create PRs
+    steps:
+      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
+          private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
+          repositories: tricklets.github.io
+          permission-contents: write
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          git remote set-url origin "https://x-access-token:$APP_TOKEN@github.com/$REPOSITORY.git"
+          if git ls-remote --exit-code --heads origin dependabot/consolidated-updates > /dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+      - name: Re-create branch if not exists
+        if: steps.check_branch.outputs.exists == 'false'
+        run: |
+          git remote set-url origin "https://x-access-token:$APP_TOKEN@github.com/$REPOSITORY.git"
+          git checkout -b dependabot/consolidated-updates
+          git push -f origin dependabot/consolidated-updates
+        env:
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
