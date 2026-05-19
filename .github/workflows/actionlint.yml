@@ -1,0 +1,55 @@
+name: actionlint
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/**'
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Actionlint
+        run: |
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
+
+
+  check-status:
+    needs: [ actionlint ]
+    if: always()
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - name: Check Status
+        run: |
+          # Note: Add check implementation when needs are increased
+          FAILED=0
+          [ "$ACTIONLINT_RESULT" = "success" ] || FAILED=$((FAILED + 1))
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "::error ::$FAILED required jobs failed or were cancelled"
+            exit 1
+          fi
+          echo "Checking completed successfully"
+        env:
+          ACTIONLINT_RESULT: ${{ needs.actionlint.result }}
