@@ -33,9 +33,28 @@ jobs:
           bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
           ./actionlint -color
 
+  zizmor:
+    runs-on: ubuntu-latest
+    container: ghcr.io/zizmorcore/zizmor@sha256:7cb859e5571f816500830055e26b928609214033c410c76d2169d31a1410729a # latest (v1.25.0)
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Install dependencies
+        shell: sh
+        run: |
+          apk add --no-cache libstdc++
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Zizmor
+        shell: sh
+        run: |
+          zizmor --pedantic --strict-collection --min-severity low --min-confidence low --format github .
+
 
   check-status:
-    needs: [ actionlint ]
+    needs: [ actionlint, zizmor ]
     if: always()
     runs-on: ubuntu-slim
     timeout-minutes: 10
@@ -45,6 +64,7 @@ jobs:
           # Note: Add check implementation when needs are increased
           FAILED=0
           [ "$ACTIONLINT_RESULT" = "success" ] || FAILED=$((FAILED + 1))
+          [ "$ZIZMOR_RESULT" = "success" ] || FAILED=$((FAILED + 1))
 
           if [ "$FAILED" -ne 0 ]; then
             echo "::error ::$FAILED required jobs failed or were cancelled"
@@ -53,3 +73,4 @@ jobs:
           echo "Checking completed successfully"
         env:
           ACTIONLINT_RESULT: ${{ needs.actionlint.result }}
+          ZIZMOR_RESULT: ${{ needs.zizmor.result }}
