@@ -1,0 +1,31 @@
+{
+  "name": "tricklets.github.io",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "packageManager": "pnpm@11.1.3+sha512.c85357fe17ca12dd23dd7071822666dfd7e3cb76fe214e3370b5ea2fb34f2a231185509b63e717f3cd0acb38dd3f8d82bcd5e8172400ae678b70ea4fbed0896d",
+  "scripts": {
+    "setup": "pnpm install --frozen-lockfile",
+    "clean": "rimraf node_modules/.cache && pnpm -r --if-present --parallel run clean"
+  },
+  "devDependencies": {
+    "rimraf": "6.1.3"
+  },
+  "trustPolicy": "strict",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.0.0",
+      "onFail": "download"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tricklets/tricklets.github.io",
+    "productOwners": [
+      "tricklets-po"
+    ]
+  },
+  "author": "tricklets (https://github.com/tricklets)",
+  "license": "UNLICENSED"
+}
