@@ -1,0 +1,305 @@
+name: PR Label
+
+on:
+  push:
+  pull_request:
+    types: [ opened, edited, synchronize, reopened, labeled, unlabeled ]
+
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # zizmor: ignore[concurrency-limits] -- 'cuz concurrency cancellation is unsafe for pull_request label events
+
+
+jobs:
+  add-labels-change-type:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      issues: write # Required to add labels via Issues API
+      pull-requests: write # Required by integration when labeling PR issues
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const repoLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            const definitions = repoLabels
+              .filter(value => value.name.includes(': '))
+              .map(value => ({
+                normalized: value.name.split(':')[1].toLowerCase().trim(),
+                original: value.name,
+              }));
+
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              per_page: 100,
+            });
+            const prefixes = Array.from(new Set(commits
+              .map(data => data.commit.message.split('\n')[0].trim())
+              .map((subject) => {
+                if (subject.startsWith('chore: release')) { return 'chore: release'; }
+                const match = subject.match(/^([a-z-]+)(?:\(([^)]+)\))?:\s+/u);
+                if (!match) { return ''; }
+                const type = match[1].toLowerCase();
+                const scope = (match[2] ?? '').toLowerCase();
+                return scope === '' ? type : `${type}(${scope})`;
+              })
+              .filter(Boolean)))
+              .map(value => {
+              if (value === 'fix' || value === 'hotfix') { return 'bugfix'; }
+              if (value.startsWith('chore(deps')) { return 'dependency'; }
+              if (value.startsWith('chore: release')) { return 'release'; }
+              return value;
+            }).filter(value => 3 <= value.length);
+
+            const labels = definitions.filter(def => prefixes.some(prefix => def.normalized.startsWith(prefix))).map(def => def.original);
+            if (labels && labels.length !== 0) {
+              await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, labels, });
+            }
+
+  check-labels-change-type:
+    needs: [ add-labels-change-type ]
+    if: always() && github.event_name == 'pull_request' && !startsWith(github.head_ref, 'releases/')
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { changelog } = require('./package.json');
+
+            const ret = await github.rest.issues.listLabelsOnIssue({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, });
+            const labels = new Set(ret.data.map(label => label.name));
+
+            const definitions = new Set(Object.keys(changelog.labels));
+            if (ret.data.length === 0 || new Set([...labels].filter(label => (definitions.has(label)))).size === 0) {
+              const comments = await github.rest.issues.listComments({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.number, });
+              const comment = comments.data.find(comment => comment.body && comment.body.startsWith('<!-- templates-label-change-type --'));
+
+              if (!comment) {
+                let body = '<!-- templates-label-change-type -- この行は Label コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n';
+                body += '### Labels for Release Note\n'
+                body += '**[ERROR]**  \n';
+                body += '- リリースノートの自動生成のためにラベルを付けてください。\n\n';
+                body += 'The available labels are as follows:\n'
+                body += '| Label | Release Note |   | Label | Release Note |\n'
+                body += '|:------|:-------------|:-:|:------|:-------------|\n'
+
+                const entries = Object.entries(changelog.labels)
+                for (let i = 0; i < entries.length; i++) {
+                  body += `| ${entries[i][0]} | ${entries[i][1]} |`;
+                  body += entries[++i] ? `| ${entries[i][0]} | ${entries[i][1]} |\n` : '|||\n';
+                }
+
+                body += '* If commit log prefix is included in the label string, it will be automatically labeled. ';
+                body += 'See [README.md](../#%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9) for label details.  \n';
+                body += 'e.g. [feature: xxxx] will automatically add the "Type: Feature" label.  \n';
+
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body, });
+              }
+              return core.setFailed('No label has been set.');
+            }
+
+  auto-approve:
+    if: "github.event.action == 'labeled' && github.event.label.name == 'Review: Auto approve'"
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # Required to post comments on PRs
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        id: app-token
+        with:
+          app-id: ${{ secrets.RELEASE_FLOW_APP_ID }}
+          private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
+          repositories: tricklets.github.io
+          permission-members: read
+      - name: Check labeled user is product owner
+        id: check-approver
+        run: |
+          USER="${GITHUB_ACTOR}"
+          readarray -t PO_TEAMS < <(jq -r '.repository.productOwners[]' package.json)
+
+          IS_PO="false"
+          for PO_TEAM in "${PO_TEAMS[@]}"; do
+            RESPONSE=$(curl -s "https://api.github.com/orgs/$REPOSITORY_OWNER/teams/$PO_TEAM/memberships/$USER" -H "Authorization: Bearer $APP_TOKEN")
+            STATE=$(echo "$RESPONSE" | jq -r ".state")
+            if [ "$STATE" = "active" ]; then
+              IS_PO="true"
+              break
+            fi
+          done
+
+          if [ "$IS_PO" = "true" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+          else
+            PO_TEAMS_URLS=()
+            for PO_TEAM in "${PO_TEAMS[@]}"; do
+              PO_TEAMS_URLS+=("[${PO_TEAM}](https://github.com/orgs/$REPOSITORY_OWNER/teams/${PO_TEAM})")
+            done
+            PO_TEAMS_URLS_STR=$(IFS='、'; echo "${PO_TEAMS_URLS[*]}")
+
+            LABEL_URL="https://github.com/$REPOSITORY_OWNER/$GITHUB_EVENT_REPOSITORY_NAME/labels/Review%3A%20Auto%20approve"
+            COMMENT="<!-- templates-auto-approve -- この行は auto-approve コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n"
+            COMMENT="${COMMENT}${LABEL_URL} による自動承認は、${PO_TEAMS_URLS_STR} に所属しているユーザーが実行できます。\n"
+            curl -X POST "https://api.github.com/repos/$REPOSITORY/issues/$PULL_REQUEST_NUMBER/comments" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"body\": \"$COMMENT\"}"
+          fi
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_EVENT_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check target PR if author is dependabot or team member
+        id: check-target
+        run: |
+          AUTHOR="${GITHUB_EVENT_PULL_REQUEST_USER_LOGIN}"
+
+          if [ "$AUTHOR" = "dependabot[bot]" ] || [ "$AUTHOR" = "tricklets-release-flow-app[bot]" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          IS_PO="false"
+          readarray -t PO_TEAMS < <(jq -r '.repository.productOwners[]' package.json)
+          for PO_TEAM in "${PO_TEAMS[@]}"; do
+            RESPONSE=$(curl -s "https://api.github.com/orgs/$REPOSITORY_OWNER/teams/$PO_TEAM/memberships/$AUTHOR" -H "Authorization: Bearer $APP_TOKEN")
+            STATE=$(echo "$RESPONSE" | jq -r ".state")
+            if [ "$STATE" = "active" ]; then
+              IS_PO="true"
+              break
+            fi
+          done
+
+          if [ "$IS_PO" = "true" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+          else
+            PO_TEAMS_URLS=()
+            for PO_TEAM in "${PO_TEAMS[@]}"; do
+              PO_TEAMS_URLS+=("[${PO_TEAM}](https://github.com/orgs/$REPOSITORY_OWNER/teams/${PO_TEAM})")
+            done
+            PO_TEAMS_URLS_STR=$(IFS='、'; echo "${PO_TEAMS_URLS[*]}")
+
+            LABEL_URL="https://github.com/$REPOSITORY_OWNER/$GITHUB_EVENT_REPOSITORY_NAME/labels/Review%3A%20Auto%20approve"
+            COMMENT="<!-- templates-auto-approve -- この行は auto-approve コメント識別のためにあります。削除または他のコメントに使用しないでください -->\n"
+            COMMENT="${COMMENT}${LABEL_URL} による自動承認は、Dependabot または ${PO_TEAMS_URLS_STR} に所属しているユーザーが作成したプルリクエストに対して実行できます。\n"
+            curl -X POST "https://api.github.com/repos/$REPOSITORY/issues/$PULL_REQUEST_NUMBER/comments" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"body\": \"$COMMENT\"}"
+          fi
+        env:
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_EVENT_PULL_REQUEST_USER_LOGIN: ${{ github.event.pull_request.user.login }}
+          GITHUB_EVENT_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Approve or remove auto-approve label
+        run: |
+          if [ "$CHECK_APPROVER_RESULT" = "true" ] && [ "$CHECK_TARGET_RESULT" = "true" ]; then
+            curl -X POST "https://api.github.com/repos/$REPOSITORY/issues/$PULL_REQUEST_NUMBER/assignees" \
+              -H "Authorization: Bearer $APP_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"assignees\": [\"${GITHUB_ACTOR}\"]}"
+
+            curl -X POST "https://api.github.com/repos/$REPOSITORY/pulls/$PULL_REQUEST_NUMBER/reviews" \
+              -H "Authorization: Bearer $APP_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/json" \
+              -d "{\"event\": \"APPROVE\"}"
+          else
+            curl -X DELETE "https://api.github.com/repos/$REPOSITORY/issues/$PULL_REQUEST_NUMBER/labels/Review:%20Auto%20approve" \
+              -H "Authorization: Bearer $APP_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json"
+          fi
+        env:
+          CHECK_APPROVER_RESULT: ${{ steps.check-approver.outputs.result }}
+          CHECK_TARGET_RESULT: ${{ steps.check-target.outputs.result }}
+          REPOSITORY: ${{ github.repository }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+
+  remove-auto-approve-on-update:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'synchronize')
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      issues: write # Required to remove labels on PRs via Issues API
+      pull-requests: read # Required to resolve PRs from branch pushes
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { owner, repo } = context.repo;
+            let pullRequests = [];
+
+            if (context.eventName === 'pull_request') {
+              pullRequests = [context.payload.pull_request];
+            } else if (context.eventName === 'push' && context.ref.startsWith('refs/heads/')) {
+              const branch = context.ref.replace('refs/heads/', '');
+              const { data } = await github.rest.pulls.list({
+                owner,
+                repo,
+                state: 'open',
+                head: `${owner}:${branch}`,
+              });
+              pullRequests = data;
+            }
+
+            for (const pr of pullRequests) {
+              const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                owner,
+                repo,
+                issue_number: pr.number,
+              });
+
+              if (!labels.some(l => l.name === 'Review: Auto approve')) {
+                continue;
+              }
+
+              try {
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  name: 'Review: Auto approve',
+                });
+              } catch (err) {
+                if (err?.status !== 404) throw err;
+              }
+            }
