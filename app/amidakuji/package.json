@@ -1,0 +1,8 @@
+{
+  "name": "@tricklets/amidakuji",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p ../../dist/amidakuji && cp index.html ../../dist/amidakuji"
+  }
+}
