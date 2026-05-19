@@ -1,0 +1,34 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    open-pull-requests-limit: 20
+    target-branch: dependabot/consolidated-updates
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    labels:
+      - 'Type: Dependency'
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+
+  - package-ecosystem: github-actions
+    directory: /
+    open-pull-requests-limit: 10
+    target-branch: dependabot/consolidated-updates
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
+    labels:
+      - 'Type: Dependency'
+    commit-message:
+      prefix: 'chore(deps-ci)'
+    groups:
+      github-actions:
+        patterns:
+          - 'actions/*'
+          - 'pnpm/*'
