@@ -20,6 +20,22 @@
       "onFail": "download"
     }
   },
+  "changelog": {
+    "labels": {
+      "Type: Breaking": "💥 Breaking Change",
+      "Type: Feature": "🎉 New Feature",
+      "Type: Enhancement": "🚀 Enhancement",
+      "Type: Security": "🛡️ Security",
+      "Type: BugFix": "💉 Bug Fix",
+      "Type: Deprecated": "⚠️ Deprecated",
+      "Type: Docs": "📝 Documentation",
+      "Type: Refactoring": "✨ Refactoring",
+      "Type: Testing": "✅ Testing",
+      "Type: Build": "🛠️ Build",
+      "Type: Dependency": "📦 Dependency",
+      "Type: Misc": "🧩 misc"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tricklets/tricklets.github.io",
