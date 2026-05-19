@@ -1,0 +1,7 @@
+trustPolicy: no-downgrade
+blockExoticSubdeps: true
+minimumReleaseAge: 10080 # 7 days (7 * 24 * 60 minutes)
+
+packages:
+  - infra
+  - app/**
