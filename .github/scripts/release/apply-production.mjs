@@ -14,8 +14,8 @@
  *   1. PR 本文のメタデータを読む
  *   2. バリデーション（format、base/head ref 一致）
  *   3. 事前チェック（side-effect なし）
- *   4. production ブランチを mergedCommitSha へ fast-forward
- *   5. production タグ（annotated）を mergedCommitSha に作成
+ *   4. production ブランチを targetSha へ fast-forward
+ *   5. production タグ（annotated）を targetSha に作成
  *   6. GitHub Release（stable）を作成
  *   7. Production リリースブランチを削除（失敗は warning 扱い）
  */
@@ -86,7 +86,7 @@ function gh(ghArgs) {
 // ---------------------------------------------------------------------------
 
 /**
- * @returns {{ pull_request: { number: number; base: { ref: string }; head: { ref: string; sha: string }; merge_commit_sha: string | null; body: string | null } }}
+ * @returns {{ pull_request: { number: number; base: { ref: string }; head: { ref: string; sha: string }; body: string | null } }}
  */
 function readGitHubEvent() {
   const eventPath = process.env['GITHUB_EVENT_PATH'];
@@ -269,36 +269,18 @@ function assertBaseBranchExists(version) {
 }
 
 /**
- * origin/production が mergedCommitSha の祖先であるか確認
- * @param {string} mergedCommitSha
- */
-function assertProductionIsAncestorOfTarget(mergedCommitSha) {
-  const result = spawnSync('git', ['merge-base', '--is-ancestor', 'origin/production', mergedCommitSha], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
-  });
-  if (result.status !== 0) {
-    throw new Error(
-      `origin/production is not an ancestor of ${mergedCommitSha}.\n` +
-      'The production branch has advanced beyond the target commit.'
-    );
-  }
-}
-
-/**
- * targetSha が mergedCommitSha の祖先であるか確認（承認済み RC の上に積まれていることを保証）
+ * origin/production が targetSha の祖先であるか確認
  * @param {string} targetSha
- * @param {string} mergedCommitSha
  */
-function assertTargetIsAncestorOfMerged(targetSha, mergedCommitSha) {
-  const result = spawnSync('git', ['merge-base', '--is-ancestor', targetSha, mergedCommitSha], {
+function assertProductionIsAncestorOfTarget(targetSha) {
+  const result = spawnSync('git', ['merge-base', '--is-ancestor', 'origin/production', targetSha], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
   });
   if (result.status !== 0) {
     throw new Error(
-      `targetSha (${targetSha}) is not an ancestor of mergedCommitSha (${mergedCommitSha}).\n` +
-      'The Production PR was not built on top of the approved RC commit.'
+      `origin/production is not an ancestor of ${targetSha}.\n` +
+      'The production branch has advanced beyond the target commit.'
     );
   }
 }
@@ -366,37 +348,35 @@ function tryDeleteRemoteBranch(branch) {
 /**
  * @param {{
  *   version: string;
- *   stagingVersion: string;
  *   targetSha: string;
- *   mergedCommitSha: string;
  *   headRef: string;
  *   releaseNotes: string;
  * }} ctx
  */
 function applyRelease(ctx) {
-  const { version, mergedCommitSha, headRef, releaseNotes } = ctx;
+  const { version, targetSha, headRef, releaseNotes } = ctx;
 
-  // ---- 1. production ブランチを mergedCommitSha へ fast-forward ---------------
-  console.log(`\n[1/4] Fast-forwarding production to ${mergedCommitSha.slice(0, 8)}...`);
+  // ---- 1. production ブランチを targetSha へ fast-forward ---------------
+  console.log(`\n[1/4] Fast-forwarding production to ${targetSha.slice(0, 8)}...`);
   execFileSync('git', ['checkout', '-B', 'production', 'origin/production'], { cwd: REPO_ROOT, stdio: 'inherit' });
-  execFileSync('git', ['merge', '--ff-only', mergedCommitSha], { cwd: REPO_ROOT, stdio: 'inherit' });
+  execFileSync('git', ['merge', '--ff-only', targetSha], { cwd: REPO_ROOT, stdio: 'inherit' });
   execFileSync('git', ['push', 'origin', 'production'], { cwd: REPO_ROOT, stdio: 'inherit' });
 
   // ---- 2. production タグ作成（annotated tag） --------------------------
-  console.log(`\n[2/4] Creating annotated tag ${version} at ${mergedCommitSha.slice(0, 8)}...`);
+  console.log(`\n[2/4] Creating annotated tag ${version} at ${targetSha.slice(0, 8)}...`);
   execFileSync(
     'git',
-    ['tag', '-a', version, '-m', `Production release ${version}`, mergedCommitSha],
+    ['tag', '-a', version, '-m', `Production release ${version}`, targetSha],
     { cwd: REPO_ROOT, stdio: 'inherit' }
   );
   execFileSync('git', ['push', 'origin', version], { cwd: REPO_ROOT, stdio: 'inherit' });
 
-  // 検証: annotated tag が mergedCommitSha を指しているか
+  // 検証: annotated tag が targetSha を指しているか
   const tagCommitSha = git('rev-parse', [`${version}^{commit}`]);
-  if (tagCommitSha !== mergedCommitSha) {
-    throw new Error(`Tag verification failed. tag^{commit}=${tagCommitSha}, expected=${mergedCommitSha}`);
+  if (tagCommitSha !== targetSha) {
+    throw new Error(`Tag verification failed. tag^{commit}=${tagCommitSha}, expected=${targetSha}`);
   }
-  console.log(`Tag ${version} -> ${mergedCommitSha}`);
+  console.log(`Tag ${version} -> ${targetSha}`);
 
   // ---- 3. GitHub Release（stable）を作成 --------------------------------
   console.log(`\n[3/4] Creating GitHub Release ${version}...`);
@@ -407,7 +387,7 @@ function applyRelease(ctx) {
     'release', 'create', version,
     '--title', version,
     '--notes-file', releaseNotesPath,
-    '--target', mergedCommitSha,
+    '--target', targetSha,
   ]);
 
   // ---- 4. Production リリースブランチを削除（失敗は warning 扱い） -------
@@ -438,11 +418,6 @@ async function main() {
   const pullRequestNumber = pr.number;
   const baseRef = pr.base.ref;
   const headRef = pr.head.ref;
-  const mergedCommitSha = pr.merge_commit_sha;
-
-  if (!mergedCommitSha || !/^[0-9a-f]{40}$/.test(mergedCommitSha)) {
-    throw new Error(`Invalid or missing merged_commit_sha: "${mergedCommitSha}"`);
-  }
 
   // PR 本文からメタデータをパース
   const meta = parseReleaseProductionMeta(pr.body);
@@ -478,11 +453,8 @@ async function main() {
   assertBaseBranchExists(version);
   console.log(`  base_branch:        ok  (releases/production/${version} exists)`);
 
-  assertTargetIsAncestorOfMerged(targetSha, mergedCommitSha);
-  console.log(`  rc_ancestor_check:  ok  (${targetSha.slice(0, 8)}... is ancestor of ${mergedCommitSha.slice(0, 8)}...)`);
-
-  assertProductionIsAncestorOfTarget(mergedCommitSha);
-  console.log(`  production_ancestor: ok  (origin/production is ancestor of ${mergedCommitSha.slice(0, 8)}...)`);
+  assertProductionIsAncestorOfTarget(targetSha);
+  console.log(`  production_ancestor: ok  (origin/production is ancestor of ${targetSha.slice(0, 8)}...)`);
 
   const releaseNotes = fetchAndValidateRcReleaseNotes(stagingVersion);
   console.log(`  rc_release:         ok  (notes validated)`);
@@ -499,16 +471,14 @@ async function main() {
   console.log(`[context] staging_version:     ${stagingVersion}`);
   console.log(`[context] train_base:          ${trainBase}`);
   console.log(`[context] deploy_base:         ${deployBase}`);
-  console.log(`[context] target_sha:          ${targetSha.slice(0, 8)}...  (RC squash commit, validation only)`);
-  console.log(`[context] merged_commit_sha:   ${mergedCommitSha.slice(0, 8)}...  (production branch/tag target)`);
+  console.log(`[context] target_sha:          ${targetSha.slice(0, 8)}...`);
   console.log(`[context] rc_tag_check:        ok  (${stagingVersion} -> ${targetSha.slice(0, 8)}...)`);
-  console.log(`[context] rc_ancestor_check:   ok  (targetSha is ancestor of mergedCommitSha)`);
-  console.log(`[context] production_ancestor: ok  (origin/production is ancestor of mergedCommitSha)`);
+  console.log(`[context] production_ancestor: ok  (origin/production is ancestor of ${targetSha.slice(0, 8)}...)`);
   console.log(`[context] production_tag:      not exists (ok)`);
   console.log(`[context] production_release:  not exists (ok)`);
   console.log(`[context] rc_release:          exists (ok)`);
   console.log(`[context] release_notes_guard: ok  (has sections and PR entries)`);
-  console.log(`[context] production_branch:   production -> ${mergedCommitSha.slice(0, 8)}...`);
+  console.log(`[context] production_branch:   production -> ${targetSha.slice(0, 8)}...`);
   console.log(`[context] tag_to_create:       ${version}`);
   console.log('');
 
@@ -518,7 +488,7 @@ async function main() {
   }
 
   // --apply: 実際に処理
-  applyRelease({ version, stagingVersion, targetSha, mergedCommitSha, headRef, releaseNotes });
+  applyRelease({ version, targetSha, headRef, releaseNotes });
 }
 
 main().catch((err) => {
