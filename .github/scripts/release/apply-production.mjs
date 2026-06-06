@@ -14,8 +14,8 @@
  *   1. PR 本文のメタデータを読む
  *   2. バリデーション（format、base/head ref 一致）
  *   3. 事前チェック（side-effect なし）
- *   4. production ブランチを targetSha へ fast-forward
- *   5. production タグ（annotated）を targetSha に作成
+ *   4. production ブランチを targetSha 起点で作成し、リリースコミットを追加
+ *   5. production タグ（annotated）をリリースコミットに作成
  *   6. GitHub Release（stable）を作成
  *   7. Production リリースブランチを削除（失敗は warning 扱い）
  */
@@ -356,27 +356,28 @@ function tryDeleteRemoteBranch(branch) {
 function applyRelease(ctx) {
   const { version, targetSha, headRef, releaseNotes } = ctx;
 
-  // ---- 1. production ブランチを targetSha へ fast-forward ---------------
-  console.log(`\n[1/4] Fast-forwarding production to ${targetSha.slice(0, 8)}...`);
-  execFileSync('git', ['checkout', '-B', 'production', 'origin/production'], { cwd: REPO_ROOT, stdio: 'inherit' });
-  execFileSync('git', ['merge', '--ff-only', targetSha], { cwd: REPO_ROOT, stdio: 'inherit' });
+  // ---- 1. production を targetSha 起点で checkout し、リリースコミットを作成 -----
+  console.log(`\n[1/4] Creating production release commit on top of ${targetSha.slice(0, 8)}...`);
+  execFileSync('git', ['checkout', '-B', 'production', targetSha], { cwd: REPO_ROOT, stdio: 'inherit' });
+  execFileSync('git', ['commit', '--allow-empty', '-m', `chore: release production ${version}`], { cwd: REPO_ROOT, stdio: 'inherit' });
   execFileSync('git', ['push', 'origin', 'production'], { cwd: REPO_ROOT, stdio: 'inherit' });
+  const productionReleaseSha = git('rev-parse', ['HEAD']);
 
   // ---- 2. production タグ作成（annotated tag） --------------------------
-  console.log(`\n[2/4] Creating annotated tag ${version} at ${targetSha.slice(0, 8)}...`);
+  console.log(`\n[2/4] Creating annotated tag ${version} at ${productionReleaseSha.slice(0, 8)}...`);
   execFileSync(
     'git',
-    ['tag', '-a', version, '-m', `Production release ${version}`, targetSha],
+    ['tag', '-a', version, '-m', `Production release ${version}`, productionReleaseSha],
     { cwd: REPO_ROOT, stdio: 'inherit' }
   );
   execFileSync('git', ['push', 'origin', version], { cwd: REPO_ROOT, stdio: 'inherit' });
 
-  // 検証: annotated tag が targetSha を指しているか
+  // 検証: annotated tag が productionReleaseSha を指しているか
   const tagCommitSha = git('rev-parse', [`${version}^{commit}`]);
-  if (tagCommitSha !== targetSha) {
-    throw new Error(`Tag verification failed. tag^{commit}=${tagCommitSha}, expected=${targetSha}`);
+  if (tagCommitSha !== productionReleaseSha) {
+    throw new Error(`Tag verification failed. tag^{commit}=${tagCommitSha}, expected=${productionReleaseSha}`);
   }
-  console.log(`Tag ${version} -> ${targetSha}`);
+  console.log(`Tag ${version} -> ${productionReleaseSha}`);
 
   // ---- 3. GitHub Release（stable）を作成 --------------------------------
   console.log(`\n[3/4] Creating GitHub Release ${version}...`);
@@ -387,7 +388,7 @@ function applyRelease(ctx) {
     'release', 'create', version,
     '--title', version,
     '--notes-file', releaseNotesPath,
-    '--target', targetSha,
+    '--target', productionReleaseSha,
   ]);
 
   // ---- 4. Production リリースブランチを削除（失敗は warning 扱い） -------
@@ -478,8 +479,8 @@ async function main() {
   console.log(`[context] production_release:  not exists (ok)`);
   console.log(`[context] rc_release:          exists (ok)`);
   console.log(`[context] release_notes_guard: ok  (has sections and PR entries)`);
-  console.log(`[context] production_branch:   production -> ${targetSha.slice(0, 8)}...`);
-  console.log(`[context] tag_to_create:       ${version}`);
+  console.log(`[context] production_branch:   production -> ${targetSha.slice(0, 8)}... + chore: release production ${version}`);
+  console.log(`[context] tag_to_create:       ${version}  (at new production release commit)`);
   console.log('');
 
   if (isDryRun) {
