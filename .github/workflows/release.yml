@@ -32,9 +32,10 @@ jobs:
         with:
           client-id: ${{ secrets.RELEASE_FLOW_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
-          repositories: ${{ env.repository }}
+          repositories: ${{ github.event.repository.name }}
           permission-contents: write
           permission-pull-requests: write
+          permission-issues: write
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
@@ -64,7 +65,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
-      pull-requests: write # Required to post comments on PRs
+      pull-requests: write
+      issues: write
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -78,8 +80,7 @@ jobs:
             fs.readFile('./CHANGELOG.md', 'utf8', async (err, changelog) => {
               if (err) { return core.setFailed(`Action failed with error ${err}`); };
 
-              changelog = changelog.split('\n\n\n')[0];
-              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, body: changelog, });
+              changelog = (changelog.match(/^## .+?(?=\n## |\n?$)/ms) || [''])[0].trim();
 
               let changes = 'ソースコード\n';
               changes += [ ...changelog.matchAll(/\*.+\n/g) ].map(match => `${match[0].slice(0, match[0].lastIndexOf(' ('))}`).filter((v1, index, array) => array.findIndex((v2) => v1 === v2) === index).sort().reverse().join('\n') + '\n';
@@ -103,3 +104,45 @@ jobs:
             });
         env:
           TZ: 'Asia/Tokyo'
+
+  release-staging:
+    if: >
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.base.ref, 'releases/stable/v') &&
+      startsWith(github.event.pull_request.head.ref, 'releases/stable/v') &&
+      endsWith(github.event.pull_request.head.ref, '-draft')
+    runs-on: ubuntu-slim
+    timeout-minutes: 15
+    concurrency:
+      group: release-staging
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ secrets.RELEASE_FLOW_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_FLOW_APP_PRIVATE_KEY }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-pull-requests: write
+          permission-issues: write
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: true
+      - name: Apply staging release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          node .github/scripts/release/apply-staging.mjs --apply
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}

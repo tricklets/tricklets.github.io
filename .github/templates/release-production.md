@@ -1,14 +1,24 @@
-<!-- templates-release-production -- #${REPLACE_DECISION} ${REPLACE_PRD_DATE} -- この行はリリース判定書コメント識別のためにあります。削除または他のコメントに使用しないでください -->
-## Producton Release ${REPLACE_VERSION}
-本プルリクエストは #${REPLACE_DECISION} にて、リリース承認された件の Producton Release です。
+<!-- release-production
+version=${REPLACE_VERSION}
+staging_version=${REPLACE_STAGING_VERSION}
+train_base=${REPLACE_TRAIN_BASE}
+deploy_base=${REPLACE_DEPLOY_BASE}
+target_sha=${REPLACE_TARGET_SHA}
+stable_pr=${REPLACE_STABLE_PR}
+-->
+## Production Release ${REPLACE_VERSION}
 
-**${REPLACE_PRD_DATE}** に、本プルリクエストを **`[Squash and merge]`** してください。  
-Production 環境へのデプロイは CI/CD により自動的に行われます。  
+本 PR は [Staging Release #${REPLACE_STABLE_PR}](../pull/${REPLACE_STABLE_PR}) にて承認されたリリースの Production 反映です。
 
-- - - -
-### #${REPLACE_DECISION} リリース判定書 (抜粋)
+**リリース予定日: ${REPLACE_PRD_DATE}**
 
-${REPLACE_PURPOSE}
+本プルリクエストをマージしてください。  
+後続の Production リリース処理は GitHub Actions により自動実行されます。  
+証跡管理のために承認者がマージを実行してください。
+
+---
+
+### Staging 判定書（抜粋）
 
 ${REPLACE_DETAILS}
 
