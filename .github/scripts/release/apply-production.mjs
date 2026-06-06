@@ -86,7 +86,7 @@ function gh(ghArgs) {
 // ---------------------------------------------------------------------------
 
 /**
- * @returns {{ pull_request: { number: number; base: { ref: string }; head: { ref: string; sha: string }; merged_commit_sha: string | null; body: string | null } }}
+ * @returns {{ pull_request: { number: number; base: { ref: string }; head: { ref: string; sha: string }; merge_commit_sha: string | null; body: string | null } }}
  */
 function readGitHubEvent() {
   const eventPath = process.env['GITHUB_EVENT_PATH'];
@@ -438,7 +438,7 @@ async function main() {
   const pullRequestNumber = pr.number;
   const baseRef = pr.base.ref;
   const headRef = pr.head.ref;
-  const mergedCommitSha = pr.merged_commit_sha;
+  const mergedCommitSha = pr.merge_commit_sha;
 
   if (!mergedCommitSha || !/^[0-9a-f]{40}$/.test(mergedCommitSha)) {
     throw new Error(`Invalid or missing merged_commit_sha: "${mergedCommitSha}"`);
