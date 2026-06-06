@@ -514,6 +514,9 @@ function applyRelease(ctx) {
     '--prerelease',
   ]);
 
+  // RELEASE_NOTES.md を asset としても添付
+  gh(['release', 'upload', version, releaseNotesPath, '--clobber']);
+
   // ---- 5. 古い Production Release PR をクローズ＋ブランチ削除 ---------
   // Stable Release（main / tag / stable / GitHub Release）完了後に実施。
   // 失敗した場合でも既存の Production 判定 PR が残るため戻り道が確保される。
