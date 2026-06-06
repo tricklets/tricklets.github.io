@@ -122,7 +122,7 @@ jobs:
             }
 
   auto-approve:
-    if: "github.event.action == 'labeled' && github.event.label.name == 'Review: Auto approve'"
+    if: "github.event.action == 'labeled' && github.event.label.name == 'Review: Auto Approve'"
     runs-on: ubuntu-slim
     timeout-minutes: 10
     permissions:
@@ -288,7 +288,7 @@ jobs:
                 issue_number: pr.number,
               });
 
-              if (!labels.some(l => l.name === 'Review: Auto approve')) {
+              if (!labels.some(l => l.name === 'Review: Auto Approve')) {
                 continue;
               }
 
@@ -297,7 +297,7 @@ jobs:
                   owner,
                   repo,
                   issue_number: pr.number,
-                  name: 'Review: Auto approve',
+                  name: 'Review: Auto Approve',
                 });
               } catch (err) {
                 if (err?.status !== 404) throw err;
