@@ -272,6 +272,13 @@ function assertReleaseNotExists(version) {
   if (result.status === 0) {
     throw new Error(`ERROR: GitHub Release already exists: ${version}`);
   }
+  // exit code != 0 でも、"release not found" 以外のエラー（認証失敗など）は検査エラーとして扱う
+  const stderr = (result.stderr ?? '').toLowerCase();
+  if (!stderr.includes('release not found') && !stderr.includes('not found')) {
+    throw new Error(
+      `Failed to check GitHub Release existence for ${version} (unexpected error):\n${result.stderr}`
+    );
+  }
 }
 
 /**
