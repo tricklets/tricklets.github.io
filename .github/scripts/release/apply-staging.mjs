@@ -364,8 +364,7 @@ function extractReleaseNotes() {
   const changelogPath = resolve(REPO_ROOT, 'CHANGELOG.md');
   if (!existsSync(changelogPath)) return '';
   const content = readFileSync(changelogPath, 'utf8').trim();
-  const match = /^## .+?(?=\n## |\n?$)/ms.exec(content);
-  return match ? match[0].trim() : content;
+  return content.split('\n## ')[0].trim();
 }
 
 // ---------------------------------------------------------------------------
