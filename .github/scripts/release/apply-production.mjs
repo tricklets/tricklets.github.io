@@ -269,23 +269,6 @@ function assertBaseBranchExists(version) {
 }
 
 /**
- * origin/production が targetSha の祖先であるか確認
- * @param {string} targetSha
- */
-function assertProductionIsAncestorOfTarget(targetSha) {
-  const result = spawnSync('git', ['merge-base', '--is-ancestor', 'origin/production', targetSha], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
-  });
-  if (result.status !== 0) {
-    throw new Error(
-      `origin/production is not an ancestor of ${targetSha}.\n` +
-      'The production branch has advanced beyond the target commit.'
-    );
-  }
-}
-
-/**
  * RC GitHub Release が存在し、ノートがチェックリストを含むか確認
  * @param {string} stagingVersion
  * @returns {string} RC Release の notes 本文
@@ -454,9 +437,6 @@ async function main() {
   assertBaseBranchExists(version);
   console.log(`  base_branch:        ok  (releases/production/${version} exists)`);
 
-  assertProductionIsAncestorOfTarget(targetSha);
-  console.log(`  production_ancestor: ok  (origin/production is ancestor of ${targetSha.slice(0, 8)}...)`);
-
   const releaseNotes = fetchAndValidateRcReleaseNotes(stagingVersion);
   console.log(`  rc_release:         ok  (notes validated)`);
 
@@ -474,7 +454,6 @@ async function main() {
   console.log(`[context] deploy_base:         ${deployBase}`);
   console.log(`[context] target_sha:          ${targetSha.slice(0, 8)}...`);
   console.log(`[context] rc_tag_check:        ok  (${stagingVersion} -> ${targetSha.slice(0, 8)}...)`);
-  console.log(`[context] production_ancestor: ok  (origin/production is ancestor of ${targetSha.slice(0, 8)}...)`);
   console.log(`[context] production_tag:      not exists (ok)`);
   console.log(`[context] production_release:  not exists (ok)`);
   console.log(`[context] rc_release:          exists (ok)`);
