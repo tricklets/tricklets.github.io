@@ -311,3 +311,4 @@ Actions
 | Consolidated Updates | Dependabot による依存モジュール更新  |
 | PR Label             | プルリクエストにラベルを設定         |
 | PR Review            | プルリクエストにメトリクスをコメント |
+.
