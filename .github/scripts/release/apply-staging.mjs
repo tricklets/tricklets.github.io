@@ -275,12 +275,12 @@ function assertReleaseNotExists(version) {
 }
 
 /**
- * releases/production/v* ブランチのみ削除を許可する安全ガード付き削除
+ * releases/production/v* または releases/stable/v* ブランチのみ削除を許可する安全ガード付き削除
  * @param {string} branch
  */
 function deleteRemoteBranch(branch) {
-  if (!/^releases\/production\/v/.test(branch)) {
-    throw new Error(`Refusing to delete non-production release branch: ${branch}`);
+  if (!/^releases\/(production|stable)\/v/.test(branch)) {
+    throw new Error(`Refusing to delete non-release branch: ${branch}`);
   }
   execFileSync('git', ['push', 'origin', '--delete', branch], { cwd: REPO_ROOT, stdio: 'inherit' });
 }
@@ -335,7 +335,22 @@ function extractDetails(decisionBody) {
  */
 function extractSchedule(decisionBody) {
   const match = /(### リリース・スケジュール[\s\S]*?)(?:\n\n----|\n\n### |\n*$)/u.exec(decisionBody);
-  return match ? match[1].trim() : '';
+  if (!match) return '';
+
+  // Production PR 向けに表の「本プルリクエスト」注記を Production 行へ移動する。
+  // - QAS 行:        「本プルリクエストのマージをもってリリース」を削除
+  // - Production 行: 末尾に「本プルリクエストのマージをもってリリース」を追加
+  const NOTE = '本プルリクエストのマージをもってリリース';
+  let schedule = match[1].trim();
+  schedule = schedule.replace(
+    /^(\|\s*QAS\s*\|[^|]+\|)\s*本プルリクエストのマージをもってリリース\s*(\|)/mu,
+    '$1 $2'
+  );
+  schedule = schedule.replace(
+    /^(\|\s*Production\s*\|[^|]+\|)\s*(\|)/mu,
+    `$1 ${NOTE} $2`
+  );
+  return schedule;
 }
 
 // ---------------------------------------------------------------------------
@@ -441,7 +456,7 @@ function applyRelease(ctx) {
   );
 
   // ---- 1. main に squash merge ----------------------------------------
-  console.log(`\n[1/7] Squash merging releases/stable/${version} into main...`);
+  console.log(`\n[1/8] Squash merging releases/stable/${version} into main...`);
   execFileSync('git', ['checkout', '-B', 'main', 'origin/main'], { cwd: REPO_ROOT, stdio: 'inherit' });
   execFileSync('git', ['merge', '--squash', `origin/releases/stable/${version}`], { cwd: REPO_ROOT, stdio: 'inherit' });
 
@@ -456,7 +471,7 @@ function applyRelease(ctx) {
   execFileSync('git', ['push', 'origin', 'main'], { cwd: REPO_ROOT, stdio: 'inherit' });
 
   // ---- 2. RC タグ作成（annotated tag） ---------------------------------
-  console.log(`\n[2/7] Creating annotated tag ${version}...`);
+  console.log(`\n[2/8] Creating annotated tag ${version}...`);
   const releaseSha = git('rev-parse', ['HEAD']);
 
   execFileSync('git', ['tag', '-a', version, '-m', `Staging release ${version}`, releaseSha], { cwd: REPO_ROOT, stdio: 'inherit' });
@@ -470,14 +485,24 @@ function applyRelease(ctx) {
   console.log(`Tag ${version} -> ${releaseSha}`);
 
   // ---- 3. stable を RC タグへ fast-forward -----------------------------
-  console.log(`\n[3/7] Fast-forwarding stable to ${version}...`);
+  console.log(`\n[3/8] Fast-forwarding stable to ${version}...`);
   execFileSync('git', ['checkout', '-B', 'stable', 'origin/stable'], { cwd: REPO_ROOT, stdio: 'inherit' });
   execFileSync('git', ['merge', '--ff-only', version], { cwd: REPO_ROOT, stdio: 'inherit' });
   execFileSync('git', ['push', 'origin', 'stable'], { cwd: REPO_ROOT, stdio: 'inherit' });
 
   // ---- 4. GitHub Release（prerelease）を作成 ---------------------------
-  console.log(`\n[4/7] Creating GitHub Release ${version}...`);
+  console.log(`\n[4/8] Creating GitHub Release ${version}...`);
   const releaseNotes = extractReleaseNotes();
+
+  const hasSection = /\n####\s+/.test(releaseNotes);
+  const hasPullRequestEntry = /\n\*\s+\[#\d+\]/.test(releaseNotes);
+  if (!hasSection || !hasPullRequestEntry) {
+    throw new Error(
+      `Release notes for ${version} do not contain changelog entries.\n` +
+      `Got:\n${releaseNotes}`
+    );
+  }
+
   const releaseNotesPath = resolve(REPO_ROOT, 'RELEASE_NOTES.md');
   writeFileSync(releaseNotesPath, releaseNotes);
 
@@ -492,7 +517,7 @@ function applyRelease(ctx) {
   // ---- 5. 古い Production Release PR をクローズ＋ブランチ削除 ---------
   // Stable Release（main / tag / stable / GitHub Release）完了後に実施。
   // 失敗した場合でも既存の Production 判定 PR が残るため戻り道が確保される。
-  console.log(`\n[5/7] Closing and deleting old Production Release PRs...`);
+  console.log(`\n[5/8] Closing and deleting old Production Release PRs...`);
   for (const pr of oldProductionPRs) {
     console.log(`  Closing PR #${pr.number} (${pr.headRefName})...`);
     gh(['pr', 'close', String(pr.number),
@@ -505,11 +530,11 @@ function applyRelease(ctx) {
   }
 
   // ---- 6. Production ブランチ存在チェック（旧削除後） ------------------
-  console.log(`\n[6/7] Checking Production branches don't exist...`);
+  console.log(`\n[6/8] Checking Production branches don't exist...`);
   checkNoBranchConflict(productionVersion);
 
   // ---- 7. Production Release PR を起票 ---------------------------------
-  console.log(`\n[7/7] Creating Production Release PR for ${productionVersion}...`);
+  console.log(`\n[7/8] Creating Production Release PR for ${productionVersion}...`);
 
   const baseBranch = `releases/production/${productionVersion}`;
   const draftBranch = `releases/production/${productionVersion}-draft`;
@@ -554,6 +579,23 @@ function applyRelease(ctx) {
   ]);
 
   console.log(`\nDone. Production Release PR for ${productionVersion} created.`);
+
+  // ---- 8. Stable リリースブランチを削除 --------------------------------
+  console.log(`\n[8/8] Deleting stable release branches...`);
+
+  // base ブランチ（releases/stable/${version}）は自動削除されないため明示的に削除
+  deleteRemoteBranch(`releases/stable/${version}`);
+
+  // draft ブランチ（releases/stable/${version}-draft）は GitHub のマージ時自動削除で
+  // 既に消えている場合がある。存在するときのみ削除する。
+  const draftStagingBranch = `releases/stable/${version}-draft`;
+  if (branchExists(draftStagingBranch)) {
+    deleteRemoteBranch(draftStagingBranch);
+  } else {
+    console.log(`  ${draftStagingBranch} already deleted (auto-deleted by GitHub on merge).`);
+  }
+
+  console.log('\nAll done.');
 }
 
 // ---------------------------------------------------------------------------

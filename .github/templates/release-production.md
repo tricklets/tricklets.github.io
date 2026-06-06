@@ -12,7 +12,7 @@ stable_pr=${REPLACE_STABLE_PR}
 
 **リリース予定日: ${REPLACE_PRD_DATE}**
 
-本プルリクエストをマージしてください。  
+リリースするには本プルリクエストをマージしてください。  
 後続の Production リリース処理は GitHub Actions により自動実行されます。  
 証跡管理のために承認者がマージを実行してください。
 
