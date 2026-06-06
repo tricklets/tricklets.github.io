@@ -1,3 +1,11 @@
+## v0.1.1-rc.2 (2026-06-06)
+
+#### 💉 Bug Fix
+* [#25](https://github.com/tricklets/tricklets.github.io/pull/25) wip ([@lulzneko](https://github.com/lulzneko))
+
+#### Committers: 1
+- [@lulzneko](https://github.com/lulzneko)
+
 ## v0.1.1-rc.1 (2026-06-06)
 
 #### 💉 Bug Fix
