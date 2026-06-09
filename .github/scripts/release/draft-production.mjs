@@ -491,11 +491,9 @@ const buildPRBody = (ctx,) => {
     '-->',
   ].join('\n',);
 
-  // Build change list for the decision template (matching the former comment job format)
-  const changeLines = prs.map((pr,) => `* [#${pr.number}](${pr.url}) ${pr.title}`,);
+  // Build change list for the decision template (source code section with only Compare link)
   const changeList = [
     'ソースコード',
-    ...changeLines,
     `* [Compare](../compare/production...${baseBranch}) production...${baseBranch}`,
   ].join('\n',);
 
