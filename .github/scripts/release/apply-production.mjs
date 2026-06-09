@@ -343,7 +343,7 @@ function applyRelease(ctx) {
   console.log(`\n[1/4] Creating production release commit on top of ${targetSha.slice(0, 8)}...`);
   execFileSync('git', ['checkout', '-B', 'production', targetSha], { cwd: REPO_ROOT, stdio: 'inherit' });
   execFileSync('git', ['commit', '--allow-empty', '-m', `chore: release production ${version}`], { cwd: REPO_ROOT, stdio: 'inherit' });
-  execFileSync('git', ['push', 'origin', 'production'], { cwd: REPO_ROOT, stdio: 'inherit' });
+  execFileSync('git', ['push', '--force-with-lease', 'origin', 'production'], { cwd: REPO_ROOT, stdio: 'inherit' });
   const productionReleaseSha = git('rev-parse', ['HEAD']);
 
   // ---- 2. production タグ作成（annotated tag） --------------------------
