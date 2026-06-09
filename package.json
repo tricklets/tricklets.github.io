@@ -7,7 +7,8 @@
   "scripts": {
     "setup": "pnpm install --frozen-lockfile",
     "clean": "rimraf node_modules/.cache dist && pnpm -r --if-present --parallel run clean",
-    "build": "mkdir -p dist/image && pnpm run -r --parallel --if-present build"
+    "build": "mkdir -p dist/image && pnpm run -r --parallel --if-present build",
+    "release:production": "gh workflow run release.yml --ref main"
   },
   "devDependencies": {
     "fixme": "0.7.0",
