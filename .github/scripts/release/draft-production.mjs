@@ -503,6 +503,7 @@ const buildPRBody = (ctx,) => {
   const templatePath = resolve(REPO_ROOT, '.github/templates/release-decision.md',);
   let decision = readFileSync(templatePath, 'utf8',);
   /* eslint-disable no-template-curly-in-string -- intentional literal placeholders in template file */
+  decision = decision.replace('${REPLACE_CHANGELOG}', changelog,);
   decision = decision.replace('${REPLACE_CHANGE_LIST}', changeList,);
   decision = decision.replace('${REPLACE_PRD_DATE}', resolveProductionDate(),);
   /* eslint-enable no-template-curly-in-string */
@@ -511,10 +512,6 @@ const buildPRBody = (ctx,) => {
     meta,
     '',
     decision.trimEnd(),
-    '',
-    '---',
-    '',
-    changelog,
   ].join('\n',);
 };
 
