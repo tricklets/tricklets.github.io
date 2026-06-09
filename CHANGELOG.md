@@ -1,3 +1,11 @@
+## v0.2.0 (2026-06-09)
+
+#### 🎉 New Feature
+* [#39](https://github.com/tricklets/tricklets.github.io/pull/39) x ([@lulzneko](https://github.com/lulzneko))
+
+#### Committers: 1
+- [@lulzneko](https://github.com/lulzneko)
+
 ## v0.1.2-rc.1 (2026-06-09)
 
 #### 📝 Documentation
