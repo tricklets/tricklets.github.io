@@ -431,7 +431,7 @@ const applyRelease = (ctx,) => {
   execFileSync('git', [ 'push', 'origin', draftBranch, ], { cwd: REPO_ROOT, stdio: 'inherit', },);
 
   // Build PR body
-  const prBody = buildPRBody({ trainBase, deployBase, targetSha, version, prs, changelog, },);
+  const prBody = buildPRBody({ trainBase, deployBase, targetSha, version, baseBranch, prs, changelog, },);
 
   // Create PR
   console.log('Creating production release PR...',);
@@ -456,19 +456,31 @@ const applyRelease = (ctx,) => {
 };
 
 /**
+ * Calculates the next Thursday date string
+ * @returns {string}  e.g. "2026-06-12 (木)"
+ */
+const resolveProductionDate = () => {
+  const day = [ '日', '月', '火', '水', '木', '金', '土', ];
+  const date = new Date();
+  date.setDate(date.getDate() + (4 - date.getDay() + 7) % 7,);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1,).padStart(2, '0',)}-${String(date.getDate(),).padStart(2, '0',)} (${day[date.getDay()]})`;
+};
+
+/**
  * Builds the PR body
  * @param {{
  *   trainBase: string;
  *   deployBase: string;
  *   targetSha: string;
  *   version: string;
+ *   baseBranch: string;
  *   prs: Array<{ number: number; title: string; url: string; labels: string[] }>;
  *   changelog: string;
  * }} ctx
  * @returns {string}
  */
 const buildPRBody = (ctx,) => {
-  const { trainBase, deployBase, targetSha, version, prs, changelog, } = ctx;
+  const { trainBase, deployBase, targetSha, version, baseBranch, prs, changelog, } = ctx;
 
   const meta = [
     '<!-- release-production',
@@ -479,19 +491,26 @@ const buildPRBody = (ctx,) => {
     '-->',
   ].join('\n',);
 
-  const changeList = prs.
-    map((pr,) => {
-      const typeLabels = pr.labels.filter((label,) => label.startsWith('Type:',),).join('` `',);
-      return `* [#${pr.number}](${pr.url}) ${pr.title} \`${typeLabels || 'unlabeled'}\``;
-    },).
-    join('\n',);
+  // Build change list for the decision template (matching the former comment job format)
+  const changeLines = prs.map((pr,) => `* [#${pr.number}](${pr.url}) ${pr.title}`,);
+  const changeList = [
+    'ソースコード',
+    ...changeLines,
+    `* [Compare](../compare/production...${baseBranch}) production...${baseBranch}`,
+  ].join('\n',);
+
+  // Load and fill the release decision template
+  const templatePath = resolve(REPO_ROOT, '.github/templates/release-decision.md',);
+  let decision = readFileSync(templatePath, 'utf8',);
+  /* eslint-disable no-template-curly-in-string -- intentional literal placeholders in template file */
+  decision = decision.replace('${REPLACE_CHANGE_LIST}', changeList,);
+  decision = decision.replace('${REPLACE_PRD_DATE}', resolveProductionDate(),);
+  /* eslint-enable no-template-curly-in-string */
 
   return [
     meta,
     '',
-    '## Changes',
-    '',
-    changeList,
+    decision.trimEnd(),
     '',
     '---',
     '',
