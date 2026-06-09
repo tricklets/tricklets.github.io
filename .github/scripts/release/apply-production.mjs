@@ -19,7 +19,7 @@
  *   7. Delete Production release branches (failures treated as warnings)
  */
 import { execFileSync, spawnSync, } from 'node:child_process';
-import { readFileSync, writeFileSync, } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, } from 'node:fs';
 import { resolve, dirname, } from 'node:path';
 import { fileURLToPath, } from 'node:url';
 
@@ -99,7 +99,7 @@ const readGitHubEvent = () => {
 
 /**
  * @param {string | null} body
- * @returns {{ version: string; stagingVersion: string; trainBase: string; deployBase: string; targetSha: string; stablePr: number }}
+ * @returns {{ version: string; trainBase: string; deployBase: string; targetSha: string }}
  */
 const parseReleaseProductionMeta = (body,) => {
   if (!body) { throw new Error('PR body is empty. Cannot parse release-production metadata.',); }
@@ -107,7 +107,7 @@ const parseReleaseProductionMeta = (body,) => {
   const match = (/<!-- release-production\n(?<content>[\s\S]+?)\n-->/mu).exec(body,);
   if (!match) { throw new Error('No <!-- release-production --> block found in PR body.',); }
 
-  const required = [ 'version', 'staging_version', 'train_base', 'deploy_base', 'target_sha', 'stable_pr', ];
+  const required = [ 'version', 'train_base', 'deploy_base', 'target_sha', ];
 
   /** @type {Record<string, string>} */
   const meta = {};
@@ -125,18 +125,11 @@ const parseReleaseProductionMeta = (body,) => {
     if (!Object.hasOwn(meta, key,) || !meta[key]) { throw new Error(`Missing required metadata field: ${key}`,); }
   }
 
-  const stablePrNum = Number(meta['stable_pr'],);
-  if (!Number.isInteger(stablePrNum,) || stablePrNum <= 0) {
-    throw new Error(`Invalid stable_pr: "${meta['stable_pr']}". Expected positive integer.`,);
-  }
-
   return {
     version: /** @type {string} */ (meta['version']),
-    stagingVersion: /** @type {string} */ (meta['staging_version']),
     trainBase: /** @type {string} */ (meta['train_base']),
     deployBase: /** @type {string} */ (meta['deploy_base']),
     targetSha: /** @type {string} */ (meta['target_sha']),
-    stablePr: stablePrNum,
   };
 };
 
@@ -147,20 +140,16 @@ const parseReleaseProductionMeta = (body,) => {
 /**
  * @param {{
  *   version: string;
- *   stagingVersion: string;
  *   targetSha: string;
  *   baseRef: string;
  *   headRef: string;
  * }} ctx
  */
 const validateMetadata = (ctx,) => {
-  const { version, stagingVersion, targetSha, baseRef, headRef, } = ctx;
+  const { version, targetSha, baseRef, headRef, } = ctx;
 
   if (!(/^v\d+\.\d+\.\d+$/u).test(version,)) {
     throw new Error(`Invalid version format: "${version}". Expected vX.Y.Z`,);
-  }
-  if (!(/^v\d+\.\d+\.\d+-rc\.\d+$/u).test(stagingVersion,)) {
-    throw new Error(`Invalid staging_version format: "${stagingVersion}". Expected vX.Y.Z-rc.N`,);
   }
   if (!(/^[0-9a-f]{40}$/u).test(targetSha,)) {
     throw new Error(`Invalid target_sha: "${targetSha}". Expected 40-character hex SHA`,);
@@ -222,27 +211,6 @@ const branchExists = (branch,) => {
 };
 
 /**
- * Verify that RC tag exists and points to the specified SHA
- * @param {string} stagingVersion
- * @param {string} targetSha
- */
-const assertRcTagPointsToTargetSha = (stagingVersion, targetSha,) => {
-  const result = spawnSync('git', [ 'rev-parse', '-q', '--verify', `refs/tags/${stagingVersion}`, ], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
-  },);
-  if (result.status !== 0) {
-    throw new Error(`RC tag not found: ${stagingVersion}`,);
-  }
-  const rcTagCommitSha = git('rev-parse', [ `${stagingVersion}^{commit}`, ],);
-  if (rcTagCommitSha !== targetSha) {
-    throw new Error(`RC tag ${stagingVersion} does not point to targetSha.\n` +
-      `  tag^{commit}: ${rcTagCommitSha}\n` +
-      `  targetSha:    ${targetSha}`,);
-  }
-};
-
-/**
  * Verify that the targetSha commit exists
  * @param {string} targetSha
  */
@@ -266,34 +234,19 @@ const assertBaseBranchExists = (version,) => {
   }
 };
 
+// ---------------------------------------------------------------------------
+// Release notes extraction from CHANGELOG.md
+// ---------------------------------------------------------------------------
+
 /**
- * Verify that RC GitHub Release exists and its notes contain a checklist
- * @param {string} stagingVersion
- * @returns {string} RC Release notes body
+ * Extract the first section from CHANGELOG.md for use as release notes
+ * @returns {string}
  */
-const fetchAndValidateRcReleaseNotes = (stagingVersion,) => {
-  const result = spawnSync(
-    'gh',
-    [ 'release', 'view', stagingVersion, '--json', 'body', '--jq', '.body', ],
-    { cwd: REPO_ROOT, encoding: 'utf8', env: { ...process.env, }, },
-  );
-  if (result.status !== 0) {
-    throw new Error(`RC GitHub Release not found: ${stagingVersion}\n${result.stderr}`,);
-  }
-
-  const releaseNotes = result.stdout.trim();
-  if (!releaseNotes || releaseNotes === 'null') {
-    throw new Error(`RC GitHub Release body is empty: ${stagingVersion}`,);
-  }
-
-  const hasSection = (/\n####\s+/u).test(releaseNotes,);
-  const hasPullRequestEntry = (/\n\*\s+\[#\d+\]/u).test(releaseNotes,);
-  if (!hasSection || !hasPullRequestEntry) {
-    throw new Error(`Release notes for ${stagingVersion} do not contain changelog entries.\n` +
-      `Got:\n${releaseNotes}`,);
-  }
-
-  return releaseNotes;
+const extractReleaseNotes = () => {
+  const changelogPath = resolve(REPO_ROOT, 'CHANGELOG.md',);
+  if (!existsSync(changelogPath,)) { return ''; }
+  const content = readFileSync(changelogPath, 'utf8',).trim();
+  return content.split('\n## ',)[0].trim();
 };
 
 // ---------------------------------------------------------------------------
@@ -400,16 +353,15 @@ const main = async () => {
   const event = readGitHubEvent();
   const pr = event.pull_request;
 
-  const pullRequestNumber = pr.number;
   const baseRef = pr.base.ref;
   const headRef = pr.head.ref;
 
   // Parse metadata from PR body
   const meta = parseReleaseProductionMeta(pr.body,);
-  const { version, stagingVersion, trainBase, deployBase, targetSha, stablePr, } = meta;
+  const { version, trainBase, deployBase, targetSha, } = meta;
 
   // Validate metadata
-  validateMetadata({ version, stagingVersion, targetSha, baseRef, headRef, },);
+  validateMetadata({ version, targetSha, baseRef, headRef, },);
 
   // Fetch refs and tags
   console.log('Fetching latest refs and tags...',);
@@ -429,17 +381,19 @@ const main = async () => {
   assertReleaseNotExists(version,);
   console.log('  production release: not exists (ok)',);
 
-  assertRcTagPointsToTargetSha(stagingVersion, targetSha,);
-  console.log(`  rc_tag_check:       ok  (${stagingVersion} -> ${targetSha.slice(0, 8,)}...)`,);
-
   assertTargetShaExists(targetSha,);
   console.log('  target_sha:         ok  (commit exists)',);
 
   assertBaseBranchExists(version,);
   console.log(`  base_branch:        ok  (releases/production/${version} exists)`,);
 
-  const releaseNotes = fetchAndValidateRcReleaseNotes(stagingVersion,);
-  console.log('  rc_release:         ok  (notes validated)',);
+  const releaseNotes = extractReleaseNotes();
+  const hasSection = (/\n####\s+/u).test(releaseNotes,);
+  const hasPullRequestEntry = (/\n\*\s+\[#\d+\]/u).test(releaseNotes,);
+  if (!hasSection || !hasPullRequestEntry) {
+    throw new Error(`Release notes for ${version} do not contain changelog entries.\nGot:\n${releaseNotes}`,);
+  }
+  console.log('  release_notes:      ok  (notes validated)',);
 
   // Optional check: verify head branch existence
   const headExists = branchExists(headRef,);
@@ -447,20 +401,15 @@ const main = async () => {
 
   // Dry-run output
   console.log('',);
-  console.log(`[context] pull_request_number: #${pullRequestNumber}`,);
-  console.log(`[context] stable_pr:           #${stablePr}`,);
-  console.log(`[context] version:             ${version}`,);
-  console.log(`[context] staging_version:     ${stagingVersion}`,);
-  console.log(`[context] train_base:          ${trainBase}`,);
-  console.log(`[context] deploy_base:         ${deployBase}`,);
-  console.log(`[context] target_sha:          ${targetSha.slice(0, 8,)}...`,);
-  console.log(`[context] rc_tag_check:        ok  (${stagingVersion} -> ${targetSha.slice(0, 8,)}...)`,);
-  console.log('[context] production_tag:      not exists (ok)',);
-  console.log('[context] production_release:  not exists (ok)',);
-  console.log('[context] rc_release:          exists (ok)',);
-  console.log('[context] release_notes_guard: ok  (has sections and PR entries)',);
-  console.log(`[context] production_branch:   production -> ${targetSha.slice(0, 8,)}... + chore: release production ${version}`,);
-  console.log(`[context] tag_to_create:       ${version}  (at new production release commit)`,);
+  console.log(`[context] version:        ${version}`,);
+  console.log(`[context] train_base:     ${trainBase}`,);
+  console.log(`[context] deploy_base:    ${deployBase}`,);
+  console.log(`[context] target_sha:     ${targetSha.slice(0, 8,)}...`,);
+  console.log('[context] production_tag: not exists (ok)',);
+  console.log('[context] prod_release:   not exists (ok)',);
+  console.log('[context] release_notes:  ok  (has sections and PR entries)',);
+  console.log(`[context] prod_branch:    production -> ${targetSha.slice(0, 8,)}... + chore: release production ${version}`,);
+  console.log(`[context] tag_to_create:  ${version}  (at new production release commit)`,);
   console.log('',);
 
   if (isDryRun) {

@@ -1,10 +1,10 @@
 // @ts-check
 /**
- * Staging Release PR creation script
+ * Production Release PR creation script
  *
  * Usage:
- *   node .github/scripts/release/draft-staging.mjs --dry-run   # Preview only (no changes)
- *   node .github/scripts/release/draft-staging.mjs --apply     # Actually create the PR
+ *   node .github/scripts/release/draft-production.mjs --dry-run   # Preview only (no changes)
+ *   node .github/scripts/release/draft-production.mjs --apply     # Actually create the PR
  */
 import { execFileSync, spawnSync, } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync, } from 'node:fs';
@@ -20,7 +20,7 @@ const isDryRun = args.includes('--dry-run',);
 const isApply = args.includes('--apply',);
 
 if (!isDryRun && !isApply) {
-  console.error('Usage: node draft-staging.mjs --dry-run | --apply',);
+  console.error('Usage: node draft-production.mjs --dry-run | --apply',);
   process.exit(1,);
 }
 
@@ -267,26 +267,6 @@ const resolveBumpLevel = (prs,) => {
   return 'patch';
 };
 
-/**
- * Determines the next RC version
- * @param {string} productionVersion  e.g. "v0.3.0"
- * @returns {string}  e.g. "v0.3.0-rc.1" or "v0.3.0-rc.3"
- */
-const resolveNextRcVersion = (productionVersion,) => {
-  const raw = git('tag', [ '--list', `${productionVersion}-rc.*`, ],).split('\n',).filter(Boolean,);
-  if (raw.length === 0) { return `${productionVersion}-rc.1`; }
-
-  const nums = raw.
-    map((tag,) => {
-      const matched = (/-rc\.(?<num>\d+)$/u).exec(tag,);
-      return matched?.groups ? Number(matched.groups['num'],) : 0;
-    },).
-    filter((num,) => 0 < num,);
-
-  const maxN = Math.max(...nums,);
-  return `${productionVersion}-rc.${maxN + 1}`;
-};
-
 // ---------------------------------------------------------------------------
 // Branch existence check
 // ---------------------------------------------------------------------------
@@ -304,11 +284,11 @@ const branchExists = (branch,) => {
 };
 
 /**
- * @param {string} stagingVersion  e.g. "v0.3.0-rc.1"
+ * @param {string} version  e.g. "v0.3.0"
  */
-const checkNoBranchConflict = (stagingVersion,) => {
-  const base = `releases/stable/${stagingVersion}`;
-  const draft = `releases/stable/${stagingVersion}-draft`;
+const checkNoBranchConflict = (version,) => {
+  const base = `releases/production/${version}`;
+  const draft = `releases/production/${version}-draft`;
 
   for (const branch of [ base, draft, ]) {
     if (branchExists(branch,)) {
@@ -330,12 +310,12 @@ const LABEL_ORDER = Object.keys(LABEL_MAP,);
 
 /**
  * @param {Array<{ number: number; title: string; url: string; labels: string[]; author: string; authorUrl: string }>} prs
- * @param {string} stagingVersion
+ * @param {string} version
  * @returns {string}
  */
-const generateChangelog = (prs, stagingVersion,) => {
+const generateChangelog = (prs, version,) => {
   const today = new Date().toISOString().slice(0, 10,);
-  const lines = [ `## ${stagingVersion} (${today})`, '', ];
+  const lines = [ `## ${version} (${today})`, '', ];
 
   /** @type {Map<string, Array<{ number: number; title: string; url: string; author: string; authorUrl: string }>>} */
   const sections = new Map();
@@ -394,7 +374,7 @@ const generateChangelog = (prs, stagingVersion,) => {
 // ---------------------------------------------------------------------------
 
 /**
- * @param {string} version  e.g. "0.3.0-rc.1" (without "v" prefix)
+ * @param {string} version  e.g. "0.3.0" (without "v" prefix)
  */
 const updatePackageJsonVersion = (version,) => {
   const path = resolve(REPO_ROOT, 'package.json',);
@@ -413,17 +393,16 @@ const updatePackageJsonVersion = (version,) => {
  *   trainBase: string;
  *   deployBase: string;
  *   targetSha: string;
- *   productionVersion: string;
- *   stagingVersion: string;
+ *   version: string;
  *   prs: Array<{ number: number; title: string; url: string; labels: string[]; author: string; authorUrl: string }>;
  *   changelog: string;
  * }} ctx
  */
 const applyRelease = (ctx,) => {
-  const { trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, } = ctx;
+  const { trainBase, deployBase, targetSha, version, prs, changelog, } = ctx;
   const actor = process.env['GITHUB_ACTOR'] ?? '';
-  const baseBranch = `releases/stable/${stagingVersion}`;
-  const draftBranch = `releases/stable/${stagingVersion}-draft`;
+  const baseBranch = `releases/production/${version}`;
+  const draftBranch = `releases/production/${version}-draft`;
 
   // Create base branch
   console.log(`Creating base branch: ${baseBranch}`,);
@@ -440,22 +419,22 @@ const applyRelease = (ctx,) => {
   writeFileSync(changelogPath, changelog + (existing ? `\n${existing}` : ''),);
 
   // Update package.json version (strip "v" prefix)
-  updatePackageJsonVersion(stagingVersion.replace(/^v/u, '',),);
+  updatePackageJsonVersion(version.replace(/^v/u, '',),);
 
   // Commit
   execFileSync('git', [ 'add', 'package.json', 'CHANGELOG.md', ], { cwd: REPO_ROOT, stdio: 'inherit', },);
   execFileSync(
     'git',
-    [ 'commit', '-m', `chore: release staging ${stagingVersion}`, ],
+    [ 'commit', '-m', `chore: release production ${version}`, ],
     { cwd: REPO_ROOT, stdio: 'inherit', },
   );
   execFileSync('git', [ 'push', 'origin', draftBranch, ], { cwd: REPO_ROOT, stdio: 'inherit', },);
 
   // Build PR body
-  const prBody = buildPRBody({ trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, },);
+  const prBody = buildPRBody({ trainBase, deployBase, targetSha, version, prs, changelog, },);
 
   // Create PR
-  console.log('Creating staging release PR...',);
+  console.log('Creating production release PR...',);
   const ghArgs = [
     'pr',
     'create',
@@ -464,7 +443,7 @@ const applyRelease = (ctx,) => {
     '--head',
     draftBranch,
     '--title',
-    `chore: release staging ${stagingVersion}`,
+    `chore: release production ${version}`,
     '--label',
     'Type: Release',
     '--body',
@@ -482,20 +461,18 @@ const applyRelease = (ctx,) => {
  *   trainBase: string;
  *   deployBase: string;
  *   targetSha: string;
- *   productionVersion: string;
- *   stagingVersion: string;
+ *   version: string;
  *   prs: Array<{ number: number; title: string; url: string; labels: string[] }>;
  *   changelog: string;
  * }} ctx
  * @returns {string}
  */
 const buildPRBody = (ctx,) => {
-  const { trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, } = ctx;
+  const { trainBase, deployBase, targetSha, version, prs, changelog, } = ctx;
 
   const meta = [
-    '<!-- release-staging',
-    `version=${stagingVersion}`,
-    `production_version=${productionVersion}`,
+    '<!-- release-production',
+    `version=${version}`,
     `train_base=${trainBase}`,
     `deploy_base=${deployBase}`,
     `target_sha=${targetSha}`,
@@ -551,23 +528,21 @@ const main = async () => {
   const bumpLevel = resolveBumpLevel(prs,);
   const trainParsed = parseNormalVersion(trainBase,);
   if (!trainParsed) { throw new Error(`Cannot parse trainBase as version: ${trainBase}`,); }
-  const productionVersion = bumpVersion(trainParsed, bumpLevel,);
-  const stagingVersion = resolveNextRcVersion(productionVersion,);
+  const version = bumpVersion(trainParsed, bumpLevel,);
 
   // Branch conflict check (after context is finalized)
-  checkNoBranchConflict(stagingVersion,);
+  checkNoBranchConflict(version,);
 
   // Generate CHANGELOG
-  const changelog = generateChangelog(prs, stagingVersion,);
+  const changelog = generateChangelog(prs, version,);
 
   // Dry-run output
   console.log('',);
-  console.log(`[context] train_base:         ${trainBase}`,);
-  console.log(`[context] deploy_base:        ${deployBase}`,);
-  console.log(`[context] target_sha:         ${targetSha.slice(0, 8,)}...  (full SHA used in PR body)`,);
-  console.log(`[context] production_version: ${productionVersion}`,);
-  console.log(`[context] staging_version:    ${stagingVersion}`,);
-  console.log(`[context] bump_level:         ${bumpLevel}`,);
+  console.log(`[context] train_base:   ${trainBase}`,);
+  console.log(`[context] deploy_base:  ${deployBase}`,);
+  console.log(`[context] target_sha:   ${targetSha.slice(0, 8,)}...  (full SHA used in PR body)`,);
+  console.log(`[context] version:      ${version}`,);
+  console.log(`[context] bump_level:   ${bumpLevel}`,);
   console.log('',);
   console.log(`[context] Changes (${prs.length} PRs):`,);
   for (const pr of prs) {
@@ -584,8 +559,8 @@ const main = async () => {
   }
 
   // --apply: actually create the PR
-  applyRelease({ trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, },);
-  console.log(`\nDone. Staging release PR for ${stagingVersion} created.`,);
+  applyRelease({ trainBase, deployBase, targetSha, version, prs, changelog, },);
+  console.log(`\nDone. Production release PR for ${version} created.`,);
 };
 
 main().catch((err,) => {
