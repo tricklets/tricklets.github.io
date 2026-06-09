@@ -23,9 +23,9 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 10
     permissions:
-      contents: write
-      pull-requests: write
-      issues: write
+      contents: write        # Required to create and push the release branch
+      pull-requests: write   # Required to create the staging release pull request
+      issues: write          # Required to post comments on pull requests
     steps:
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
@@ -64,9 +64,9 @@ jobs:
     runs-on: ubuntu-slim
     timeout-minutes: 10
     permissions:
-      contents: read
-      pull-requests: write
-      issues: write
+      contents: read         # Required to read CHANGELOG and template files
+      pull-requests: write   # Required to post comments on pull requests
+      issues: write          # Required to post comments on pull requests
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -118,9 +118,9 @@ jobs:
       group: release-staging
       cancel-in-progress: false
     permissions:
-      contents: write
-      pull-requests: write
-      issues: write
+      contents: write        # Required to create and push the staging release branch
+      pull-requests: write   # Required to create and update the release pull request
+      issues: write          # Required to post comments on pull requests
     steps:
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
@@ -160,9 +160,9 @@ jobs:
       group: release-production
       cancel-in-progress: false
     permissions:
-      contents: write
-      pull-requests: write
-      issues: write
+      contents: write        # Required to create and push the production release branch
+      pull-requests: write   # Required to create and update the release pull request
+      issues: write          # Required to post comments on pull requests
     steps:
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token

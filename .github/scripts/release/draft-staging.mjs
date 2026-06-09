@@ -1,220 +1,216 @@
-#!/usr/bin/env node
 // @ts-check
 /**
- * Staging Release PR 起票スクリプト
+ * Staging Release PR creation script
  *
  * Usage:
- *   node .github/scripts/release/draft-staging.mjs --dry-run   # 確認用（変更なし）
- *   node .github/scripts/release/draft-staging.mjs --apply     # 実際に起票
+ *   node .github/scripts/release/draft-staging.mjs --dry-run   # Preview only (no changes)
+ *   node .github/scripts/release/draft-staging.mjs --apply     # Actually create the PR
  */
-
-import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { execFileSync, spawnSync, } from 'node:child_process';
+import { readFileSync, writeFileSync, existsSync, } from 'node:fs';
+import { resolve, dirname, } from 'node:path';
+import { fileURLToPath, } from 'node:url';
 
 // ---------------------------------------------------------------------------
-// CLI フラグ
+// CLI flags
 // ---------------------------------------------------------------------------
 
-const args = process.argv.slice(2);
-const isDryRun = args.includes('--dry-run');
-const isApply = args.includes('--apply');
+const args = process.argv.slice(2,);
+const isDryRun = args.includes('--dry-run',);
+const isApply = args.includes('--apply',);
 
 if (!isDryRun && !isApply) {
-  console.error('Usage: node draft-staging.mjs --dry-run | --apply');
-  process.exit(1);
+  console.error('Usage: node draft-staging.mjs --dry-run | --apply',);
+  process.exit(1,);
 }
 
 // ---------------------------------------------------------------------------
-// ユーティリティ
+// Utilities
 // ---------------------------------------------------------------------------
 
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url,),), '../../..',);
 
 /**
  * @param {string} cmd
- * @param {string[]} args
+ * @param {string[]} cmdArgs
  * @param {{ cwd?: string }} [opts]
  * @returns {string}
  */
-function git(cmd, args, opts = {}) {
-  const result = spawnSync('git', [cmd, ...args], {
+const git = (cmd, cmdArgs, opts = {},) => {
+  const result = spawnSync('git', [ cmd, ...cmdArgs, ], {
     cwd: opts.cwd ?? REPO_ROOT,
     encoding: 'utf8',
-  });
+  },);
   if (result.status !== 0) {
-    throw new Error(`git ${cmd} failed:\n${result.stderr}`);
+    throw new Error(`git ${cmd} failed:\n${result.stderr}`,);
   }
   return result.stdout.trim();
-}
+};
 
 /**
  * @param {string[]} ghArgs
  * @returns {unknown}
  */
-function ghApi(ghArgs) {
-  const result = spawnSync('gh', ['api', ...ghArgs], {
+const ghApi = (ghArgs,) => {
+  const result = spawnSync('gh', [ 'api', ...ghArgs, ], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
-    env: { ...process.env },
-  });
+    env: { ...process.env, },
+  },);
   if (result.status !== 0) {
-    throw new Error(`gh api ${ghArgs.join(' ')} failed:\n${result.stderr}`);
+    throw new Error(`gh api ${ghArgs.join(' ',)} failed:\n${result.stderr}`,);
   }
-  return JSON.parse(result.stdout);
-}
+  return JSON.parse(result.stdout,);
+};
 
 /**
  * @param {string[]} ghArgs
  * @returns {void}
  */
-function gh(ghArgs) {
+const gh = (ghArgs,) => {
   const result = spawnSync('gh', ghArgs, {
     cwd: REPO_ROOT,
     encoding: 'utf8',
-    env: { ...process.env },
-    stdio: ['ignore', 'inherit', 'inherit'],
-  });
+    env: { ...process.env, },
+    stdio: [ 'ignore', 'inherit', 'inherit', ],
+  },);
   if (result.status !== 0) {
-    throw new Error(`gh ${ghArgs.join(' ')} failed`);
+    throw new Error(`gh ${ghArgs.join(' ',)} failed`,);
   }
-}
+};
 
 // ---------------------------------------------------------------------------
-// バージョン比較（version tuple 方式）
-// 文字列比較では v0.2.9 > v0.10.0 になるため数値タプルで比較
+// Version comparison (version tuple approach)
+// String comparison would give v0.2.9 > v0.10.0, so numeric tuples are used
 // ---------------------------------------------------------------------------
 
 /**
  * @param {string} tag
  * @returns {{ tag: string; major: number; minor: number; patch: number } | null}
  */
-function parseNormalVersion(tag) {
-  const match = /^v(\d+)\.(\d+)\.(\d+)$/.exec(tag);
-  if (!match) return null;
+const parseNormalVersion = (tag,) => {
+  const match = (/^v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$/u).exec(tag,);
+  if (!match?.groups) { return null; }
   return {
     tag,
-    major: Number(match[1]),
-    minor: Number(match[2]),
-    patch: Number(match[3]),
+    major: Number(match.groups['major'],),
+    minor: Number(match.groups['minor'],),
+    patch: Number(match.groups['patch'],),
   };
-}
+};
 
 /**
- * @param {{ major: number; minor: number; patch: number }} a
- * @param {{ major: number; minor: number; patch: number }} b
+ * @param {{ major: number; minor: number; patch: number }} lhs
+ * @param {{ major: number; minor: number; patch: number }} rhs
  * @returns {number}
  */
-function compareVersion(a, b) {
-  return a.major - b.major || a.minor - b.minor || a.patch - b.patch;
-}
+const compareVersion = (lhs, rhs,) => lhs.major - rhs.major || lhs.minor - rhs.minor || lhs.patch - rhs.patch;
 
 /**
- * @param {{ major: number; minor: number; patch: number }} v
+ * @param {{ major: number; minor: number; patch: number }} ver
  * @param {'major' | 'minor' | 'patch'} level
  * @returns {string}
  */
-function bumpVersion(v, level) {
-  if (level === 'major') return `v${v.major + 1}.0.0`;
-  if (level === 'minor') return `v${v.major}.${v.minor + 1}.0`;
-  return `v${v.major}.${v.minor}.${v.patch + 1}`;
-}
+const bumpVersion = (ver, level,) => {
+  if (level === 'major') { return `v${ver.major + 1}.0.0`; }
+  if (level === 'minor') { return `v${ver.major}.${ver.minor + 1}.0`; }
+  return `v${ver.major}.${ver.minor}.${ver.patch + 1}`;
+};
 
 // ---------------------------------------------------------------------------
-// タグ分類
+// Tag classification
 // ---------------------------------------------------------------------------
 
 /** @param {string} tag */
-const isNormalTag = (tag) => /^v\d+\.\d+\.\d+$/.test(tag);
-/** @param {string} tag */
-const isHotfixTag = (tag) => /^v\d+\.\d+\.\d+_\d+$/.test(tag);
+const isHotfixTag = (tag,) => (/^v\d+\.\d+\.\d+_\d+$/u).test(tag,);
 
 // ---------------------------------------------------------------------------
-// ReleaseContext の構築
+// ReleaseContext construction
 // ---------------------------------------------------------------------------
 
 /**
- * trainBase: production 到達済みの最新通常タグ
+ * TrainBase: latest normal tag that has reached production
  * @returns {string}
  */
-function resolveTrainBase() {
-  const raw = git('tag', ['--merged', 'origin/production', '--list', 'v*']);
-  const tags = raw.split('\n').filter(Boolean);
-  const parsed = tags.map(parseNormalVersion).filter((v) => v !== null);
+const resolveTrainBase = () => {
+  const raw = git('tag', [ '--merged', 'origin/production', '--list', 'v*', ],);
+  const tags = raw.split('\n',).filter(Boolean,);
+  const parsed = tags.map(parseNormalVersion,).filter((ver,) => ver !== null,);
   if (parsed.length === 0) {
-    throw new Error('No normal version tag found in origin/production. Cannot determine trainBase.');
+    throw new Error('No normal version tag found in origin/production. Cannot determine trainBase.',);
   }
-  parsed.sort(compareVersion);
+  parsed.sort(compareVersion,);
   return parsed[parsed.length - 1].tag;
-}
+};
 
 /**
- * deployBase: production ブランチ HEAD のタグ、なければ SHA
- * Hotfix タグが複数ある場合は末尾数値が最大のものを選ぶ
+ * DeployBase: tag at production branch HEAD, or SHA if none exists
+ * When multiple hotfix tags exist, the one with the highest trailing number is selected
  * @returns {string}
  */
-function resolveDeployBase() {
+const resolveDeployBase = () => {
   try {
-    const tags = git('tag', ['--points-at', 'origin/production']).split('\n').filter(Boolean);
-    // Hotfix タグを優先（複数ある場合は末尾数値が最大のものを選ぶ）
-    const hotfixTags = tags.filter(isHotfixTag);
-    if (hotfixTags.length > 0) {
-      hotfixTags.sort((a, b) => {
-        const na = parseInt(/(\d+)$/.exec(a)?.[1] ?? '0', 10);
-        const nb = parseInt(/(\d+)$/.exec(b)?.[1] ?? '0', 10);
+    const tags = git('tag', [ '--points-at', 'origin/production', ],).split('\n',).filter(Boolean,);
+    // Prefer hotfix tags (when multiple exist, pick the one with the highest trailing number)
+    const hotfixTags = tags.filter(isHotfixTag,);
+    if (0 < hotfixTags.length) {
+      hotfixTags.sort((lhs, rhs,) => {
+        const na = parseInt((/(?<n>\d+)$/u).exec(lhs,)?.groups?.['n'] ?? '0', 10,);
+        const nb = parseInt((/(?<n>\d+)$/u).exec(rhs,)?.groups?.['n'] ?? '0', 10,);
         return na - nb;
-      });
+      },);
       return hotfixTags[hotfixTags.length - 1];
     }
-    const normal = tags.find(isNormalTag);
-    if (normal) return normal;
-    // RC は deployBase にしない
+    const normalTags = tags.map(parseNormalVersion,).filter((ver,) => ver !== null,);
+    if (0 < normalTags.length) {
+      normalTags.sort(compareVersion,);
+      return normalTags[normalTags.length - 1].tag;
+    }
+    // RC tags should not be used as deployBase
   } catch {
-    // タグが取れなかった場合は SHA にフォールバック
+    // Fall back to SHA if tag retrieval fails
   }
-  return git('rev-parse', ['origin/production']);
-}
+  return git('rev-parse', [ 'origin/production', ],);
+};
 
 /**
- * targetSha: origin/main HEAD（フル SHA）
+ * TargetSha: origin/main HEAD (full SHA)
  * @returns {string}
  */
-function resolveTargetSha() {
-  return git('rev-parse', ['origin/main']);
-}
+const resolveTargetSha = () => git('rev-parse', [ 'origin/main', ],);
 
 // ---------------------------------------------------------------------------
-// PR 収集
+// PR collection
 // ---------------------------------------------------------------------------
 
 const REPO = process.env['GITHUB_REPOSITORY'];
 
 /**
- * trainBase..targetSha 間のコミットに紐づく PR を収集する
- * - Type: Release は除外
- * - dedup 済み
+ * Collects PRs associated with commits between trainBase and targetSha
+ * - Excludes PRs with label "Type: Release"
+ * - Deduplication applied
  * @param {string} trainBase
  * @param {string} targetSha
  * @returns {Array<{ number: number; title: string; url: string; labels: string[]; author: string; authorUrl: string }>}
  */
-function collectPRs(trainBase, targetSha) {
-  if (!REPO) throw new Error('GITHUB_REPOSITORY environment variable is not set.');
+const collectPRs = (trainBase, targetSha,) => {
+  if (!REPO) { throw new Error('GITHUB_REPOSITORY environment variable is not set.',); }
 
-  const shas = git('log', [`${trainBase}..${targetSha}`, '--format=%H']).split('\n').filter(Boolean);
+  const shas = git('log', [ `${trainBase}..${targetSha}`, '--format=%H', ],).split('\n',).filter(Boolean,);
 
   /** @type {Map<number, { number: number; title: string; url: string; labels: string[]; author: string; authorUrl: string }>} */
   const prMap = new Map();
 
   for (const sha of shas) {
+
     /** @type {Array<{ number: number; title: string; html_url: string; labels: Array<{ name: string }>; user: { login: string; html_url: string } }>} */
-    const prs = /** @type {any} */ (ghApi([`/repos/${REPO}/commits/${sha}/pulls`, '-H', 'Accept: application/vnd.github+json']));
-    if (!Array.isArray(prs)) continue;
+    const prs = /** @type {any} */ (ghApi([ `/repos/${REPO}/commits/${sha}/pulls`, '-H', 'Accept: application/vnd.github+json', ],));
+    if (!Array.isArray(prs,)) { continue; }
 
     for (const pr of prs) {
-      if (prMap.has(pr.number)) continue;
-      const labels = pr.labels.map((/** @type {{ name: string }} */ l) => l.name);
-      if (labels.includes('Type: Release')) continue;
+      if (prMap.has(pr.number,)) { continue; }
+      const labels = pr.labels.map((/** @type {{ name: string }} */ item,) => item.name,);
+      if (labels.includes('Type: Release',)) { continue; }
       prMap.set(pr.number, {
         number: pr.number,
         title: pr.title,
@@ -222,197 +218,194 @@ function collectPRs(trainBase, targetSha) {
         labels,
         author: pr.user.login,
         authorUrl: pr.user.html_url,
-      });
+      },);
     }
   }
 
-  return Array.from(prMap.values()).sort((a, b) => a.number - b.number);
-}
+  return Array.from(prMap.values(),).sort((lhs, rhs,) => lhs.number - rhs.number,);
+};
 
 // ---------------------------------------------------------------------------
-// バリデーション
+// Validation
 // ---------------------------------------------------------------------------
 
 /**
  * @param {Array<{ number: number; title: string; labels: string[] }>} prs
  * @param {string} trainBase
  */
-function validatePRs(prs, trainBase) {
+const validatePRs = (prs, trainBase,) => {
   if (prs.length === 0) {
-    console.error(`ERROR: No releasable pull requests found between ${trainBase} and origin/main.`);
-    process.exit(1);
+    console.error(`ERROR: No releasable pull requests found between ${trainBase} and origin/main.`,);
+    process.exit(1,);
   }
 
-  const unlabeled = prs.filter((pr) => !pr.labels.some((l) => l.startsWith('Type:')));
-  if (unlabeled.length > 0) {
-    console.error('ERROR: The following PRs have no Type:* label. Add a label before running release.');
+  const unlabeled = prs.filter((pr,) => !pr.labels.some((label,) => label.startsWith('Type:',),),);
+  if (0 < unlabeled.length) {
+    console.error('ERROR: The following PRs have no Type:* label. Add a label before running release.',);
     for (const pr of unlabeled) {
-      console.error(`  #${pr.number} ${pr.title}`);
+      console.error(`  #${pr.number} ${pr.title}`,);
     }
-    process.exit(1);
+    process.exit(1,);
   }
-}
+};
 
 // ---------------------------------------------------------------------------
-// バージョン計算
+// Version calculation
 // ---------------------------------------------------------------------------
 
 /**
- * PR ラベルから bump レベルを決定する
+ * Determines the bump level from PR labels
  * @param {Array<{ labels: string[] }>} prs
  * @returns {'major' | 'minor' | 'patch'}
  */
-function resolveBumpLevel(prs) {
-  const allLabels = prs.flatMap((pr) => pr.labels);
-  if (allLabels.includes('Type: Breaking')) return 'major';
+const resolveBumpLevel = (prs,) => {
+  const allLabels = prs.flatMap((pr,) => pr.labels,);
+  if (allLabels.includes('Type: Breaking',)) { return 'major'; }
   if (
-    allLabels.some((l) =>
-      ['Type: Feature', 'Type: Enhancement', 'Type: Security'].includes(l)
-    )
-  )
-    return 'minor';
+    allLabels.some((label,) => [ 'Type: Feature', 'Type: Enhancement', 'Type: Security', ].includes(label,),)
+  ) { return 'minor'; }
   return 'patch';
-}
+};
 
 /**
- * 次の RC バージョンを決定する
- * @param {string} productionVersion  例: "v0.3.0"
- * @returns {string}  例: "v0.3.0-rc.1" or "v0.3.0-rc.3"
+ * Determines the next RC version
+ * @param {string} productionVersion  e.g. "v0.3.0"
+ * @returns {string}  e.g. "v0.3.0-rc.1" or "v0.3.0-rc.3"
  */
-function resolveNextRcVersion(productionVersion) {
-  const raw = git('tag', ['--list', `${productionVersion}-rc.*`]).split('\n').filter(Boolean);
-  if (raw.length === 0) return `${productionVersion}-rc.1`;
+const resolveNextRcVersion = (productionVersion,) => {
+  const raw = git('tag', [ '--list', `${productionVersion}-rc.*`, ],).split('\n',).filter(Boolean,);
+  if (raw.length === 0) { return `${productionVersion}-rc.1`; }
 
-  const nums = raw
-    .map((t) => {
-      const m = /-rc\.(\d+)$/.exec(t);
-      return m ? Number(m[1]) : 0;
-    })
-    .filter((n) => n > 0);
+  const nums = raw.
+    map((tag,) => {
+      const matched = (/-rc\.(?<num>\d+)$/u).exec(tag,);
+      return matched?.groups ? Number(matched.groups['num'],) : 0;
+    },).
+    filter((num,) => 0 < num,);
 
-  const maxN = Math.max(...nums);
+  const maxN = Math.max(...nums,);
   return `${productionVersion}-rc.${maxN + 1}`;
-}
+};
 
 // ---------------------------------------------------------------------------
-// ブランチ存在チェック
+// Branch existence check
 // ---------------------------------------------------------------------------
 
 /**
  * @param {string} branch
  * @returns {boolean}
  */
-function branchExists(branch) {
-  const result = spawnSync('git', ['ls-remote', '--heads', 'origin', branch], {
+const branchExists = (branch,) => {
+  const result = spawnSync('git', [ 'ls-remote', '--heads', 'origin', branch, ], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
-  });
-  return result.status === 0 && result.stdout.trim().length > 0;
-}
+  },);
+  return result.status === 0 && 0 < result.stdout.trim().length;
+};
 
 /**
- * @param {string} stagingVersion  例: "v0.3.0-rc.1"
+ * @param {string} stagingVersion  e.g. "v0.3.0-rc.1"
  */
-function checkNoBranchConflict(stagingVersion) {
+const checkNoBranchConflict = (stagingVersion,) => {
   const base = `releases/stable/${stagingVersion}`;
   const draft = `releases/stable/${stagingVersion}-draft`;
 
-  for (const branch of [base, draft]) {
-    if (branchExists(branch)) {
-      console.error(`ERROR: Branch already exists: ${branch}`);
-      console.error('Re-run is not safe. Delete the branch and retry.');
-      process.exit(1);
+  for (const branch of [ base, draft, ]) {
+    if (branchExists(branch,)) {
+      console.error(`ERROR: Branch already exists: ${branch}`,);
+      console.error('Re-run is not safe. Delete the branch and retry.',);
+      process.exit(1,);
     }
   }
-}
+};
 
 // ---------------------------------------------------------------------------
-// CHANGELOG 生成
+// CHANGELOG generation
 // ---------------------------------------------------------------------------
 
 /** @type {{ changelog: { labels: Record<string, string> } }} */
-const packageJson = JSON.parse(readFileSync(resolve(REPO_ROOT, 'package.json'), 'utf8'));
+const packageJson = JSON.parse(readFileSync(resolve(REPO_ROOT, 'package.json',), 'utf8',),);
 const LABEL_MAP = packageJson.changelog.labels;
-const LABEL_ORDER = Object.keys(LABEL_MAP);
+const LABEL_ORDER = Object.keys(LABEL_MAP,);
 
 /**
  * @param {Array<{ number: number; title: string; url: string; labels: string[]; author: string; authorUrl: string }>} prs
  * @param {string} stagingVersion
  * @returns {string}
  */
-function generateChangelog(prs, stagingVersion) {
-  const today = new Date().toISOString().slice(0, 10);
-  const lines = [`## ${stagingVersion} (${today})`, ''];
+const generateChangelog = (prs, stagingVersion,) => {
+  const today = new Date().toISOString().slice(0, 10,);
+  const lines = [ `## ${stagingVersion} (${today})`, '', ];
 
   /** @type {Map<string, Array<{ number: number; title: string; url: string; author: string; authorUrl: string }>>} */
   const sections = new Map();
 
   for (const pr of prs) {
-    // 定義済み Type:* ラベルを全て展開してセクションに登録する
-    const matchedLabels = LABEL_ORDER.filter((l) => pr.labels.includes(l));
+    // Expand all defined Type:* labels and register entries into sections
+    const matchedLabels = LABEL_ORDER.filter((label,) => pr.labels.includes(label,),);
     if (matchedLabels.length === 0) {
-      // 定義外 Type:* のみを持つ PR は Other Changes へ
-      if (!sections.has('_other')) sections.set('_other', []);
-      sections.get('_other')?.push(pr);
+      // PRs with only undefined Type:* labels go into Other Changes
+      if (!sections.has('_other',)) { sections.set('_other', [],); }
+      sections.get('_other',)?.push(pr,);
     } else {
       for (const label of matchedLabels) {
-        if (!sections.has(label)) sections.set(label, []);
-        sections.get(label)?.push(pr);
+        if (!sections.has(label,)) { sections.set(label, [],); }
+        sections.get(label,)?.push(pr,);
       }
     }
   }
 
-  // 定義順で出力
+  // Output in definition order
   for (const label of LABEL_ORDER) {
-    const entries = sections.get(label);
-    if (!entries || entries.length === 0) continue;
-    const heading = LABEL_MAP[label];
-    lines.push(`#### ${heading}`);
+    const entries = sections.get(label,);
+    if (!entries || entries.length === 0) { continue; }
+    const heading = LABEL_MAP[label]; // eslint-disable-line security/detect-object-injection -- label is validated against LABEL_ORDER
+    lines.push(`#### ${heading}`,);
     for (const pr of entries) {
-      lines.push(`* [#${pr.number}](${pr.url}) ${pr.title} ([@${pr.author}](${pr.authorUrl}))`);
+      lines.push(`* [#${pr.number}](${pr.url}) ${pr.title} ([@${pr.author}](${pr.authorUrl}))`,);
     }
-    lines.push('');
+    lines.push('',);
   }
 
-  // 定義外ラベルの PR
-  const otherEntries = sections.get('_other');
-  if (otherEntries && otherEntries.length > 0) {
-    lines.push('#### Other Changes');
+  // PRs with undefined labels
+  const otherEntries = sections.get('_other',);
+  if (otherEntries && 0 < otherEntries.length) {
+    lines.push('#### Other Changes',);
     for (const pr of otherEntries) {
-      lines.push(`* [#${pr.number}](${pr.url}) ${pr.title} ([@${pr.author}](${pr.authorUrl}))`);
+      lines.push(`* [#${pr.number}](${pr.url}) ${pr.title} ([@${pr.author}](${pr.authorUrl}))`,);
     }
-    lines.push('');
+    lines.push('',);
   }
 
   // Committers
-  const committers = [...new Set(prs.map((pr) => pr.author))].sort();
-  lines.push(`#### Committers: ${committers.length}`);
+  const committers = [ ...new Set(prs.map((pr,) => pr.author,),), ].sort();
+  lines.push(`#### Committers: ${committers.length}`,);
   for (const committer of committers) {
-    const authorUrl = prs.find((pr) => pr.author === committer)?.authorUrl ?? '';
-    lines.push(`- [@${committer}](${authorUrl})`);
+    const authorUrl = prs.find((pr,) => pr.author === committer,)?.authorUrl ?? '';
+    lines.push(`- [@${committer}](${authorUrl})`,);
   }
-  lines.push('');
+  lines.push('',);
 
-  return lines.join('\n');
-}
+  return lines.join('\n',);
+};
 
 // ---------------------------------------------------------------------------
-// package.json version 更新
+// Package.json version update
 // ---------------------------------------------------------------------------
 
 /**
- * @param {string} version  例: "0.3.0-rc.1"（"v" なし）
+ * @param {string} version  e.g. "0.3.0-rc.1" (without "v" prefix)
  */
-function updatePackageJsonVersion(version) {
-  const path = resolve(REPO_ROOT, 'package.json');
-  const pkg = JSON.parse(readFileSync(path, 'utf8'));
+const updatePackageJsonVersion = (version,) => {
+  const path = resolve(REPO_ROOT, 'package.json',);
+  const pkg = JSON.parse(readFileSync(path, 'utf8',),);
   pkg.version = version;
-  // JSON.stringify は末尾改行を入れないため手動で追加
-  writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
-}
+  // JSON.stringify does not append a trailing newline, so it is added manually
+  writeFileSync(path, `${JSON.stringify(pkg, null, 2,)}\n`,);
+};
 
 // ---------------------------------------------------------------------------
-// ブランチ作成・コミット・PR 起票
+// Branch creation, commit, and PR creation
 // ---------------------------------------------------------------------------
 
 /**
@@ -426,59 +419,65 @@ function updatePackageJsonVersion(version) {
  *   changelog: string;
  * }} ctx
  */
-function applyRelease(ctx) {
-  const { trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog } = ctx;
+const applyRelease = (ctx,) => {
+  const { trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, } = ctx;
   const actor = process.env['GITHUB_ACTOR'] ?? '';
   const baseBranch = `releases/stable/${stagingVersion}`;
   const draftBranch = `releases/stable/${stagingVersion}-draft`;
 
-  // ベースブランチ作成
-  console.log(`Creating base branch: ${baseBranch}`);
-  execFileSync('git', ['checkout', '-b', baseBranch, 'origin/main'], { cwd: REPO_ROOT, stdio: 'inherit' });
-  execFileSync('git', ['push', 'origin', baseBranch], { cwd: REPO_ROOT, stdio: 'inherit' });
+  // Create base branch
+  console.log(`Creating base branch: ${baseBranch}`,);
+  execFileSync('git', [ 'checkout', '-b', baseBranch, 'origin/main', ], { cwd: REPO_ROOT, stdio: 'inherit', },);
+  execFileSync('git', [ 'push', 'origin', baseBranch, ], { cwd: REPO_ROOT, stdio: 'inherit', },);
 
-  // ドラフトブランチ作成
-  console.log(`Creating draft branch: ${draftBranch}`);
-  execFileSync('git', ['checkout', '-b', draftBranch], { cwd: REPO_ROOT, stdio: 'inherit' });
+  // Create draft branch
+  console.log(`Creating draft branch: ${draftBranch}`,);
+  execFileSync('git', [ 'checkout', '-b', draftBranch, ], { cwd: REPO_ROOT, stdio: 'inherit', },);
 
-  // CHANGELOG.md 更新（先頭にプリペンド）
-  const changelogPath = resolve(REPO_ROOT, 'CHANGELOG.md');
-  const existing = existsSync(changelogPath) ? readFileSync(changelogPath, 'utf8') : '';
-  writeFileSync(changelogPath, changelog + (existing ? '\n' + existing : ''));
+  // Update CHANGELOG.md (prepend to top)
+  const changelogPath = resolve(REPO_ROOT, 'CHANGELOG.md',);
+  const existing = existsSync(changelogPath,) ? readFileSync(changelogPath, 'utf8',) : '';
+  writeFileSync(changelogPath, changelog + (existing ? `\n${existing}` : ''),);
 
-  // package.json version 更新（"v" プレフィックスを除いた値）
-  updatePackageJsonVersion(stagingVersion.replace(/^v/, ''));
+  // Update package.json version (strip "v" prefix)
+  updatePackageJsonVersion(stagingVersion.replace(/^v/u, '',),);
 
-  // コミット
-  execFileSync('git', ['add', 'package.json', 'CHANGELOG.md'], { cwd: REPO_ROOT, stdio: 'inherit' });
+  // Commit
+  execFileSync('git', [ 'add', 'package.json', 'CHANGELOG.md', ], { cwd: REPO_ROOT, stdio: 'inherit', },);
   execFileSync(
     'git',
-    ['commit', '-m', `chore: release staging ${stagingVersion}`],
-    { cwd: REPO_ROOT, stdio: 'inherit' }
+    [ 'commit', '-m', `chore: release staging ${stagingVersion}`, ],
+    { cwd: REPO_ROOT, stdio: 'inherit', },
   );
-  execFileSync('git', ['push', 'origin', draftBranch], { cwd: REPO_ROOT, stdio: 'inherit' });
+  execFileSync('git', [ 'push', 'origin', draftBranch, ], { cwd: REPO_ROOT, stdio: 'inherit', },);
 
-  // PR 本文
-  const prBody = buildPRBody({ trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog });
+  // Build PR body
+  const prBody = buildPRBody({ trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, },);
 
-  // PR 作成
-  console.log('Creating staging release PR...');
+  // Create PR
+  console.log('Creating staging release PR...',);
   const ghArgs = [
-    'pr', 'create',
-    '--base', baseBranch,
-    '--head', draftBranch,
-    '--title', `chore: release staging ${stagingVersion}`,
-    '--label', 'Type: Release',
-    '--body', prBody,
+    'pr',
+    'create',
+    '--base',
+    baseBranch,
+    '--head',
+    draftBranch,
+    '--title',
+    `chore: release staging ${stagingVersion}`,
+    '--label',
+    'Type: Release',
+    '--body',
+    prBody,
   ];
-  if (actor && actor.length > 0 && actor.length < 100) {
-    ghArgs.push('--assignee', actor);
+  if (actor && 0 < actor.length && actor.length < 100) {
+    ghArgs.push('--assignee', actor,);
   }
-  gh(ghArgs);
-}
+  gh(ghArgs,);
+};
 
 /**
- * PR 本文を生成する
+ * Builds the PR body
  * @param {{
  *   trainBase: string;
  *   deployBase: string;
@@ -490,8 +489,8 @@ function applyRelease(ctx) {
  * }} ctx
  * @returns {string}
  */
-function buildPRBody(ctx) {
-  const { trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog } = ctx;
+const buildPRBody = (ctx,) => {
+  const { trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, } = ctx;
 
   const meta = [
     '<!-- release-staging',
@@ -501,14 +500,14 @@ function buildPRBody(ctx) {
     `deploy_base=${deployBase}`,
     `target_sha=${targetSha}`,
     '-->',
-  ].join('\n');
+  ].join('\n',);
 
-  const changeList = prs
-    .map((pr) => {
-      const typeLabels = pr.labels.filter((l) => l.startsWith('Type:')).join('` `');
+  const changeList = prs.
+    map((pr,) => {
+      const typeLabels = pr.labels.filter((label,) => label.startsWith('Type:',),).join('` `',);
       return `* [#${pr.number}](${pr.url}) ${pr.title} \`${typeLabels || 'unlabeled'}\``;
-    })
-    .join('\n');
+    },).
+    join('\n',);
 
   return [
     meta,
@@ -520,76 +519,76 @@ function buildPRBody(ctx) {
     '---',
     '',
     changelog,
-  ].join('\n');
-}
+  ].join('\n',);
+};
 
 // ---------------------------------------------------------------------------
-// メイン
+// Main
 // ---------------------------------------------------------------------------
 
-async function main() {
-  console.log('Fetching latest refs and tags...');
+const main = async () => {
+  console.log('Fetching latest refs and tags...',);
   git('fetch', [
     'origin',
     '+refs/heads/main:refs/remotes/origin/main',
     '+refs/heads/production:refs/remotes/origin/production',
     '+refs/tags/*:refs/tags/*',
-  ]);
+  ],);
 
-  // コンテキスト解決
+  // Resolve context
   const trainBase = resolveTrainBase();
   const deployBase = resolveDeployBase();
-  const targetSha = resolveTargetSha(); // フル SHA
+  const targetSha = resolveTargetSha(); // Full SHA
 
-  // PR 収集
-  console.log(`Collecting PRs: ${trainBase}..${targetSha.slice(0, 8)}...`);
-  const prs = collectPRs(trainBase, targetSha);
+  // Collect PRs
+  console.log(`Collecting PRs: ${trainBase}..${targetSha.slice(0, 8,)}...`,);
+  const prs = collectPRs(trainBase, targetSha,);
 
-  // バリデーション（0 件チェック → ラベルチェック）
-  validatePRs(prs, trainBase);
+  // Validation (empty check -> label check)
+  validatePRs(prs, trainBase,);
 
-  // バージョン計算
-  const bumpLevel = resolveBumpLevel(prs);
-  const trainParsed = parseNormalVersion(trainBase);
-  if (!trainParsed) throw new Error(`Cannot parse trainBase as version: ${trainBase}`);
-  const productionVersion = bumpVersion(trainParsed, bumpLevel);
-  const stagingVersion = resolveNextRcVersion(productionVersion);
+  // Calculate version
+  const bumpLevel = resolveBumpLevel(prs,);
+  const trainParsed = parseNormalVersion(trainBase,);
+  if (!trainParsed) { throw new Error(`Cannot parse trainBase as version: ${trainBase}`,); }
+  const productionVersion = bumpVersion(trainParsed, bumpLevel,);
+  const stagingVersion = resolveNextRcVersion(productionVersion,);
 
-  // ブランチ衝突チェック（コンテキスト確定後に行う）
-  checkNoBranchConflict(stagingVersion);
+  // Branch conflict check (after context is finalized)
+  checkNoBranchConflict(stagingVersion,);
 
-  // CHANGELOG 生成
-  const changelog = generateChangelog(prs, stagingVersion);
+  // Generate CHANGELOG
+  const changelog = generateChangelog(prs, stagingVersion,);
 
-  // dry-run 表示
-  console.log('');
-  console.log(`[context] train_base:         ${trainBase}`);
-  console.log(`[context] deploy_base:        ${deployBase}`);
-  console.log(`[context] target_sha:         ${targetSha.slice(0, 8)}...  (full SHA used in PR body)`);
-  console.log(`[context] production_version: ${productionVersion}`);
-  console.log(`[context] staging_version:    ${stagingVersion}`);
-  console.log(`[context] bump_level:         ${bumpLevel}`);
-  console.log('');
-  console.log(`[context] Changes (${prs.length} PRs):`);
+  // Dry-run output
+  console.log('',);
+  console.log(`[context] train_base:         ${trainBase}`,);
+  console.log(`[context] deploy_base:        ${deployBase}`,);
+  console.log(`[context] target_sha:         ${targetSha.slice(0, 8,)}...  (full SHA used in PR body)`,);
+  console.log(`[context] production_version: ${productionVersion}`,);
+  console.log(`[context] staging_version:    ${stagingVersion}`,);
+  console.log(`[context] bump_level:         ${bumpLevel}`,);
+  console.log('',);
+  console.log(`[context] Changes (${prs.length} PRs):`,);
   for (const pr of prs) {
-    const typeLabels = pr.labels.filter((l) => l.startsWith('Type:')).join(', ') || 'unlabeled';
-    console.log(`  #${pr.number} [${typeLabels}]  ${pr.title}`);
+    const typeLabels = pr.labels.filter((label,) => label.startsWith('Type:',),).join(', ',) || 'unlabeled';
+    console.log(`  #${pr.number} [${typeLabels}]  ${pr.title}`,);
   }
-  console.log('');
+  console.log('',);
 
   if (isDryRun) {
-    console.log('[dry-run] CHANGELOG preview:');
-    console.log(changelog);
-    console.log('[dry-run] No branches/commits/PRs created.');
+    console.log('[dry-run] CHANGELOG preview:',);
+    console.log(changelog,);
+    console.log('[dry-run] No branches/commits/PRs created.',);
     return;
   }
 
-  // --apply: 実際に起票
-  applyRelease({ trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog });
-  console.log(`\nDone. Staging release PR for ${stagingVersion} created.`);
-}
+  // --apply: actually create the PR
+  applyRelease({ trainBase, deployBase, targetSha, productionVersion, stagingVersion, prs, changelog, },);
+  console.log(`\nDone. Staging release PR for ${stagingVersion} created.`,);
+};
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.message : String(err));
-  process.exit(1);
-});
+main().catch((err,) => {
+  console.error(err instanceof Error ? err.message : String(err,),);
+  process.exit(1,);
+},);
