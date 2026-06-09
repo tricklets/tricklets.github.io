@@ -502,8 +502,15 @@ const buildPRBody = (ctx,) => {
   // Load and fill the release decision template
   const templatePath = resolve(REPO_ROOT, '.github/templates/release-decision.md',);
   let decision = readFileSync(templatePath, 'utf8',);
+
+  // Split changelog: first line is "## vX.Y.Z (date)", rest is the body
+  const changelogLines = changelog.split('\n',);
+  const changelogTitle = changelogLines[0].replace(/^##\s*/u, '',).trim();
+  const changelogBody = changelogLines.slice(1,).join('\n',).trimStart();
+
   /* eslint-disable no-template-curly-in-string -- intentional literal placeholders in template file */
-  decision = decision.replace('${REPLACE_CHANGELOG}', changelog,);
+  decision = decision.replace('${REPLACE_VERSION}', changelogTitle,);
+  decision = decision.replace('${REPLACE_CHANGELOG}', changelogBody,);
   decision = decision.replace('${REPLACE_CHANGE_LIST}', changeList,);
   decision = decision.replace('${REPLACE_PRD_DATE}', resolveProductionDate(),);
   /* eslint-enable no-template-curly-in-string */
