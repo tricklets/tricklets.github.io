@@ -2,11 +2,6 @@
 
 ### 詳細
 ${REPLACE_CHANGELOG}
-
-
-### 対象範囲
-<!-- リリースに関連するソースコードの変更範囲、API や非同期処理などを列挙します -->
-
 ${REPLACE_CHANGE_LIST}
 
 
